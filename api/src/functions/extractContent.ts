@@ -5,7 +5,7 @@ import {
   InvocationContext,
 } from '@azure/functions';
 import { Readability } from '@mozilla/readability';
-import { JSDOM } from 'jsdom';
+import { JSDOM, VirtualConsole } from 'jsdom';
 import { Article } from '../models/article';
 
 // URLからメインコンテンツを抽出するAPI
@@ -17,6 +17,9 @@ export const extractContent = app.http('extractContent', {
     request: HttpRequest,
     context: InvocationContext
   ): Promise<HttpResponseInit> => {
+    // JSDOMインスタンスをtryブロックの外で宣言し、finallyでアクセスできるようにする
+    let doc: JSDOM | null = null;
+
     try {
       // リクエストボディからURLを取得
       const requestBody = (await request.json()) as { url?: string };
@@ -47,20 +50,22 @@ export const extractContent = app.http('extractContent', {
 
       const html = await response.text();
 
+      // JSDOMからの不要な出力を抑制するためのVirtualConsole
+      const virtualConsole = new VirtualConsole();
+
       // JSDOMのメモリ使用量を減らすオプション
       const jsdomOptions = {
         url,
         // TypeScriptの型に合わせてリソース設定
         runScripts: 'outside-only' as const,
         pretendToBeVisual: false,
-        virtualConsole: undefined,
+        virtualConsole, // JSDOMからの不要な出力を抑制するために追加
       };
 
       // JSDOMを使ってHTMLをDOMオブジェクトに変換
-      const doc = new JSDOM(html, jsdomOptions);
+      doc = new JSDOM(html, jsdomOptions);
 
       // Readabilityインスタンスを作成して記事コンテンツを抽出
-      // charThreshold: 500はReadabilityのデフォルト値。特定の理由がある場合を除き省略可能
       const reader = new Readability(doc.window.document, {
         keepClasses: false,
       });
@@ -68,9 +73,6 @@ export const extractContent = app.http('extractContent', {
       const article = reader.parse();
 
       if (!article) {
-        // 不要なDOMリソースを解放
-        doc.window.close();
-
         return {
           status: 404,
           jsonBody: { error: 'コンテンツを抽出できませんでした' },
@@ -97,9 +99,6 @@ export const extractContent = app.http('extractContent', {
           if (publishedTime) break;
         }
       }
-
-      // 不要なDOMリソースを解放
-      doc.window.close();
 
       // 抽出結果をTypedに変換
       const typedArticle: Article = {
@@ -130,6 +129,12 @@ export const extractContent = app.http('extractContent', {
           message: error instanceof Error ? error.message : String(error),
         },
       };
+    } finally {
+      // JSDOMインスタンスが作成されていれば、ここで確実に解放する
+      if (doc) {
+        doc.window.close();
+        context.log('JSDOM window closed.'); // 確認用ログ
+      }
     }
   },
 });
