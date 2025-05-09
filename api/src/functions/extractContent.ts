@@ -60,35 +60,59 @@ export const extractContent = app.http('extractContent', {
       const doc = new JSDOM(html, jsdomOptions);
 
       // Readabilityインスタンスを作成して記事コンテンツを抽出
+      // charThreshold: 500はReadabilityのデフォルト値。特定の理由がある場合を除き省略可能
       const reader = new Readability(doc.window.document, {
         keepClasses: false,
-        charThreshold: 500,
       });
 
       const article = reader.parse();
 
-      // 不要なDOMリソースを解放
-      doc.window.close();
-
       if (!article) {
+        // 不要なDOMリソースを解放
+        doc.window.close();
+
         return {
           status: 404,
           jsonBody: { error: 'コンテンツを抽出できませんでした' },
         };
       }
 
+      // HTMLからlang属性を抽出
+      const lang = doc.window.document.documentElement.lang || null;
+
+      // メタデータからpublishedTimeを抽出
+      let publishedTime: string | null = null;
+      const metaTags = doc.window.document.querySelectorAll('meta');
+      for (const meta of metaTags) {
+        // 一般的な日付メタタグを確認
+        const property = meta.getAttribute('property');
+        const name = meta.getAttribute('name');
+        if (
+          property === 'article:published_time' ||
+          property === 'og:published_time' ||
+          name === 'publishedDate' ||
+          name === 'date'
+        ) {
+          publishedTime = meta.getAttribute('content');
+          if (publishedTime) break;
+        }
+      }
+
+      // 不要なDOMリソースを解放
+      doc.window.close();
+
       // 抽出結果をTypedに変換
       const typedArticle: Article = {
-        title: article.title,
+        title: article.title || null,
         content: article.content || '',
-        textContent: article.textContent,
+        textContent: article.textContent || null,
         length: article.length || 0,
-        excerpt: article.excerpt,
-        byline: article.byline,
-        dir: article.dir,
-        lang: article.lang,
-        siteName: article.siteName,
-        publishedTime: article.publishedTime,
+        excerpt: article.excerpt || null,
+        byline: article.byline || null,
+        dir: article.dir || null,
+        lang: lang,
+        siteName: article.siteName || null,
+        publishedTime: publishedTime,
       };
 
       // 成功レスポンスを返す

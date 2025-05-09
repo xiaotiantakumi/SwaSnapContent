@@ -103,6 +103,14 @@ cd api && npm run build
 
 GitHub Actions によって自動的にビルドとデプロイが行われます。
 
+### 本番環境での CORS 設定
+
+本番環境では、セキュリティのために以下の点に注意してください：
+
+- `api/template.local.settings.json` の CORS 設定は開発環境用です
+- 本番環境では Azure Static Web Apps の構成で、特定のドメインのみを許可するように CORS を設定してください
+- 詳細は [Azure Static Web Apps のドキュメント](https://learn.microsoft.com/ja-jp/azure/static-web-apps/configuration) を参照してください
+
 ## 使い方
 
 1. 入力欄に URL を入力します
@@ -142,8 +150,14 @@ API が起動しない場合やエラーが発生する場合は、以下を試�
    大きなウェブページを処理すると、Node.js のメモリ制限に達することがあります。より大きなメモリ制限で実行してみてください：
 
    ```bash
-   cd api && node --max-old-space-size=4096 node_modules/.bin/func start
+   # package.jsonのスクリプトを使用する場合（推奨）
+   cd api && node --max-old-space-size=4096 $(npm bin)/func start
+
+   # または、グローバルインストールされた場合
+   cd api && node --max-old-space-size=4096 func start
    ```
+
+   > 注: `node_modules/.bin/func start` はプロジェクトローカルの Azure Functions Core Tools を直接実行するコマンドです。環境によっては `$(npm bin)/func start` または `npx func start` が推奨されます。
 
 5. **「No job functions found」警告**：
    これは HTTP トリガー関数のみを使用している場合は無視して構いません。

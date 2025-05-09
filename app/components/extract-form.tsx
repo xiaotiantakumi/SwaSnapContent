@@ -21,7 +21,12 @@ export default function ExtractForm() {
 
     // URLの形式をチェック
     try {
-      new URL(url);
+      const parsedUrl = new URL(url);
+      // HTTP/HTTPSプロトコルに限定
+      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        setError('HTTPまたはHTTPSのURLを入力してください');
+        return;
+      }
     } catch (e) {
       setError('有効なURLを入力してください');
       return;
