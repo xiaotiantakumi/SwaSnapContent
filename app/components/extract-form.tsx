@@ -9,6 +9,7 @@ export default function ExtractForm() {
   const [error, setError] = useState<string | null>(null);
   const [article, setArticle] = useState<ArticleOutput | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [isTrimCopied, setIsTrimCopied] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -77,7 +78,24 @@ export default function ExtractForm() {
     try {
       await navigator.clipboard.writeText(article.textContent);
       setIsCopied(true);
+      setIsTrimCopied(false);
       setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('クリップボードへのコピーに失敗しました:', error);
+    }
+  };
+
+  const handleTrimCopy = async () => {
+    if (!article?.textContent) return;
+
+    try {
+      // 複数の空白、改行をすべて単一のスペースに置換
+      const trimmedContent = article.textContent.replace(/\s+/g, ' ').trim();
+
+      await navigator.clipboard.writeText(trimmedContent);
+      setIsTrimCopied(true);
+      setIsCopied(false);
+      setTimeout(() => setIsTrimCopied(false), 2000);
     } catch (error) {
       console.error('クリップボードへのコピーに失敗しました:', error);
     }
@@ -123,16 +141,29 @@ export default function ExtractForm() {
 
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium">抽出されたコンテンツ：</h3>
-            <button
-              onClick={handleCopy}
-              className={`px-4 py-1 text-sm rounded-md transition-colors ${
-                isCopied
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-              }`}
-            >
-              {isCopied ? 'コピーしました！' : 'コピー'}
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={handleTrimCopy}
+                className={`px-4 py-1 text-sm rounded-md transition-colors ${
+                  isTrimCopied
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
+                title="複数の空白や改行を単一のスペースに置き換えてコピーします"
+              >
+                {isTrimCopied ? 'コピーしました！' : '整形してコピー'}
+              </button>
+              <button
+                onClick={handleCopy}
+                className={`px-4 py-1 text-sm rounded-md transition-colors ${
+                  isCopied
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
+              >
+                {isCopied ? 'コピーしました！' : 'コピー'}
+              </button>
+            </div>
           </div>
 
           <div className="p-4 border border-gray-200 rounded-md bg-gray-50 whitespace-pre-wrap h-96 overflow-y-auto">
