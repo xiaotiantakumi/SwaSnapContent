@@ -8,6 +8,7 @@ on:
   #   types: [opened, synchronize, reopened, closed]
   #   branches:
   #     - main
+  workflow_dispatch: # 手動トリガーを追加
 
 jobs:
   build_and_deploy_job:
