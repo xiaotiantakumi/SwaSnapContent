@@ -68,7 +68,32 @@ npm start
 ```bash
 # Static Web Apps CLIをインストール（初回のみ）
 npm install -g @azure/static-web-apps-cli
+```
 
+#### 自動ビルド＆起動（推奨）
+
+```bash
+# フロントエンドとAPIを両方ビルドしてから起動
+npm run swa:all
+```
+
+このコマンド一つで以下の処理が順番に実行されます：
+
+1. フロントエンドのビルド（Next.js アプリケーション）
+2. API のビルド（Azure Functions）
+3. Static Web Apps CLI の起動
+
+#### 既存のビルドを使用して起動
+
+既にビルド済みの場合は、次のコマンドですぐに起動できます：
+
+```bash
+npm run swa:start
+```
+
+または、個別にコマンドを実行する場合：
+
+```bash
 # 静的ファイルを生成
 npm run build
 
@@ -76,7 +101,7 @@ npm run build
 swa start out --api-location api
 ```
 
-これにより、http://localhost:4280 でアプリケーション全体（フロントエンド + API）にアクセスできます。
+いずれの方法でも、http://localhost:4280 でアプリケーション全体（フロントエンド + API）にアクセスできます。
 
 ## 本番環境向けビルド
 
@@ -86,6 +111,12 @@ npm run build
 
 # APIのビルド
 cd api && npm run build
+```
+
+または、一度に両方をビルドする場合：
+
+```bash
+npm run build && npm run build:api
 ```
 
 ビルドされたフロントエンドファイルは `out` ディレクトリに、API ビルドは `api/dist` ディレクトリに生成されます。

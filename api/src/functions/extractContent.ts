@@ -85,7 +85,9 @@ export const extractContent = app.http('extractContent', {
       // メタデータからpublishedTimeを抽出
       let publishedTime: string | null = null;
       const metaTags = doc.window.document.querySelectorAll('meta');
-      for (const meta of metaTags) {
+
+      // NodeListをArrayに変換して処理する（下位互換性のため）
+      Array.from(metaTags).forEach((meta) => {
         // 一般的な日付メタタグを確認
         const property = meta.getAttribute('property');
         const name = meta.getAttribute('name');
@@ -96,9 +98,8 @@ export const extractContent = app.http('extractContent', {
           name === 'date'
         ) {
           publishedTime = meta.getAttribute('content');
-          if (publishedTime) break;
         }
-      }
+      });
 
       // 抽出結果をTypedに変換
       const typedArticle: Article = {
