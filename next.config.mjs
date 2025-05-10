@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+import withPWA from 'next-pwa';
+
 const nextConfig = {
   // Azure Static Web Appsでの動作に必要な設定
   output: 'export',
@@ -9,4 +11,11 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+const pwaConfig = {
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+};
+
+export default withPWA(pwaConfig)(nextConfig);
