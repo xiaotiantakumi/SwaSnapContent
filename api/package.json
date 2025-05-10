@@ -4,7 +4,7 @@
     "description": "API for extracting content from URLs",
     "main": "dist/index.js",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && cp host.json dist/host.json",
         "watch": "tsc -w",
         "prestart": "npm run build",
         "start": "func start",
