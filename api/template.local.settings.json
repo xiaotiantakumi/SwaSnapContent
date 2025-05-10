@@ -1,0 +1,11 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "FUNCTIONS_WORKER_RUNTIME": "node",
+        "AzureWebJobsStorage": ""
+    },
+    "Host": {
+        "CORS": "*",
+        "_comment": "ローカル開発環境ではCORS設定は * が便利ですが、本番環境では特定のドメインのみを許可するように制限してください。例: 'https://yourapp.azurestaticapps.net,https://example.com'"
+    }
+}
