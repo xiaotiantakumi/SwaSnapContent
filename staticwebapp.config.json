@@ -1,0 +1,25 @@
+{
+    "platform": {
+        "apiRuntime": "node:22.14.0"
+    },
+    "navigationFallback": {
+        "rewrite": "/index.html",
+        "exclude": [
+            "/images/*.{png,jpg,gif}",
+            "/css/*",
+            "/js/*",
+            "/api/*"
+        ]
+    },
+    "routes": [
+        {
+            "route": "/api/*",
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ]
+        }
+    ]
+}
