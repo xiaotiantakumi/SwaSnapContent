@@ -47,6 +47,9 @@ jobs:
           github_id_token: ${{ steps.idtoken.outputs.result }}
           app_build_command: 'npm run build'
           api_build_command: 'npm run build'
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          production_branch: 'main'
+          pull_request_id: ${{ github.event.pull_request.number }}
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
@@ -61,3 +64,5 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_FIELD_00CC2DA00 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: 'close'
+          production_branch: 'main'
+          pull_request_id: ${{ github.event.pull_request.number }}
