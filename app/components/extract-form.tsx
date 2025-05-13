@@ -51,7 +51,10 @@ export default function ExtractForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'APIエラーが発生しました');
+        // エラーと詳細メッセージの両方を取得して表示
+        throw new Error(
+          errorData.error + (errorData.message ? `\n${errorData.message}` : '')
+        );
       }
 
       const result = await response.json();
