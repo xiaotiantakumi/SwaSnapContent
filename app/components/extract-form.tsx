@@ -1,15 +1,126 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { type ArticleOutput } from '../utils/extract-content';
+
+// カスタムアクションの型定義
+interface CustomAction {
+  id: string;
+  name: string;
+  prompt: string;
+  isBuiltIn?: boolean;
+}
+
+// デフォルトのアクションリスト
+const DEFAULT_ACTIONS: CustomAction[] = [
+  {
+    id: 'summarize',
+    name: '要約',
+    prompt: 'この内容について、簡潔に要約してください。',
+    isBuiltIn: true,
+  },
+  {
+    id: 'bullet-points',
+    name: '箇条書きでまとめ',
+    prompt: 'この内容について箇条書きでまとめてください。',
+    isBuiltIn: true,
+  },
+  {
+    id: 'translate-en',
+    name: '英語に翻訳',
+    prompt: 'この内容を英語に翻訳してください。',
+    isBuiltIn: true,
+  },
+  {
+    id: 'explain-simple',
+    name: '簡単に説明',
+    prompt: 'この内容を小学生でも理解できるように簡単に説明してください。',
+    isBuiltIn: true,
+  },
+];
+
+// ローカルストレージのキー
+const STORAGE_KEY = 'swasnapcontent-custom-actions';
 
 export default function ExtractForm() {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [article, setArticle] = useState<ArticleOutput | null>(null);
-  const [isCopied, setIsCopied] = useState(false);
-  const [isTrimCopied, setIsTrimCopied] = useState(false);
+  const [isPromptCopied, setIsPromptCopied] = useState(false);
+
+  // カスタムアクション関連の状態
+  const [actions, setActions] = useState<CustomAction[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newActionName, setNewActionName] = useState('');
+  const [newActionPrompt, setNewActionPrompt] = useState('');
+  const [selectedAction, setSelectedAction] = useState<CustomAction | null>(
+    null
+  );
+
+  // カスタムアクションをロード
+  useEffect(() => {
+    const loadCustomActions = () => {
+      try {
+        const storedActions = localStorage.getItem(STORAGE_KEY);
+        const customActions = storedActions ? JSON.parse(storedActions) : [];
+        setActions([...DEFAULT_ACTIONS, ...customActions]);
+      } catch (error) {
+        console.error('カスタムアクションの読み込みに失敗しました:', error);
+        setActions([...DEFAULT_ACTIONS]);
+      }
+    };
+
+    loadCustomActions();
+  }, []);
+
+  // カスタムアクションを保存
+  const saveCustomAction = () => {
+    if (!newActionName.trim() || !newActionPrompt.trim()) return;
+
+    try {
+      // デフォルトアクション以外を取得
+      const customActions = actions.filter((action) => !action.isBuiltIn);
+
+      // 新しいアクションを追加
+      const newAction: CustomAction = {
+        id: `custom-${Date.now()}`,
+        name: newActionName.trim(),
+        prompt: newActionPrompt.trim(),
+      };
+
+      const updatedActions = [...customActions, newAction];
+
+      // ローカルストレージに保存
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedActions));
+
+      // 状態を更新
+      setActions([...DEFAULT_ACTIONS, ...updatedActions]);
+      setNewActionName('');
+      setNewActionPrompt('');
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('カスタムアクションの保存に失敗しました:', error);
+    }
+  };
+
+  // カスタムアクションを削除
+  const deleteCustomAction = (id: string) => {
+    try {
+      // 削除対象以外のカスタムアクションを取得
+      const customActions = actions
+        .filter((action) => !action.isBuiltIn)
+        .filter((action) => action.id !== id);
+
+      // ローカルストレージに保存
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(customActions));
+
+      // 状態を更新
+      setActions([...DEFAULT_ACTIONS, ...customActions]);
+    } catch (error) {
+      console.error('カスタムアクションの削除に失敗しました:', error);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,30 +186,20 @@ export default function ExtractForm() {
     }
   };
 
-  const handleCopy = async () => {
-    if (!article?.textContent) return;
-
-    try {
-      await navigator.clipboard.writeText(article.textContent);
-      setIsCopied(true);
-      setIsTrimCopied(false);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (error) {
-      console.error('クリップボードへのコピーに失敗しました:', error);
-    }
-  };
-
-  const handleTrimCopy = async () => {
-    if (!article?.textContent) return;
+  // 選択したアクションでコンテンツをコピー
+  const handleActionCopy = async () => {
+    if (!article?.textContent || !selectedAction) return;
 
     try {
       // 複数の空白、改行をすべて単一のスペースに置換
       const trimmedContent = article.textContent.replace(/\s+/g, ' ').trim();
 
-      await navigator.clipboard.writeText(trimmedContent);
-      setIsTrimCopied(true);
-      setIsCopied(false);
-      setTimeout(() => setIsTrimCopied(false), 2000);
+      // プロンプトを追加したコンテンツを作成
+      const contentWithPrompt = `${trimmedContent}\n\n${selectedAction.prompt}`;
+
+      await navigator.clipboard.writeText(contentWithPrompt);
+      setIsPromptCopied(true);
+      setTimeout(() => setIsPromptCopied(false), 2000);
     } catch (error) {
       console.error('クリップボードへのコピーに失敗しました:', error);
     }
@@ -142,35 +243,82 @@ export default function ExtractForm() {
             <h2 className="text-2xl font-semibold">{article.title}</h2>
           )}
 
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h3 className="text-lg font-medium">抽出されたコンテンツ：</h3>
-            <div className="flex space-x-2">
-              <button
-                onClick={handleTrimCopy}
-                className={`px-4 py-1 text-sm rounded-md transition-colors ${
-                  isTrimCopied
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
-                title="複数の空白や改行を単一のスペースに置き換えてコピーします"
-              >
-                {isTrimCopied ? 'コピーしました！' : '整形してコピー'}
-              </button>
-              <button
-                onClick={handleCopy}
-                className={`px-4 py-1 text-sm rounded-md transition-colors ${
-                  isCopied
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
-              >
-                {isCopied ? 'コピーしました！' : 'コピー'}
-              </button>
-            </div>
           </div>
 
-          <div className="p-4 border border-gray-200 rounded-md bg-gray-50 whitespace-pre-wrap h-96 overflow-y-auto">
+          <div className="p-4 border border-gray-200 rounded-md bg-gray-50 whitespace-pre-wrap h-40 overflow-y-auto">
             {article.textContent || 'テキストコンテンツがありません'}
+          </div>
+
+          {/* アクション選択セクション */}
+          <div className="mt-6 p-4 border border-gray-200 rounded-md bg-gray-50">
+            <h3 className="text-lg font-medium mb-3">テキストアクション</h3>
+            <p className="text-sm text-gray-600 mb-3">
+              選択したアクションを実行すると、整形されたテキストと指定したプロンプトが一緒にコピーされます。
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="w-full sm:w-64">
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={selectedAction?.id || ''}
+                  onChange={(e) => {
+                    const selected = actions.find(
+                      (a) => a.id === e.target.value
+                    );
+                    setSelectedAction(selected || null);
+                  }}
+                >
+                  <option value="">アクションを選択</option>
+                  {actions.map((action) => (
+                    <option key={action.id} value={action.id}>
+                      {action.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                onClick={handleActionCopy}
+                disabled={!selectedAction}
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  !selectedAction
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : isPromptCopied
+                    ? 'bg-green-600 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                {isPromptCopied ? 'コピーしました！' : 'コピー'}
+              </button>
+
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md ml-auto"
+              >
+                カスタムアクション追加
+              </button>
+            </div>
+
+            {selectedAction && (
+              <div className="mt-3 p-3 bg-gray-100 rounded-md">
+                <p className="text-sm font-medium">
+                  選択中: {selectedAction.name}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedAction.prompt}
+                </p>
+                {!selectedAction.isBuiltIn && (
+                  <button
+                    onClick={() => deleteCustomAction(selectedAction.id)}
+                    className="mt-2 text-xs text-red-600 hover:text-red-800"
+                  >
+                    このカスタムアクションを削除
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {article.siteName && (
@@ -182,6 +330,72 @@ export default function ExtractForm() {
           {article.byline && (
             <div className="text-sm text-gray-600">著者: {article.byline}</div>
           )}
+        </div>
+      )}
+
+      {/* カスタムアクション追加モーダル */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              カスタムアクションの追加
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="action-name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  アクション名
+                </label>
+                <input
+                  id="action-name"
+                  type="text"
+                  value={newActionName}
+                  onChange={(e) => setNewActionName(e.target.value)}
+                  placeholder="例: 技術的な説明"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="action-prompt"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  プロンプト内容
+                </label>
+                <textarea
+                  id="action-prompt"
+                  value={newActionPrompt}
+                  onChange={(e) => setNewActionPrompt(e.target.value)}
+                  placeholder="例: この内容について技術的な観点から詳しく説明してください。"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-2">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={saveCustomAction}
+                  disabled={!newActionName.trim() || !newActionPrompt.trim()}
+                  className={`px-4 py-2 rounded-md ${
+                    !newActionName.trim() || !newActionPrompt.trim()
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  保存
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
