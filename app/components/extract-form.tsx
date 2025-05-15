@@ -1,15 +1,225 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { type ArticleOutput } from '../utils/extract-content';
+import CustomActionModal from './custom-action-modal';
+import ActionSelector from './action-selector';
+import ArticleDisplay from './article-display';
+import { type CustomAction, DEFAULT_ACTIONS } from '../config/default-actions';
+
+// ローカルストレージのキー
+const STORAGE_KEY = 'swasnapcontent-custom-actions';
 
 export default function ExtractForm() {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [article, setArticle] = useState<ArticleOutput | null>(null);
-  const [isCopied, setIsCopied] = useState(false);
-  const [isTrimCopied, setIsTrimCopied] = useState(false);
+  const [isPromptCopied, setIsPromptCopied] = useState(false);
+
+  // カスタムアクション関連の状態
+  const [actions, setActions] = useState<CustomAction[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<CustomAction | null>(
+    null
+  );
+  // モーダル編集用の一時的なアクション名とプロンプト（編集時に使用）
+  const [editingActionName, setEditingActionName] = useState<
+    string | undefined
+  >(undefined);
+  const [editingActionPrompt, setEditingActionPrompt] = useState<
+    string | undefined
+  >(undefined);
+
+  // カスタムアクションをロード
+  useEffect(() => {
+    const loadCustomActions = () => {
+      try {
+        const storedActionsJson = localStorage.getItem(STORAGE_KEY);
+        const storedCustomActions: CustomAction[] = storedActionsJson
+          ? JSON.parse(storedActionsJson)
+          : [];
+        // isBuiltIn フラグを確実に false にする (または削除)
+        const sanitizedCustomActions = storedCustomActions.map((a) => ({
+          name: a.name,
+          prompt: a.prompt,
+        }));
+        setActions([...DEFAULT_ACTIONS, ...sanitizedCustomActions]);
+      } catch (e) {
+        console.error('カスタムアクションの読み込みに失敗しました:', e);
+        setActions([...DEFAULT_ACTIONS]);
+      }
+    };
+
+    loadCustomActions();
+  }, []);
+
+  const getCustomActions = () => actions.filter((a) => !a.isBuiltIn);
+  const getAllActionNames = () => new Set(actions.map((a) => a.name));
+  const getCustomActionNames = () =>
+    new Set(getCustomActions().map((a) => a.name));
+
+  // カスタムアクションを保存 (CustomActionModalから呼び出されるように変更)
+  const saveCustomAction = (name: string, prompt: string) => {
+    try {
+      const customActions = getCustomActions();
+      const existingActionIndex = customActions.findIndex(
+        (a) => a.name === name
+      );
+
+      let updatedCustomActions;
+      if (editingActionName && editingActionName !== name) {
+        // 名前が変更された編集の場合
+        const newNameExists = getCustomActionNames().has(name);
+        if (newNameExists) {
+          alert(
+            `エラー: アクション名 '${name}' は既に存在します。別の名前を入力してください。`
+          );
+          return;
+        }
+        // 元の名前のアクションを削除し、新しい名前で追加する扱い
+        const filteredActions = customActions.filter(
+          (a) => a.name !== editingActionName
+        );
+        updatedCustomActions = [...filteredActions, { name, prompt }];
+      } else if (existingActionIndex !== -1) {
+        // 既存アクションの編集 (名前変更なし)
+        updatedCustomActions = [...customActions];
+        updatedCustomActions[existingActionIndex] = { name, prompt };
+      } else {
+        // 新規追加
+        if (getAllActionNames().has(name)) {
+          // デフォルトアクションも含めて名前の重複チェック
+          alert(
+            `エラー: アクション名 '${name}' は既に存在します（デフォルトアクションを含む）。別の名前を入力してください。`
+          );
+          return;
+        }
+        updatedCustomActions = [...customActions, { name, prompt }];
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCustomActions));
+      setActions([...DEFAULT_ACTIONS, ...updatedCustomActions]);
+      setIsModalOpen(false);
+      setEditingActionName(undefined); // 編集状態をリセット
+      setEditingActionPrompt(undefined);
+    } catch (e) {
+      console.error('カスタムアクションの保存/更新に失敗しました:', e);
+      alert('カスタムアクションの保存/更新中にエラーが発生しました。');
+    }
+  };
+
+  // カスタムアクションを削除
+  const deleteCustomAction = (nameToDelete: string) => {
+    try {
+      const updatedCustomActions = getCustomActions().filter(
+        (a) => a.name !== nameToDelete
+      );
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCustomActions));
+      setActions([...DEFAULT_ACTIONS, ...updatedCustomActions]);
+      if (selectedAction?.name === nameToDelete) {
+        setSelectedAction(null);
+      }
+    } catch (e) {
+      console.error('カスタムアクションの削除に失敗しました:', e);
+    }
+  };
+
+  const handleSelectedActionChange = (actionName: string | null) => {
+    if (actionName === null) {
+      setSelectedAction(null);
+      return;
+    }
+    const selected = actions.find((a) => a.name === actionName);
+    setSelectedAction(selected || null);
+  };
+
+  const handleOpenModalForEdit = (action: CustomAction) => {
+    if (action.isBuiltIn) return; // デフォルトアクションは編集不可
+    setEditingActionName(action.name);
+    setEditingActionPrompt(action.prompt);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenModalForNew = () => {
+    setEditingActionName(undefined);
+    setEditingActionPrompt(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleImportActions = (importedActions: CustomAction[]) => {
+    try {
+      let currentCustomActions = getCustomActions();
+      const defaultActionNames = new Set(DEFAULT_ACTIONS.map((a) => a.name));
+      let updatedCount = 0;
+      let addedCount = 0;
+
+      const actionsToProcess = importedActions
+        .map((action) => ({
+          name: action.name.trim(), // 名前をトリム
+          prompt: action.prompt,
+        }))
+        .filter((action) => action.name); // 名前のないアクションは除外
+
+      actionsToProcess.forEach((importedAction) => {
+        if (defaultActionNames.has(importedAction.name)) {
+          console.warn(
+            `デフォルトアクション '${importedAction.name}' は上書きできません。スキップされました。`
+          );
+          return; // デフォルトアクションは上書きしない
+        }
+
+        const existingActionIndex = currentCustomActions.findIndex(
+          (a) => a.name === importedAction.name
+        );
+
+        if (existingActionIndex !== -1) {
+          // 既存のカスタムアクションを上書き
+          currentCustomActions[existingActionIndex] = importedAction;
+          updatedCount++;
+        } else {
+          // 新しいカスタムアクションとして追加
+          currentCustomActions.push(importedAction);
+          addedCount++;
+        }
+      });
+
+      if (
+        updatedCount === 0 &&
+        addedCount === 0 &&
+        importedActions.length > 0
+      ) {
+        alert(
+          'インポートする有効なアクションはありませんでした。デフォルトアクション名と重複しているか、名前が空の可能性があります。'
+        );
+        return;
+      }
+      if (importedActions.length === 0) {
+        alert('インポートするアクションがファイルに含まれていませんでした。');
+        return;
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentCustomActions));
+      setActions([...DEFAULT_ACTIONS, ...currentCustomActions]);
+
+      let message = '';
+      if (addedCount > 0) {
+        message += `${addedCount}件の新しいカスタムアクションをインポートしました。\n`;
+      }
+      if (updatedCount > 0) {
+        message += `${updatedCount}件の既存のカスタムアクションを上書きしました。`;
+      }
+      alert(message.trim());
+    } catch (e) {
+      console.error('アクションのインポート処理中にエラーが発生しました:', e);
+      alert('アクションのインポート処理中にエラーが発生しました。');
+    }
+  };
+
+  const handleExportAllActions = (): CustomAction[] => {
+    // エクスポートする際は isBuiltIn フラグを付与しないか、false にする
+    return actions.map(({ name, prompt }) => ({ name, prompt }));
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,30 +285,20 @@ export default function ExtractForm() {
     }
   };
 
-  const handleCopy = async () => {
-    if (!article?.textContent) return;
-
-    try {
-      await navigator.clipboard.writeText(article.textContent);
-      setIsCopied(true);
-      setIsTrimCopied(false);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (error) {
-      console.error('クリップボードへのコピーに失敗しました:', error);
-    }
-  };
-
-  const handleTrimCopy = async () => {
-    if (!article?.textContent) return;
+  // 選択したアクションでコンテンツをコピー
+  const handleActionCopy = async () => {
+    if (!article?.textContent || !selectedAction) return;
 
     try {
       // 複数の空白、改行をすべて単一のスペースに置換
       const trimmedContent = article.textContent.replace(/\s+/g, ' ').trim();
 
-      await navigator.clipboard.writeText(trimmedContent);
-      setIsTrimCopied(true);
-      setIsCopied(false);
-      setTimeout(() => setIsTrimCopied(false), 2000);
+      // プロンプトを追加したコンテンツを作成
+      const contentWithPrompt = `${trimmedContent}\n\n${selectedAction.prompt}`;
+
+      await navigator.clipboard.writeText(contentWithPrompt);
+      setIsPromptCopied(true);
+      setTimeout(() => setIsPromptCopied(false), 2000);
     } catch (error) {
       console.error('クリップボードへのコピーに失敗しました:', error);
     }
@@ -137,53 +337,45 @@ export default function ExtractForm() {
       </form>
 
       {article && (
-        <div className="mt-8 space-y-4">
-          {article.title && (
-            <h2 className="text-2xl font-semibold">{article.title}</h2>
+        <>
+          {/* 記事表示部分を ArticleDisplay コンポーネントに置き換え */}
+          <ArticleDisplay article={article} />
+
+          {/* アクション選択セクション */}
+          <ActionSelector
+            actions={actions}
+            selectedAction={selectedAction}
+            onSelectedActionChange={handleSelectedActionChange}
+            onActionCopy={handleActionCopy}
+            onOpenCustomActionModal={handleOpenModalForNew}
+            onDeleteCustomAction={deleteCustomAction}
+            isPromptCopied={isPromptCopied}
+          />
+          {/* 選択中のアクションを編集するボタンを追加 */}
+          {selectedAction && !selectedAction.isBuiltIn && (
+            <button
+              onClick={() => handleOpenModalForEdit(selectedAction)}
+              className="mt-2 ml-2 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md text-sm"
+            >
+              選択中アクションを編集
+            </button>
           )}
-
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium">抽出されたコンテンツ：</h3>
-            <div className="flex space-x-2">
-              <button
-                onClick={handleTrimCopy}
-                className={`px-4 py-1 text-sm rounded-md transition-colors ${
-                  isTrimCopied
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
-                title="複数の空白や改行を単一のスペースに置き換えてコピーします"
-              >
-                {isTrimCopied ? 'コピーしました！' : '整形してコピー'}
-              </button>
-              <button
-                onClick={handleCopy}
-                className={`px-4 py-1 text-sm rounded-md transition-colors ${
-                  isCopied
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
-              >
-                {isCopied ? 'コピーしました！' : 'コピー'}
-              </button>
-            </div>
-          </div>
-
-          <div className="p-4 border border-gray-200 rounded-md bg-gray-50 whitespace-pre-wrap h-96 overflow-y-auto">
-            {article.textContent || 'テキストコンテンツがありません'}
-          </div>
-
-          {article.siteName && (
-            <div className="text-sm text-gray-600">
-              サイト名: {article.siteName}
-            </div>
-          )}
-
-          {article.byline && (
-            <div className="text-sm text-gray-600">著者: {article.byline}</div>
-          )}
-        </div>
+        </>
       )}
+
+      <CustomActionModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingActionName(undefined); // モーダルを閉じるときに編集状態をリセット
+          setEditingActionPrompt(undefined);
+        }}
+        onSave={saveCustomAction}
+        onImport={handleImportActions}
+        onExportAll={handleExportAllActions}
+        initialName={editingActionName}
+        initialPrompt={editingActionPrompt}
+      />
     </div>
   );
 }
