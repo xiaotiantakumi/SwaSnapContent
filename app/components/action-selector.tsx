@@ -48,11 +48,8 @@ export default function ActionSelector({
 
         <button
           onClick={onActionCopy}
-          disabled={!selectedAction}
           className={`px-4 py-2 rounded-md transition-colors ${
-            !selectedAction
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : isPromptCopied
+            isPromptCopied
               ? 'bg-green-600 text-white'
               : 'bg-blue-600 hover:bg-blue-700 text-white'
           }`}

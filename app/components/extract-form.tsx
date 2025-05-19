@@ -287,16 +287,18 @@ export default function ExtractForm() {
 
   // 選択したアクションでコンテンツをコピー
   const handleActionCopy = async () => {
-    if (!article?.textContent || !selectedAction) return;
+    if (!article?.textContent) return;
 
     try {
       // 複数の空白、改行をすべて単一のスペースに置換
       const trimmedContent = article.textContent.replace(/\s+/g, ' ').trim();
 
-      // プロンプトを追加したコンテンツを作成
-      const contentWithPrompt = `${trimmedContent}\n\n${selectedAction.prompt}`;
+      let contentToCopy = trimmedContent;
+      if (selectedAction) {
+        contentToCopy = `${trimmedContent}\n\n${selectedAction.prompt}`;
+      }
 
-      await navigator.clipboard.writeText(contentWithPrompt);
+      await navigator.clipboard.writeText(contentToCopy);
       setIsPromptCopied(true);
       setTimeout(() => setIsPromptCopied(false), 2000);
     } catch (error) {
