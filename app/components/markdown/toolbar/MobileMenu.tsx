@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import { useFileSystem } from '../../../hooks/useFileSystem';
 import { useClipboard } from '../../../hooks/useClipboard';
-import type { FileItem } from '../../../hooks/useMultipleFiles';
+import type { MarkdownFile } from '../../../types/thread';
 
 interface MobileMenuProps {
-  files: FileItem[];
+  files: MarkdownFile[];
   onFilesAdd: (files: File[]) => void;
-  onClearAllFiles: (clearStorage?: boolean) => void;
+  onClearAllFiles: () => void;
   onError: (error: string) => void;
   parsedContent?: string;
   content: string;
-  getSavedFilesCount: () => number;
-  loadFilesFromStorage?: () => void;
 }
 
 /**
@@ -25,8 +23,6 @@ export function MobileMenu({
   onError,
   parsedContent,
   content,
-  getSavedFilesCount,
-  loadFilesFromStorage,
 }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,12 +32,6 @@ export function MobileMenu({
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
 
-  const handleLoadStoredFiles = () => {
-    if (loadFilesFromStorage) {
-      loadFilesFromStorage();
-      closeMenu();
-    }
-  };
 
   const handleOpenFiles = async () => {
     try {
@@ -78,17 +68,9 @@ export function MobileMenu({
 
   const handleClearAll = () => {
     if (files.length > 0) {
-      const savedCount = getSavedFilesCount();
-      let message = `${files.length}個のファイルを全て削除しますか？`;
-      
-      if (savedCount > 0) {
-        message += `\n\n保存済みファイル(${savedCount}個)もlocalStorageから削除しますか？`;
-        const shouldClearStorage = confirm(message);
-        onClearAllFiles(shouldClearStorage);
-      } else {
-        if (confirm(message)) {
-          onClearAllFiles(false);
-        }
+      const message = `${files.length}個のファイルを全て削除しますか？`;
+      if (confirm(message)) {
+        onClearAllFiles();
       }
       closeMenu();
     }
@@ -121,22 +103,6 @@ export function MobileMenu({
       {/* メニュー内容 */}
       {isOpen && (
         <div className="absolute right-0 top-12 z-50 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2">
-          {/* 保存済みファイル読み込み */}
-          {loadFilesFromStorage && getSavedFilesCount() > 0 && (
-            <button
-              type="button"
-              onClick={handleLoadStoredFiles}
-              className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <svg className="w-5 h-5 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
-              </svg>
-              <span className="text-gray-900 dark:text-gray-100">
-                保存済みファイル({getSavedFilesCount()}個)
-              </span>
-            </button>
-          )}
-
           {/* ファイル追加 */}
           <button
             type="button"

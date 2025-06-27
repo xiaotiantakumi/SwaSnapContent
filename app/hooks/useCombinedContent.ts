@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { FileItem } from './useMultipleFiles';
+import type { MarkdownFile } from '../types/thread';
 
 interface CombinedContentOptions {
   showFileHeaders?: boolean;
@@ -7,7 +7,7 @@ interface CombinedContentOptions {
 }
 
 export function useCombinedContent(
-  files: FileItem[],
+  files: MarkdownFile[],
   options: CombinedContentOptions = {},
 ) {
   const { showFileHeaders = true, separator = '\n\n---\n\n' } = options;

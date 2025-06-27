@@ -1,29 +1,30 @@
 'use client';
 
 import { useState } from 'react';
-import Header from '../components/header';
+import { ThreadProvider } from '../contexts/ThreadContext';
 import { MarkdownPreview } from '../components/markdown/MarkdownPreview';
 import { OpenedFiles } from '../components/markdown/OpenedFiles';
 import { ScrollToTopButton } from '../components/markdown/ScrollToTopButton';
 import { Toolbar } from '../components/markdown/toolbar/Toolbar';
+import { ThreadHeader } from '../components/thread/ThreadHeader';
 import { useCombinedContent } from '../hooks/useCombinedContent';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useMarkdownParser } from '../hooks/useMarkdownParser';
-import { useMultipleFiles } from '../hooks/useMultipleFiles';
+import { useThread } from '../contexts/ThreadContext';
 import { DEFAULT_MARKDOWN_CONTENT } from '../lib/markdown-constants';
 
-export default function MarkdownViewerPage() {
+function MarkdownViewerContent() {
   const [error, setError] = useState<string | null>(null);
+  const { 
+    activeThread,
+    addFilesToActiveThread,
+    removeFileFromActiveThread,
+    moveFileUpInActiveThread,
+    moveFileDownInActiveThread,
+  } = useThread();
 
-  // Multiple files management
-  const {
-    files,
-    addFiles,
-    removeFile,
-    moveFileUp,
-    moveFileDown,
-    clearAllFiles,
-  } = useMultipleFiles();
+  // Use files from active thread
+  const files = activeThread?.files || [];
 
   // Combined content from all files
   const { combinedContent, stats } = useCombinedContent(files);
@@ -34,27 +35,32 @@ export default function MarkdownViewerPage() {
 
   // Drag and drop functionality
   const { isDragOver, handleDragOver, handleDragLeave, handleDrop } = useDragAndDrop({
-    onFiles: addFiles,
+    onFiles: addFilesToActiveThread,
     onError: setError,
   });
+
+  const handleClearAllFiles = () => {
+    if (activeThread) {
+      // Remove all files from active thread
+      activeThread.files.forEach(file => {
+        removeFileFromActiveThread(file.id);
+      });
+    }
+  };
 
   const clearError = () => setError(null);
 
   return (
     <main className="flex min-h-screen flex-col bg-white dark:bg-gray-900">
-      {/* Header */}
-      <div className="p-4">
-        <Header 
-          showBackButton={true}
-        />
-      </div>
+      {/* Thread Header */}
+      <ThreadHeader />
       
       {/* Enhanced Toolbar */}
       <Toolbar
         content={displayContent}
         files={files}
-        onFilesAdd={addFiles}
-        onClearAllFiles={clearAllFiles}
+        onFilesAdd={addFilesToActiveThread}
+        onClearAllFiles={handleClearAllFiles}
         onError={setError}
         parsedContent={parsedContent}
         isDragOver={isDragOver}
@@ -116,9 +122,9 @@ export default function MarkdownViewerPage() {
           {files.length > 0 && (
             <OpenedFiles
               files={files}
-              onRemoveFile={removeFile}
-              onMoveUp={moveFileUp}
-              onMoveDown={moveFileDown}
+              onRemoveFile={removeFileFromActiveThread}
+              onMoveUp={moveFileUpInActiveThread}
+              onMoveDown={moveFileDownInActiveThread}
             />
           )}
 
@@ -153,5 +159,13 @@ export default function MarkdownViewerPage() {
       {/* Scroll to Top Button */}
       <ScrollToTopButton threshold={300} />
     </main>
+  );
+}
+
+export default function MarkdownViewerPage() {
+  return (
+    <ThreadProvider>
+      <MarkdownViewerContent />
+    </ThreadProvider>
   );
 }

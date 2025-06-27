@@ -1,7 +1,7 @@
-import type { FileItem } from '../../hooks/useMultipleFiles';
+import type { MarkdownFile } from '../../types/thread';
 
 interface OpenedFilesProps {
-  files: FileItem[];
+  files: MarkdownFile[];
   onRemoveFile: (id: string) => void;
   onMoveUp: (id: string) => void;
   onMoveDown: (id: string) => void;
@@ -87,7 +87,7 @@ export function OpenedFiles({
                   {file.name}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {file.lastModified?.toLocaleDateString()} •{' '}
+                  {new Date(file.lastModified).toLocaleDateString()} •{' '}
                   {Math.round(file.content.length / 1024)}KB
                 </div>
               </div>
