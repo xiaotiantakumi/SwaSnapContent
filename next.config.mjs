@@ -2,12 +2,22 @@
 import withPWA from 'next-pwa';
 
 const nextConfig = {
-  // Azure Static Web Appsでの動作に必要な設定
-  output: 'export',
-  distDir: 'out',
+  // Azure Static Web Appsでの動作に必要な設定（本番ビルド時のみ）
+  ...(process.env.NODE_ENV === 'production' && {
+    output: 'export',
+    distDir: 'out',
+  }),
   // 画像最適化機能を無効化（静的エクスポート時に必要）
   images: {
     unoptimized: true,
+  },
+  // frontendディレクトリをビルドから除外
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/frontend/**', '**/node_modules/**'],
+    };
+    return config;
   },
 };
 
