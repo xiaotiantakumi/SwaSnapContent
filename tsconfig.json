@@ -28,5 +28,5 @@
     ".next/types/**/*.ts",
     "out/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "api/**"]
+  "exclude": ["node_modules", "api/**", "frontend/**", "tmp/**"]
 }

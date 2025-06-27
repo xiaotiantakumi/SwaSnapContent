@@ -1,10 +1,35 @@
-export default function Header() {
+interface HeaderProps {
+  title?: string;
+  description?: string;
+  showBackButton?: boolean;
+}
+
+export default function Header({ 
+  title, 
+  description, 
+  showBackButton = false 
+}: HeaderProps = {}) {
   return (
     <header className="w-full max-w-3xl">
-      <h1 className="text-3xl font-bold text-center mb-2">URL本文抽出アプリ</h1>
-      <p className="text-center text-gray-600 dark:text-gray-400">
-        URLを入力して、ウェブページから本文を抽出
-      </p>
+      {showBackButton && (
+        <div className="mb-4">
+          <a 
+            href="/" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            data-testid="back-to-home"
+          >
+            ← アプリ選択に戻る
+          </a>
+        </div>
+      )}
+      {title && (
+        <h1 className="text-3xl font-bold text-center mb-2">{title}</h1>
+      )}
+      {description && (
+        <p className="text-center text-gray-600 dark:text-gray-400">
+          {description}
+        </p>
+      )}
     </header>
   );
 }
