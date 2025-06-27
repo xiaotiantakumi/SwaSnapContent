@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Header from '../components/header';
 import { ThreadProvider } from '../contexts/ThreadContext';
 import { MarkdownPreview } from '../components/markdown/MarkdownPreview';
 import { OpenedFiles } from '../components/markdown/OpenedFiles';
@@ -52,6 +53,13 @@ function MarkdownViewerContent() {
 
   return (
     <main className="flex min-h-screen flex-col bg-white dark:bg-gray-900">
+      {/* Header with back button */}
+      <div className="p-4">
+        <Header 
+          showBackButton={true}
+        />
+      </div>
+      
       {/* Thread Header */}
       <ThreadHeader />
       

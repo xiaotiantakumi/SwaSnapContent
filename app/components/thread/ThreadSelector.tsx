@@ -91,7 +91,7 @@ export function ThreadSelector({ isOpen, onClose }: ThreadSelectorProps) {
       />
 
       {/* Modal */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl max-h-[80vh] overflow-hidden">
+      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-hidden m-4 sm:m-0">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -109,15 +109,15 @@ export function ThreadSelector({ isOpen, onClose }: ThreadSelectorProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Create New Thread Button */}
           <button
             onClick={handleCreateNewThread}
             disabled={isCreating}
-            className="w-full mb-6 p-4 border-2 border-dashed border-blue-300 dark:border-blue-600 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50"
+            className="w-full mb-4 sm:mb-6 p-3 sm:p-4 border-2 border-dashed border-blue-300 dark:border-blue-600 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50"
           >
             <div className="flex items-center justify-center text-blue-600 dark:text-blue-400">
-              <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               {isCreating ? '作成中...' : '新しいプロジェクトを作成'}
@@ -126,15 +126,15 @@ export function ThreadSelector({ isOpen, onClose }: ThreadSelectorProps) {
 
           {/* Thread List */}
           {sortedThreads.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-6 sm:py-8 text-gray-500 dark:text-gray-400">
               プロジェクトがありません
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {sortedThreads.map((thread) => (
                 <div
                   key={thread.id}
-                  className={`p-4 rounded-lg border transition-colors ${
+                  className={`p-3 sm:p-4 rounded-lg border transition-colors ${
                     activeThread?.id === thread.id
                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                       : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -152,7 +152,7 @@ export function ThreadSelector({ isOpen, onClose }: ThreadSelectorProps) {
                               if (e.key === 'Enter') handleSaveEdit();
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
-                            className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                            className="flex-1 px-2 py-1 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             autoFocus
                           />
                           <button
@@ -179,26 +179,28 @@ export function ThreadSelector({ isOpen, onClose }: ThreadSelectorProps) {
                           onClick={() => handleSwitchThread(thread.id)}
                           className="w-full text-left"
                         >
-                          <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                          <div className="font-medium text-gray-900 dark:text-gray-100 truncate text-sm sm:text-base">
                             {thread.name}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {thread.files.length}個のファイル • 最終アクセス: {formatDate(thread.lastAccessedAt)}
+                          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            <span className="block sm:inline">{thread.files.length}個のファイル</span>
+                            <span className="hidden sm:inline"> • 最終アクセス: {formatDate(thread.lastAccessedAt)}</span>
+                            <span className="block sm:hidden text-xs mt-1">{formatDate(thread.lastAccessedAt)}</span>
                           </div>
                         </button>
                       )}
                     </div>
 
                     {isEditingId !== thread.id && (
-                      <div className="flex items-center space-x-1 ml-3">
+                      <div className="flex items-center space-x-1 ml-2 sm:ml-3">
                         {activeThread?.id === thread.id && (
-                          <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded">
+                          <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded whitespace-nowrap">
                             開いています
                           </span>
                         )}
                         <button
                           onClick={() => handleStartEdit(thread)}
-                          className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                          className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                           aria-label="名前を編集"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +209,7 @@ export function ThreadSelector({ isOpen, onClose }: ThreadSelectorProps) {
                         </button>
                         <button
                           onClick={() => handleDeleteThread(thread.id, thread.name)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded"
+                          className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded"
                           aria-label="削除"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
