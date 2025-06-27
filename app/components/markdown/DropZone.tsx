@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+import { Tooltip } from '../ui/Tooltip';
 
 interface DropZoneProps {
   onFiles: (files: File[]) => void;
@@ -7,8 +9,6 @@ interface DropZoneProps {
   onDragLeave: (event: React.DragEvent) => void;
   onDrop: (event: React.DragEvent) => void;
 }
-
-import { Tooltip } from '../ui/Tooltip';
 
 /**
  * 統一されたアイコンボタンスタイルのファイル追加ボタン
@@ -22,6 +22,8 @@ export function DropZone({
   onDragLeave,
   onDrop,
 }: DropZoneProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
     if (selectedFiles.length > 0) {
@@ -31,10 +33,26 @@ export function DropZone({
     event.target.value = '';
   };
 
+  // プロジェクト作成後のファイルダイアログ自動表示
+  useEffect(() => {
+    const handleTriggerFileDialog = () => {
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
+      }
+    };
+
+    window.addEventListener('trigger-file-dialog', handleTriggerFileDialog);
+    
+    return () => {
+      window.removeEventListener('trigger-file-dialog', handleTriggerFileDialog);
+    };
+  }, []);
+
   return (
     <div className="relative">
       {/* Hidden file input for clicking */}
       <input
+        ref={fileInputRef}
         type="file"
         multiple
         accept=".md,.markdown,.txt"

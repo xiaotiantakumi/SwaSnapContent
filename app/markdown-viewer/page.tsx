@@ -12,7 +12,7 @@ import { useCombinedContent } from '../hooks/useCombinedContent';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useMarkdownParser } from '../hooks/useMarkdownParser';
 import { useThread } from '../contexts/ThreadContext';
-import { DEFAULT_MARKDOWN_CONTENT } from '../lib/markdown-constants';
+import { DEFAULT_MARKDOWN_CONTENT, NEW_PROJECT_WELCOME_CONTENT } from '../lib/markdown-constants';
 
 function MarkdownViewerContent() {
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +30,12 @@ function MarkdownViewerContent() {
   // Combined content from all files
   const { combinedContent, stats } = useCombinedContent(files);
 
-  // Use combined content or default if no files
-  const displayContent = files.length > 0 ? combinedContent : DEFAULT_MARKDOWN_CONTENT;
+  // Use combined content or appropriate welcome content if no files
+  const displayContent = files.length > 0 
+    ? combinedContent 
+    : (activeThread && activeThread.name !== 'Markdownビューア' 
+        ? NEW_PROJECT_WELCOME_CONTENT 
+        : DEFAULT_MARKDOWN_CONTENT);
   const { parsedContent, isDebouncing } = useMarkdownParser(displayContent);
 
   // Drag and drop functionality

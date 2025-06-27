@@ -30,6 +30,10 @@ export function ThreadSelector({ isOpen, onClose }: ThreadSelectorProps) {
     try {
       const threadId = await createThread();
       onClose();
+      // プロジェクト作成後にファイル追加を促すため、少し遅延してファイルダイアログトリガーイベントを発火
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('trigger-file-dialog'));
+      }, 300);
     } catch (error) {
       console.error('Failed to create thread:', error);
     } finally {
