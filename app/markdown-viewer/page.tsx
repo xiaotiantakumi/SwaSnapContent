@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Header from '../components/header';
 import { MarkdownPreview } from '../components/markdown/MarkdownPreview';
 import { OpenedFiles } from '../components/markdown/OpenedFiles';
+import { ScrollToTopButton } from '../components/markdown/ScrollToTopButton';
 import { Toolbar } from '../components/markdown/toolbar/Toolbar';
 import { useCombinedContent } from '../hooks/useCombinedContent';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
@@ -56,6 +57,10 @@ export default function MarkdownViewerPage() {
         onClearAllFiles={clearAllFiles}
         onError={setError}
         parsedContent={parsedContent}
+        isDragOver={isDragOver}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       />
 
       {/* Error Display */}
@@ -73,27 +78,32 @@ export default function MarkdownViewerPage() {
         </div>
       )}
 
-      {/* Main Content - Single Pane Layout with Drag & Drop */}
+      {/* Main Content - Single Pane Layout with Enhanced Drop Zone */}
       <div
-        className={`flex flex-1 overflow-hidden relative ${
-          isDragOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+        className={`flex flex-1 overflow-hidden relative border-2 border-dashed transition-all duration-200 ${
+          isDragOver 
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-inner' 
+            : 'border-transparent'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         data-testid="drop-zone"
       >
-        {/* Drag Overlay */}
+        {/* Enhanced Drag Overlay with Animation */}
         {isDragOver && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-blue-100 bg-opacity-75 dark:bg-blue-900 dark:bg-opacity-75">
-            <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-blue-100 bg-opacity-90 dark:bg-blue-900 dark:bg-opacity-90 backdrop-blur-sm">
+            <div className="rounded-lg bg-white p-8 shadow-2xl dark:bg-gray-800 border-2 border-blue-500 transform scale-105 transition-transform">
               <div className="text-center">
-                <div className="text-4xl mb-4">📄</div>
-                <div className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                <div className="text-6xl mb-4 animate-bounce">📅</div>
+                <div className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-2">
                   Markdownファイルをここにドロップ
                 </div>
-                <div className="text-sm text-gray-500 mt-2 dark:text-gray-400">
-                  .md、.markdown、.txtファイルに対応（複数ファイル可）
+                <div className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                  .md、.markdown、.txtファイルに対応
+                </div>
+                <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
+                  複数ファイル同時アップロード可能
                 </div>
               </div>
             </div>
@@ -139,6 +149,9 @@ export default function MarkdownViewerPage() {
           </div>
         </div>
       </div>
+      
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton threshold={300} />
     </main>
   );
 }

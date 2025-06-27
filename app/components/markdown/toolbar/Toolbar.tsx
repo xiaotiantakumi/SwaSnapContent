@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useFileSystem } from '../../../hooks/useFileSystem';
 import { useClipboard } from '../../../hooks/useClipboard';
+import { DropZone } from '../DropZone';
+import { MobileMenu } from './MobileMenu';
 import type { FileItem } from '../../../hooks/useMultipleFiles';
 
 interface ToolbarProps {
@@ -10,11 +10,16 @@ interface ToolbarProps {
   onClearAllFiles: () => void;
   onError: (error: string) => void;
   parsedContent?: string;
+  // DropZone props
+  isDragOver: boolean;
+  onDragOver: (event: React.DragEvent) => void;
+  onDragLeave: (event: React.DragEvent) => void;
+  onDrop: (event: React.DragEvent) => void;
 }
 
 /**
- * Enhanced Toolbar component with file operations
- * Provides multiple file operations and clipboard functionality
+ * Enhanced Toolbar component with icon-based operations
+ * Desktop: Icon buttons, Mobile: Hamburger menu
  */
 export function Toolbar({
   content,
@@ -23,25 +28,12 @@ export function Toolbar({
   onClearAllFiles,
   onError,
   parsedContent,
+  isDragOver,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }: ToolbarProps) {
-  const { openFiles, isFileSystemSupported } = useFileSystem();
   const { pasteFromClipboard, supportsClipboard } = useClipboard();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleOpenFiles = async () => {
-    try {
-      setIsLoading(true);
-      const selectedFiles = await openFiles();
-      if (selectedFiles.length > 0) {
-        onFilesAdd(selectedFiles);
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'ファイルを開けませんでした';
-      onError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handlePaste = async () => {
     try {
@@ -55,7 +47,10 @@ export function Toolbar({
         onFilesAdd([clipboardFile]);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'クリップボードから貼り付けできませんでした';
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'クリップボードから貼り付けできませんでした';
       onError(errorMessage);
     }
   };
@@ -68,17 +63,6 @@ export function Toolbar({
     }
   };
 
-  const copyToClipboard = async () => {
-    try {
-      const textToCopy = parsedContent || content;
-      if (textToCopy) {
-        await navigator.clipboard.writeText(textToCopy);
-        // You could add success feedback here
-      }
-    } catch (err) {
-      onError('クリップボードにコピーできませんでした');
-    }
-  };
 
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
@@ -87,6 +71,16 @@ export function Toolbar({
       </div>
 
       <div className="flex items-center space-x-3">
+        {/* Visual Drop Zone */}
+        <DropZone
+          onFiles={onFilesAdd}
+          onError={onError}
+          isDragOver={isDragOver}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+        />
+
         {/* File Statistics */}
         {files.length > 0 && (
           <div className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
@@ -94,55 +88,70 @@ export function Toolbar({
           </div>
         )}
 
-        {/* Open Files Button */}
-        <button
-          type="button"
-          onClick={handleOpenFiles}
-          disabled={isLoading}
-          className={`rounded px-3 py-1 text-sm text-white transition-colors ${
-            isLoading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700'
-          }`}
-          title={`複数のMarkdownファイルを選択 ${isFileSystemSupported ? '(モダンAPI)' : '(レガシーモード)'}`}
-        >
-          {isLoading ? '読み込み中...' : 'ファイル選択'}
-        </button>
+        {/* Desktop Icon Buttons */}
+        <div className="hidden md:flex items-center space-x-2">
+          {/* Paste Button */}
+          {supportsClipboard && (
+            <button
+              type="button"
+              onClick={handlePaste}
+              className="p-2 rounded-lg bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 transition-colors text-white"
+              title="クリップボード貼り付け"
+              aria-label="クリップボード貼り付け"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+            </button>
+          )}
 
-        {/* Paste Button */}
-        {supportsClipboard && (
-          <button
-            type="button"
-            onClick={handlePaste}
-            className="rounded px-3 py-1 text-sm text-white bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 transition-colors"
-            title="クリップボードからMarkdownを貼り付け"
-          >
-            貼り付け
-          </button>
-        )}
 
-        {/* Copy Button */}
-        <button
-          type="button"
-          onClick={copyToClipboard}
-          className="rounded px-3 py-1 text-sm text-white bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 transition-colors"
-          title="コンテンツをクリップボードにコピー"
-        >
-          コピー
-        </button>
+          {/* Clear All Button */}
+          {files.length > 0 && (
+            <button
+              type="button"
+              onClick={handleClearAll}
+              className="p-2 rounded-lg bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 transition-colors text-white"
+              title="全てのファイルを削除"
+              aria-label="全て削除"
+              data-testid="clear-all"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
 
-        {/* Clear All Button */}
-        {files.length > 0 && (
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="rounded px-3 py-1 text-sm text-white bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 transition-colors"
-            title="全てのファイルを削除"
-            data-testid="clear-all"
-          >
-            全て削除
-          </button>
-        )}
+        {/* Mobile Hamburger Menu */}
+        <MobileMenu
+          files={files}
+          onFilesAdd={onFilesAdd}
+          onClearAllFiles={onClearAllFiles}
+          onError={onError}
+          parsedContent={parsedContent}
+          content={content}
+        />
       </div>
     </div>
   );
