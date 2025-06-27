@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useFileStorage } from './useFileStorage';
 
 export interface FileItem {
   id: string;
@@ -10,15 +11,40 @@ export interface FileItem {
 export interface MultipleFilesHook {
   files: FileItem[];
   addFiles: (files: File[]) => Promise<void>;
-  removeFile: (id: string) => void;
+  removeFile: (id: string, skipStorageRemoval?: boolean) => void;
   moveFileUp: (id: string) => void;
   moveFileDown: (id: string) => void;
   reorderFiles: (fromIndex: number, toIndex: number) => void;
-  clearAllFiles: () => void;
+  clearAllFiles: (clearStorage?: boolean) => void;
+  loadFilesFromStorage?: () => void;
 }
 
 export function useMultipleFiles(): MultipleFilesHook {
   const [files, setFiles] = useState<FileItem[]>([]);
+  const { 
+    isFileStorage, 
+    saveFilesToStorage, 
+    loadFilesFromStorage, 
+    removeFileFromStorage, 
+    clearAllStoredFiles 
+  } = useFileStorage();
+
+  // 初期化時にlocalStorageから復元
+  useEffect(() => {
+    if (isFileStorage) {
+      const savedFiles = loadFilesFromStorage();
+      if (savedFiles.length > 0) {
+        setFiles(savedFiles);
+      }
+    }
+  }, [isFileStorage, loadFilesFromStorage]);
+
+  // ファイルが変更されたらlocalStorageに保存
+  useEffect(() => {
+    if (isFileStorage && files.length > 0) {
+      saveFilesToStorage(files);
+    }
+  }, [files, isFileStorage, saveFilesToStorage]);
 
   const addFiles = useCallback(async (newFiles: File[]) => {
     const fileItems: FileItem[] = [];
@@ -42,9 +68,16 @@ export function useMultipleFiles(): MultipleFilesHook {
     setFiles((prev) => [...prev, ...fileItems]);
   }, []);
 
-  const removeFile = useCallback((id: string) => {
-    setFiles((prev) => prev.filter((file) => file.id !== id));
-  }, []);
+  const removeFile = useCallback((id: string, skipStorageRemoval = false) => {
+    setFiles((prev) => {
+      const newFiles = prev.filter((file) => file.id !== id);
+      // localStorageからも削除（スキップフラグがない場合）
+      if (isFileStorage && !skipStorageRemoval) {
+        removeFileFromStorage(id);
+      }
+      return newFiles;
+    });
+  }, [isFileStorage, removeFileFromStorage]);
 
   const moveFileUp = useCallback((id: string) => {
     setFiles((prev) => {
@@ -85,9 +118,19 @@ export function useMultipleFiles(): MultipleFilesHook {
     });
   }, []);
 
-  const clearAllFiles = useCallback(() => {
+  const clearAllFiles = useCallback((clearStorage = false) => {
     setFiles([]);
-  }, []);
+    if (isFileStorage && clearStorage) {
+      clearAllStoredFiles();
+    }
+  }, [isFileStorage, clearAllStoredFiles]);
+
+  const loadStoredFiles = useCallback(() => {
+    if (isFileStorage) {
+      const savedFiles = loadFilesFromStorage();
+      setFiles(savedFiles);
+    }
+  }, [isFileStorage, loadFilesFromStorage]);
 
   return {
     files,
@@ -97,6 +140,7 @@ export function useMultipleFiles(): MultipleFilesHook {
     moveFileDown,
     reorderFiles,
     clearAllFiles,
+    loadFilesFromStorage: isFileStorage ? loadStoredFiles : undefined,
   };
 }
 
