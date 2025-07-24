@@ -18,6 +18,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    env:
+      SKIP_DEPLOY_ON_MISSING_SECRETS: true
     steps:
       - uses: actions/checkout@v3
         with:
