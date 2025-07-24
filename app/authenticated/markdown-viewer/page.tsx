@@ -1,18 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import Header from '../components/header';
-import { ThreadProvider } from '../contexts/ThreadContext';
-import { MarkdownPreview } from '../components/markdown/MarkdownPreview';
-import { OpenedFiles } from '../components/markdown/OpenedFiles';
-import { ScrollToTopButton } from '../components/markdown/ScrollToTopButton';
-import { Toolbar } from '../components/markdown/toolbar/Toolbar';
-import { ThreadHeader } from '../components/thread/ThreadHeader';
-import { useCombinedContent } from '../hooks/useCombinedContent';
-import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { useMarkdownParser } from '../hooks/useMarkdownParser';
-import { useThread } from '../contexts/ThreadContext';
-import { DEFAULT_MARKDOWN_CONTENT, NEW_PROJECT_WELCOME_CONTENT } from '../lib/markdown-constants';
+import Header from '../../components/header';
+import { ThreadProvider } from '../../contexts/ThreadContext';
+import { MarkdownPreview } from '../../components/markdown/MarkdownPreview';
+import { OpenedFiles } from '../../components/markdown/OpenedFiles';
+import { ScrollToTopButton } from '../../components/markdown/ScrollToTopButton';
+import { Toolbar } from '../../components/markdown/toolbar/Toolbar';
+import { ThreadHeader } from '../../components/thread/ThreadHeader';
+import { useCombinedContent } from '../../hooks/useCombinedContent';
+import { useDragAndDrop } from '../../hooks/useDragAndDrop';
+import { useMarkdownParser } from '../../hooks/useMarkdownParser';
+import { useThread } from '../../contexts/ThreadContext';
+import { DEFAULT_MARKDOWN_CONTENT, NEW_PROJECT_WELCOME_CONTENT } from '../../lib/markdown-constants';
 
 function MarkdownViewerContent() {
   const [error, setError] = useState<string | null>(null);
