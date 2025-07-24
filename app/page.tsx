@@ -1,9 +1,19 @@
 import Header from './components/header';
 import AppSelector from './components/app-selector';
+import UserMenu from './components/auth/UserMenu';
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
+      {/* Top navigation bar with user menu */}
+      <nav className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-end">
+            <UserMenu />
+          </div>
+        </div>
+      </nav>
+
       <Header />
 
       <div className="flex-1 bg-gray-50 dark:bg-gray-900">

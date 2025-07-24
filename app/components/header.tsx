@@ -7,7 +7,7 @@ interface HeaderProps {
 export default function Header({ 
   title, 
   description, 
-  showBackButton = false 
+  showBackButton = false
 }: HeaderProps = {}) {
   return (
     <header className="w-full max-w-3xl">
