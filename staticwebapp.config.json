@@ -17,6 +17,12 @@
     },
     "routes": [
         {
+            "route": "/markdown-viewer",
+            "allowedRoles": [
+                "authenticated"
+            ]
+        },
+        {
             "route": "/api/*",
             "methods": [
                 "GET",
