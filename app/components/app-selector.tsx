@@ -21,7 +21,7 @@ const apps: AppOption[] = [
   {
     title: 'Markdownビューア',
     description: 'Markdownファイルをリアルタイムでプレビューできるエディタです',
-    href: '/markdown-viewer',
+    href: '/authenticated/markdown-viewer',
     icon: '📝',
     color: 'bg-green-500 hover:bg-green-600',
   },

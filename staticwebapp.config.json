@@ -17,6 +17,12 @@
     },
     "routes": [
         {
+            "route": "/authenticated/*",
+            "allowedRoles": [
+                "authenticated"
+            ]
+        },
+        {
             "route": "/api/*",
             "methods": [
                 "GET",
