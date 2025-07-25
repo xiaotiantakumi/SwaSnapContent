@@ -142,10 +142,6 @@ GitHub Actions によって自動的にビルドとデプロイが行われま�
 - 本番環境では Azure Static Web Apps の構成で、特定のドメインのみを許可するように CORS を設定してください
 - 詳細は [Azure Static Web Apps のドキュメント](https://learn.microsoft.com/ja-jp/azure/static-web-apps/configuration) を参照してください
 
-### 認証設定（Microsoft Entra External ID）
-
-このアプリケーションはMicrosoft Entra External ID（外部テナント）による認証をサポートしています。セットアップ手順については [External IDセットアップガイド](./docs/external-id-setup.md) を参照してください。
-
 ## 使い方
 
 1. 入力欄に URL を入力します
