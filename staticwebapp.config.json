@@ -54,8 +54,8 @@
             "azureActiveDirectory": {
                 "registration": {
                     "openIdIssuer": "https://swasnap.ciamlogin.com/swasnap.onmicrosoft.com/v2.0/",
-                    "clientIdSettingName": "EXTERNAL_ID_CLIENT_ID",
-                    "clientSecretSettingName": "EXTERNAL_ID_CLIENT_SECRET"
+                    "clientIdSettingName": "AZURE_CLIENT_ID",
+                    "clientSecretSettingName": "AZURE_CLIENT_SECRET_APP_SETTING_NAME"
                 }
             }
         }
