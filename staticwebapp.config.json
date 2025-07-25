@@ -53,9 +53,9 @@
         "identityProviders": {
             "azureActiveDirectory": {
                 "registration": {
-                    "openIdIssuer": "https://login.microsoftonline.com/0f0b1d8e-c8f3-4b9b-91bd-cc7c1751899e/v2.0",
+                    "openIdIssuer": "https://swasnap.ciamlogin.com/swasnap.onmicrosoft.com/v2.0/",
                     "clientIdSettingName": "AZURE_CLIENT_ID",
-                    "clientSecretSettingName": "AZURE_CLIENT_SECRET"
+                    "clientSecretSettingName": "AZURE_CLIENT_SECRET_APP_SETTING_NAME"
                 }
             }
         }
