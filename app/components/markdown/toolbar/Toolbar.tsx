@@ -1,8 +1,9 @@
 import { useClipboard } from '../../../hooks/useClipboard';
-import { DropZone } from '../DropZone';
-import { MobileMenu } from './MobileMenu';
-import { Tooltip } from '../../ui/Tooltip';
 import type { MarkdownFile } from '../../../types/thread';
+import { Tooltip } from '../../ui/Tooltip';
+import { DropZone } from '../DropZone';
+
+import { MobileMenu } from './MobileMenu';
 
 interface ToolbarProps {
   content: string;
@@ -65,7 +66,7 @@ export function Toolbar({
   };
 
   return (
-    <div className="flex items-center justify-end px-4 py-3 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+    <div className="flex items-center justify-end border-b border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
       <div className="flex items-center space-x-3">
         {/* Visual Drop Zone */}
         <DropZone
@@ -78,17 +79,17 @@ export function Toolbar({
         
 
         {/* Desktop Icon Buttons */}
-        <div className="hidden md:flex items-center space-x-2">
+        <div className="hidden items-center space-x-2 md:flex">
           {/* Paste Button */}
           {supportsClipboard && (
             <Tooltip content="クリップボードからMarkdownを貼り付け" position="bottom">
               <button
                 type="button"
                 onClick={handlePaste}
-                className="p-2 rounded-lg bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 transition-colors text-white"
+                className="rounded-lg bg-green-500 p-2 text-white transition-colors hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
                 aria-label="クリップボード貼り付け"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </button>
@@ -101,11 +102,11 @@ export function Toolbar({
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="p-2 rounded-lg bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 transition-colors text-white"
+                className="rounded-lg bg-red-500 p-2 text-white transition-colors hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
                 aria-label="全て削除"
                 data-testid="clear-all"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>

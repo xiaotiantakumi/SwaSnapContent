@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
 import { type CustomAction } from '../config/default-actions';
 
 interface CustomActionModalProps {
@@ -113,16 +114,16 @@ export default function CustomActionModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="w-full max-w-md rounded-lg bg-white p-6">
+        <h3 className="mb-4 text-lg font-semibold">
           カスタムアクションの追加・編集
         </h3>
         <div className="space-y-4">
           <div>
             <label
               htmlFor="action-name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               アクション名
             </label>
@@ -132,13 +133,13 @@ export default function CustomActionModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="例: 技術的な説明"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
             <label
               htmlFor="action-prompt"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               プロンプト内容
             </label>
@@ -147,23 +148,23 @@ export default function CustomActionModal({
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="例: この内容について技術的な観点から詳しく説明してください。"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
-            ></textarea>
+              className="h-32 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+             />
           </div>
           <div className="flex justify-end space-x-3 pt-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md"
+              className="rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
             >
               キャンセル
             </button>
             <button
               onClick={handleSave}
               disabled={!name.trim() || !prompt.trim()}
-              className={`px-4 py-2 rounded-md ${
+              className={`rounded-md px-4 py-2 ${
                 !name.trim() || !prompt.trim()
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  ? 'cursor-not-allowed bg-gray-300 text-gray-500'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >
               保存
@@ -171,8 +172,8 @@ export default function CustomActionModal({
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t">
-          <h4 className="text-md font-semibold mb-3">アクション管理</h4>
+        <div className="mt-6 border-t pt-4">
+          <h4 className="mb-3 text-base font-semibold">アクション管理</h4>
           <div className="space-y-3">
             <div>
               <input
@@ -186,14 +187,14 @@ export default function CustomActionModal({
                 onClick={() =>
                   document.getElementById('import-actions-file')?.click()
                 }
-                className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm"
+                className="w-full rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
               >
                 アクションをインポート (JSON)
               </button>
             </div>
             <button
               onClick={handleExportAllActions}
-              className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm"
+              className="w-full rounded-md bg-green-500 px-4 py-2 text-sm text-white hover:bg-green-600"
             >
               すべてのアクションをエクスポート (JSON)
             </button>

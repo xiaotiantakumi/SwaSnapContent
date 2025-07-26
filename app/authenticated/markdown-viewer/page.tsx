@@ -1,18 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+
 import Header from '../../components/header';
-import ThemeToggle from '../../components/theme-toggle';
-import { ThreadProvider } from '../../contexts/ThreadContext';
 import { MarkdownPreview } from '../../components/markdown/MarkdownPreview';
 import { OpenedFiles } from '../../components/markdown/OpenedFiles';
 import { ScrollToTopButton } from '../../components/markdown/ScrollToTopButton';
 import { Toolbar } from '../../components/markdown/toolbar/Toolbar';
+import ThemeToggle from '../../components/theme-toggle';
 import { ThreadHeader } from '../../components/thread/ThreadHeader';
+import { ThreadProvider } from '../../contexts/ThreadContext';
+import { useThread } from '../../contexts/ThreadContext';
 import { useCombinedContent } from '../../hooks/useCombinedContent';
 import { useDragAndDrop } from '../../hooks/useDragAndDrop';
 import { useMarkdownParser } from '../../hooks/useMarkdownParser';
-import { useThread } from '../../contexts/ThreadContext';
 import { DEFAULT_MARKDOWN_CONTENT, NEW_PROJECT_WELCOME_CONTENT } from '../../lib/markdown-constants';
 
 function MarkdownViewerContent() {
@@ -108,9 +109,9 @@ function MarkdownViewerContent() {
 
       {/* Main Content - Single Pane Layout with Enhanced Drop Zone */}
       <div
-        className={`flex flex-1 overflow-hidden relative border-2 border-dashed transition-all duration-200 ${
+        className={`relative flex flex-1 overflow-hidden border-2 border-dashed transition-all duration-200 ${
           isDragOver 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-inner' 
+            ? 'border-blue-500 bg-blue-50 shadow-inner dark:bg-blue-900/20' 
             : 'border-transparent'
         }`}
         onDragOver={handleDragOver}
@@ -120,17 +121,17 @@ function MarkdownViewerContent() {
       >
         {/* Enhanced Drag Overlay with Animation */}
         {isDragOver && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-blue-100 bg-opacity-90 dark:bg-blue-900 dark:bg-opacity-90 backdrop-blur-sm">
-            <div className="rounded-lg bg-white p-8 shadow-2xl dark:bg-gray-800 border-2 border-blue-500 transform scale-105 transition-transform">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-blue-100/90 backdrop-blur-sm dark:bg-blue-900/90">
+            <div className="scale-105 rounded-lg border-2 border-blue-500 bg-white p-8 shadow-2xl transition-transform dark:bg-gray-800">
               <div className="text-center">
-                <div className="text-6xl mb-4 animate-bounce">📅</div>
-                <div className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                <div className="mb-4 animate-bounce text-6xl">📅</div>
+                <div className="mb-2 text-xl font-bold text-blue-600 dark:text-blue-400">
                   Markdownファイルをここにドロップ
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                <div className="mb-4 text-sm text-gray-600 dark:text-gray-300">
                   .md、.markdown、.txtファイルに対応
                 </div>
-                <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
+                <div className="text-xs font-medium text-blue-500 dark:text-blue-400">
                   複数ファイル同時アップロード可能
                 </div>
               </div>

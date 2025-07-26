@@ -1,4 +1,5 @@
 import { memo } from 'react';
+
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
@@ -16,7 +17,7 @@ export const MarkdownPreview = memo(
   ({ content, className = '' }: MarkdownPreviewProps) => {
     return (
       <div
-        className={`prose prose-slate dark:prose-invert max-w-none ${className}`}
+        className={`prose prose-slate max-w-none dark:prose-invert ${className}`}
       >
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}

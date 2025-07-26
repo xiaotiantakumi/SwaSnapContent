@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+
 import ExtractForm from '../components/extract-form';
 import Header from '../components/header';
 import ThemeToggle from '../components/theme-toggle';
@@ -21,7 +22,7 @@ export default function UrlExtractorPage() {
           description="URLを入力して、ウェブページから本文を抽出"
           showBackButton={true}
         />
-        <div className="w-full max-w-3xl mt-8">
+        <div className="mt-8 w-full max-w-3xl">
           <Suspense fallback={<div className="text-center">読み込み中...</div>}>
             <ExtractForm />
           </Suspense>

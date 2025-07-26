@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+
 import LinkCollectorForm from '../components/link-collector-form';
 import URLListDisplay from '../components/url-list-display';
 import { useLinkCollector } from '../hooks/useLinkCollector';
@@ -42,13 +43,13 @@ export default function LinkCollectorClient() {
     <div className="space-y-6">
       {/* Success/Error Messages */}
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+        <div className="rounded border border-green-200 bg-green-50 px-4 py-3 text-green-700">
           {successMessage}
         </div>
       )}
       
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
           <strong>エラー:</strong> {error}
         </div>
       )}
@@ -62,7 +63,7 @@ export default function LinkCollectorClient() {
       {/* Results Display */}
       {collectedUrls.length > 0 && (
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               収集結果
             </h2>
@@ -88,11 +89,11 @@ export default function LinkCollectorClient() {
 
       {/* Loading State */}
       {isCollecting && (
-        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
+        <div className="rounded border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700">
           <div className="flex items-center">
-            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg className="-ml-1 mr-3 size-5 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
             リンクを収集中です... サーバーの負荷を避けるため、少し時間がかかる場合があります。
           </div>
@@ -101,8 +102,8 @@ export default function LinkCollectorClient() {
 
       {/* Help Text */}
       {collectedUrls.length === 0 && !isCollecting && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">
+        <div className="rounded-lg bg-gray-50 p-6 dark:bg-gray-800">
+          <h3 className="mb-3 text-lg font-medium text-gray-900 dark:text-gray-100">
             使い方
           </h3>
           <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
