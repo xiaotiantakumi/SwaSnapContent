@@ -25,7 +25,7 @@ export function useFileSystem(): FileSystemHookReturn {
             {
               description: 'Markdown files',
               accept: {
-                'text/markdown': SUPPORTED_FILE_EXTENSIONS,
+                'text/markdown': [...SUPPORTED_FILE_EXTENSIONS],
                 'text/plain': ['.txt'],
               },
             },
@@ -143,7 +143,7 @@ export function useFileSystem(): FileSystemHookReturn {
             {
               description: 'Markdown files',
               accept: {
-                'text/markdown': SUPPORTED_FILE_EXTENSIONS,
+                'text/markdown': [...SUPPORTED_FILE_EXTENSIONS],
                 'text/plain': ['.txt'],
               },
             },
