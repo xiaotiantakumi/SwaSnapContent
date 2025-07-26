@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 
 import { type CustomAction, DEFAULT_ACTIONS } from '../config/default-actions';
 import { type ArticleOutput } from '../utils/extract-content';
@@ -335,15 +335,12 @@ export default function ExtractForm() {
           </button>
         </div>
 
-        {error && (
-          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-800">
+        {error ? <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-800">
             {error}
-          </div>
-        )}
+          </div> : null}
       </form>
 
-      {article && (
-        <>
+      {article ? <>
           {/* 記事表示部分を ArticleDisplay コンポーネントに置き換え */}
           <ArticleDisplay article={article} />
 
@@ -358,16 +355,13 @@ export default function ExtractForm() {
             isPromptCopied={isPromptCopied}
           />
           {/* 選択中のアクションを編集するボタンを追加 */}
-          {selectedAction && !selectedAction.isBuiltIn && (
-            <button
+          {selectedAction && !selectedAction.isBuiltIn ? <button
               onClick={() => handleOpenModalForEdit(selectedAction)}
               className="ml-2 mt-2 rounded-md bg-yellow-500 px-3 py-1 text-sm text-white hover:bg-yellow-600"
             >
               選択中アクションを編集
-            </button>
-          )}
-        </>
-      )}
+            </button> : null}
+        </> : null}
 
       <CustomActionModal
         isOpen={isModalOpen}

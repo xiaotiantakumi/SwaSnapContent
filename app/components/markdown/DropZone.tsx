@@ -21,7 +21,7 @@ export function DropZone({
   onDragOver,
   onDragLeave,
   onDrop,
-}: Omit<DropZoneProps, 'onError'>) {
+}: Omit<DropZoneProps, 'onError'>): JSX.Element {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {

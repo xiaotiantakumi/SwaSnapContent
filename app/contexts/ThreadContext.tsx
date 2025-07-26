@@ -1,8 +1,8 @@
 'use client';
 
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 
-import { useThreadManager, ThreadManagerHook } from '../hooks/useThreadManager';
+import { useThreadManager, type ThreadManagerHook } from '../hooks/useThreadManager';
 
 type ThreadContextValue = ThreadManagerHook;
 

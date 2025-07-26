@@ -34,7 +34,7 @@ const apps: AppOption[] = [
   },
 ];
 
-export default function AppSelector() {
+export default function AppSelector(): JSX.Element {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {apps.map((app) => (

@@ -8,10 +8,10 @@ export default function Header({
   title, 
   description, 
   showBackButton = false
-}: HeaderProps = {}) {
+}: HeaderProps = {}): JSX.Element {
   return (
     <header className="w-full max-w-3xl">
-      {showBackButton && (
+      {showBackButton ? (
         <div className="mb-4">
           <a 
             href="/" 
@@ -21,16 +21,16 @@ export default function Header({
             ← アプリ選択に戻る
           </a>
         </div>
-      )}
+      ) : null}
       
-      {title && (
+      {title ? (
         <h1 className="mb-2 text-center text-3xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
-      )}
-      {description && (
+      ) : null}
+      {description ? (
         <p className="text-center text-gray-600 dark:text-gray-400">
           {description}
         </p>
-      )}
+      ) : null}
     </header>
   );
 }

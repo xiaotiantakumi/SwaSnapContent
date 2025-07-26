@@ -6,12 +6,12 @@ interface ArticleDisplayProps {
   article: ArticleOutput;
 }
 
-export default function ArticleDisplay({ article }: ArticleDisplayProps) {
+export default function ArticleDisplay({ article }: ArticleDisplayProps): JSX.Element {
   return (
     <div className="mt-8 space-y-4">
-      {article.title && (
+      {article.title ? (
         <h2 className="text-2xl font-semibold">{article.title}</h2>
-      )}
+      ) : null}
 
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <h3 className="text-lg font-medium">抽出されたコンテンツ：</h3>
@@ -23,15 +23,15 @@ export default function ArticleDisplay({ article }: ArticleDisplayProps) {
 
       {/* アクション選択セクションはこのコンポーネントの外にあります */}
 
-      {article.siteName && (
+      {article.siteName ? (
         <div className="text-sm text-gray-600">
           サイト名: {article.siteName}
         </div>
-      )}
+      ) : null}
 
-      {article.byline && (
+      {article.byline ? (
         <div className="text-sm text-gray-600">著者: {article.byline}</div>
-      )}
+      ) : null}
     </div>
   );
 }

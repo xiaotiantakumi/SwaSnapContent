@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import { useAuth } from '../../hooks/useAuth';
 
-export default function UserMenu() {
+export default function UserMenu(): JSX.Element {
   const { isAuthenticated, isLoading, userEmail, login, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -66,7 +66,7 @@ export default function UserMenu() {
       </button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
+      {isOpen ? (
         <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-gray-800 dark:ring-gray-700">
           <div className="py-1">
             {/* User Info */}
@@ -92,7 +92,7 @@ export default function UserMenu() {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

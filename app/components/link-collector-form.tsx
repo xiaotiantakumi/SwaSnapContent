@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { CollectionOptions } from '../types/link-collector';
+import { type CollectionOptions } from '../types/link-collector';
 
 interface LinkCollectorFormProps {
   onCollect: (url: string, selector: string, options: CollectionOptions) => Promise<void>;
@@ -29,8 +29,7 @@ function OptionsAccordion({ options, onChange, disabled }: OptionsAccordionProps
         詳細オプション {isOpen ? '▼' : '▶'}
       </button>
       
-      {isOpen && (
-        <div className="space-y-4 border-t border-gray-200 p-4">
+      {isOpen ? <div className="space-y-4 border-t border-gray-200 p-4">
           <div>
             <label htmlFor="crawl-depth" className="mb-1 block text-sm font-medium text-gray-700">
               クロール深度
@@ -69,8 +68,7 @@ function OptionsAccordion({ options, onChange, disabled }: OptionsAccordionProps
               サーバーへの負荷を避けるための待機時間
             </p>
           </div>
-        </div>
-      )}
+        </div> : null}
     </div>
   );
 }

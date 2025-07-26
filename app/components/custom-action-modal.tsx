@@ -22,7 +22,7 @@ export default function CustomActionModal({
   onExportAll,
   initialName = '',
   initialPrompt = '',
-}: CustomActionModalProps) {
+}: CustomActionModalProps): JSX.Element | null {
   const [name, setName] = useState(initialName);
   const [prompt, setPrompt] = useState(initialPrompt);
 

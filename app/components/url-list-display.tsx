@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { CollectedLink, NotebookLMFormat } from '../types/link-collector';
+import { type CollectedLink, type NotebookLMFormat } from '../types/link-collector';
 
 interface URLListDisplayProps {
   urls: CollectedLink[];
@@ -167,8 +167,7 @@ export default function URLListDisplay({
   return (
     <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
       {/* Stats Header */}
-      {stats && (
-        <div className="mb-4 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+      {stats ? <div className="mb-4 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
           <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
             収集結果
           </h3>
@@ -190,8 +189,7 @@ export default function URLListDisplay({
               <span className="font-medium text-gray-900 dark:text-gray-100">{stats.uniqueLinks}</span>
             </div>
           </div>
-        </div>
-      )}
+        </div> : null}
 
       {/* Filter Panel */}
       <FilterPanel
@@ -269,7 +267,7 @@ export default function URLListDisplay({
                   
                   <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     ソース: {item.source} | 深度: {item.depth}
-                    {item.title && ` | タイトル: ${item.title}`}
+                    {item.title ? ` | タイトル: ${item.title}` : null}
                   </div>
                 </div>
               </div>

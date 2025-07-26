@@ -22,7 +22,7 @@ export default function ActionSelector({
   onOpenCustomActionModal,
   onDeleteCustomAction,
   isPromptCopied,
-}: ActionSelectorProps) {
+}: ActionSelectorProps): JSX.Element {
   return (
     <div className="mt-6 rounded-md border border-gray-200 bg-gray-50 p-4">
       <h3 className="mb-3 text-lg font-medium">テキストアクション</h3>
@@ -65,20 +65,20 @@ export default function ActionSelector({
         </button>
       </div>
 
-      {selectedAction && (
+      {selectedAction ? (
         <div className="mt-3 rounded-md bg-gray-100 p-3">
           <p className="text-sm font-medium">選択中: {selectedAction.name}</p>
           <p className="mt-1 text-sm text-gray-600">{selectedAction.prompt}</p>
-          {!selectedAction.isBuiltIn && (
+          {!selectedAction.isBuiltIn ? (
             <button
               onClick={() => onDeleteCustomAction(selectedAction.name)}
               className="mt-2 text-xs text-red-600 hover:text-red-800"
             >
               このカスタムアクションを削除
             </button>
-          )}
+          ) : null}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

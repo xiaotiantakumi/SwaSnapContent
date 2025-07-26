@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-export default function ThemeToggle() {
+export default function ThemeToggle(): JSX.Element {
   const [isDark, setIsDark] = useState(false);
   const [mounted, setMounted] = useState(false);
 
