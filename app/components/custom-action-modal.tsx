@@ -45,14 +45,18 @@ export default function CustomActionModal({
         const content = e.target?.result;
         if (typeof content !== 'string')
           throw new Error('File content is not a string.');
-        let importedActions = JSON.parse(content) as any[];
+        const importedActions = JSON.parse(content) as unknown[];
 
         if (
           !Array.isArray(importedActions) ||
           !importedActions.every(
-            (action) =>
-              typeof action.name === 'string' &&
-              typeof action.prompt === 'string'
+            (action): action is { name: string; prompt: string } =>
+              typeof action === 'object' &&
+              action !== null &&
+              'name' in action &&
+              'prompt' in action &&
+              typeof (action as { name: unknown }).name === 'string' &&
+              typeof (action as { prompt: unknown }).prompt === 'string'
           )
         ) {
           throw new Error(
@@ -61,8 +65,8 @@ export default function CustomActionModal({
         }
         const sanitizedActions: CustomAction[] = importedActions.map(
           (action) => ({
-            name: action.name,
-            prompt: action.prompt,
+            name: (action as { name: string }).name,
+            prompt: (action as { prompt: string }).prompt,
           })
         );
 

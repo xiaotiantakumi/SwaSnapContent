@@ -149,7 +149,7 @@ export default function ExtractForm() {
 
   const handleImportActions = (importedActions: CustomAction[]) => {
     try {
-      let currentCustomActions = getCustomActions();
+      const currentCustomActions = getCustomActions();
       const defaultActionNames = new Set(DEFAULT_ACTIONS.map((a) => a.name));
       let updatedCount = 0;
       let addedCount = 0;
@@ -238,7 +238,7 @@ export default function ExtractForm() {
         setError('HTTPまたはHTTPSのURLを入力してください');
         return;
       }
-    } catch (e) {
+    } catch {
       setError('有効なURLを入力してください');
       return;
     }

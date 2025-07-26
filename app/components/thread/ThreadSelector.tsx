@@ -28,7 +28,7 @@ export function ThreadSelector({ isOpen, onClose }: ThreadSelectorProps) {
   const handleCreateNewThread = async () => {
     setIsCreating(true);
     try {
-      const threadId = await createThread();
+      await createThread();
       onClose();
       // プロジェクト作成後にファイル追加を促すため、少し遅延してファイルダイアログトリガーイベントを発火
       setTimeout(() => {

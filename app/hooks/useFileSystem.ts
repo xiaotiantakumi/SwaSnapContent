@@ -20,7 +20,7 @@ export function useFileSystem(): FileSystemHookReturn {
     try {
       if (isFileSystemSupported) {
         // Modern File System Access API
-        const [fileHandle] = await (window as any).showOpenFilePicker({
+        const [fileHandle] = await (window as unknown as { showOpenFilePicker: (options: { types: { description: string; accept: Record<string, string[]> }[], multiple?: boolean }) => Promise<FileSystemFileHandle[]> }).showOpenFilePicker({
           types: [
             {
               description: 'Markdown files',
@@ -93,7 +93,7 @@ export function useFileSystem(): FileSystemHookReturn {
       try {
         if (isFileSystemSupported) {
           // Modern File System Access API
-          const fileHandle = await (window as any).showSaveFilePicker({
+          const fileHandle = await (window as unknown as { showSaveFilePicker: (options: { types: { description: string; accept: Record<string, string[]> }[], suggestedName?: string }) => Promise<FileSystemFileHandle> }).showSaveFilePicker({
             types: [
               {
                 description: 'Markdown files',
@@ -138,7 +138,7 @@ export function useFileSystem(): FileSystemHookReturn {
     try {
       if (isFileSystemSupported) {
         // Modern File System Access API
-        const fileHandles = await (window as any).showOpenFilePicker({
+        const fileHandles = await (window as unknown as { showOpenFilePicker: (options: { types: { description: string; accept: Record<string, string[]> }[], multiple?: boolean }) => Promise<FileSystemFileHandle[]> }).showOpenFilePicker({
           types: [
             {
               description: 'Markdown files',

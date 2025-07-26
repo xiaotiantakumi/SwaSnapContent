@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useThread } from '../../contexts/ThreadContext';
 import { ThreadSelector } from './ThreadSelector';
-import { Tooltip } from '../ui/Tooltip';
+// import { Tooltip } from '../ui/Tooltip';
 
 export function ThreadHeader() {
   const { activeThread, threads, createThread } = useThread();

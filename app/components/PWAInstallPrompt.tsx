@@ -2,14 +2,23 @@
 
 import { useEffect, useState } from 'react';
 
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
+
 export default function PWAInstallPrompt() {
   const [supportsPWA, setSupportsPWA] = useState(false);
-  const [promptInstall, setPromptInstall] = useState<any>(null);
+  const [promptInstall, setPromptInstall] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
       console.log('PWAインストールイベントを検知しました。', e);
       setSupportsPWA(true);
@@ -37,7 +46,7 @@ export default function PWAInstallPrompt() {
       return;
     }
     promptInstall.prompt();
-    promptInstall.userChoice.then((choiceResult: any) => {
+    promptInstall.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
         console.log('ユーザーがPWAのインストールを承認しました');
         setIsInstalled(true);

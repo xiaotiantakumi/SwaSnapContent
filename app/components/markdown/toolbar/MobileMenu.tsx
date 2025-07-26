@@ -9,7 +9,7 @@ interface MobileMenuProps {
   onClearAllFiles: () => void;
   onError: (error: string) => void;
   parsedContent?: string;
-  content: string;
+  content?: string;
 }
 
 /**
@@ -21,9 +21,7 @@ export function MobileMenu({
   onFilesAdd,
   onClearAllFiles,
   onError,
-  parsedContent,
-  content,
-}: MobileMenuProps) {
+}: Omit<MobileMenuProps, 'parsedContent' | 'content'>) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { openFiles } = useFileSystem();

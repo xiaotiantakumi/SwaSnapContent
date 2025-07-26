@@ -33,7 +33,7 @@ export function useDragAndDrop({
 
     // Check file extension
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-    if (!SUPPORTED_FILE_EXTENSIONS.includes(extension as any)) {
+    if (!SUPPORTED_FILE_EXTENSIONS.includes(extension as '.md' | '.markdown' | '.txt')) {
       return `Unsupported file type "${extension}". Please use: ${SUPPORTED_FILE_EXTENSIONS.join(', ')}`;
     }
 

@@ -4,7 +4,7 @@
 declare global {
   interface Window {
     workbox: {
-      addEventListener: (event: string, callback: (event: any) => void) => void;
+      addEventListener: (event: string, callback: (event: { isUpdate?: boolean }) => void) => void;
       register: () => void;
     };
   }

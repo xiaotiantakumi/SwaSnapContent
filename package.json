@@ -10,7 +10,14 @@
     "build:api": "cd api && npm run build",
     "swa:all": "concurrently \"npm:dev\" \"swa start http://localhost:3000 --api-location api\"",
     "swa:build": "npm run build && (cd api && npm run build)",
-    "swa:start": "swa start out --api-location api"
+    "swa:start": "swa start out --api-location api",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "dependencies": {
     "canvas": "^3.1.0",
@@ -34,6 +41,8 @@
     "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"

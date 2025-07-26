@@ -3,9 +3,7 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useThreadManager, ThreadManagerHook } from '../hooks/useThreadManager';
 
-interface ThreadContextValue extends ThreadManagerHook {
-  // Additional context-specific methods can be added here if needed
-}
+type ThreadContextValue = ThreadManagerHook;
 
 const ThreadContext = createContext<ThreadContextValue | null>(null);
 
