@@ -12,7 +12,7 @@
     },
     "dependencies": {
         "@azure/functions": "^4.0.0",
-        "@mozilla/readability": "^0.5.0",
+        "@mozilla/readability": "^0.6.0",
         "jsdom": "^22.1.0",
         "web-link-collector": "^1.0.10"
     },
