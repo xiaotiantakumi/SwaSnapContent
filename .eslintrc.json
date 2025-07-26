@@ -22,7 +22,10 @@
     "jsx-a11y",
     "tailwindcss",
     "security",
-    "promise"
+    "promise",
+    "unicorn",
+    "sonarjs",
+    "eslint-comments"
   ],
   "extends": [
     "eslint:recommended",
@@ -31,7 +34,9 @@
     "plugin:jsx-a11y/recommended",
     "plugin:tailwindcss/recommended",
     "plugin:promise/recommended",
+    "plugin:eslint-comments/recommended",
     "next/core-web-vitals",
+    "next/typescript",
     "prettier"
   ],
   "rules": {
@@ -42,24 +47,36 @@
     "jsx-a11y/click-events-have-key-events": "warn",
     "jsx-a11y/no-static-element-interactions": "warn",
     "jsx-a11y/no-autofocus": "warn",
-    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-floating-promises": "warn",
     "@typescript-eslint/no-misused-promises": [
       "warn",
       {
         "checksVoidReturn": {
-          "attributes": false
-        }
+          "attributes": false,
+          "properties": true,
+          "returns": true,
+          "variables": true
+        },
+        "checksConditionals": true
       }
     ],
     "@typescript-eslint/no-unsafe-assignment": "warn",
     "@typescript-eslint/no-unsafe-member-access": "warn",
     "@typescript-eslint/no-unsafe-argument": "warn",
     "react/self-closing-comp": "warn",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/jsx-no-leaked-render": ["warn", { "validStrategies": ["ternary", "coerce"] }],
     "complexity": ["warn", 15],
     "max-depth": ["warn", 3],
-    "max-lines-per-function": ["warn", { "max": 200, "skipBlankLines": true, "skipComments": true }],
+    "max-lines-per-function": ["warn", { 
+      "max": 150, 
+      "skipBlankLines": true, 
+      "skipComments": true,
+      "IIFEs": true
+    }],
     "security/detect-object-injection": "warn",
     "security/detect-non-literal-regexp": "warn",
     "security/detect-unsafe-regex": "warn",
@@ -70,6 +87,28 @@
     "@typescript-eslint/unbound-method": "warn",
     "@typescript-eslint/no-unsafe-call": "warn",
     "@typescript-eslint/no-unsafe-return": "warn",
+    "@typescript-eslint/consistent-type-imports": [
+      "warn",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "warn",
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/strict-boolean-expressions": [
+      "warn",
+      {
+        "allowString": true,
+        "allowNumber": true,
+        "allowNullableObject": true,
+        "allowNullableBoolean": true,
+        "allowNullableString": true,
+        "allowNullableNumber": true,
+        "allowAny": false
+      }
+    ],
     "import/order": [
       "warn",
       {
@@ -89,6 +128,35 @@
         "newlines-between": "always",
         "alphabetize": { "order": "asc", "caseInsensitive": true }
       }
-    ]
+    ],
+    "@typescript-eslint/naming-convention": [
+      "warn",
+      { "selector": "default", "format": ["camelCase"], "leadingUnderscore": "allow" },
+      { "selector": "variable", "format": ["camelCase", "UPPER_CASE", "PascalCase"] },
+      { "selector": "function", "format": ["camelCase", "PascalCase"] },
+      { "selector": "typeLike", "format": ["PascalCase"] },
+      { "selector": "enumMember", "format": ["UPPER_CASE"] },
+      { "selector": "property", "format": null },
+      { "selector": "import", "format": ["camelCase", "PascalCase"] }
+    ],
+    "eslint-comments/require-description": ["warn", { "ignore": [] }],
+    "no-warning-comments": ["warn", { "terms": ["todo", "fixme", "xxx"], "location": "start" }],
+    "sonarjs/cognitive-complexity": ["warn", 20],
+    "sonarjs/no-duplicate-string": ["warn", { "threshold": 5 }],
+    "unicorn/filename-case": [
+      "warn",
+      {
+        "cases": {
+          "camelCase": true,
+          "pascalCase": true,
+          "kebabCase": true
+        }
+      }
+    ],
+    "unicorn/prevent-abbreviations": "off",
+    "unicorn/no-null": "off",
+    "unicorn/prefer-module": "off",
+    "unicorn/no-array-reduce": "off",
+    "unicorn/no-array-for-each": "off"
   }
 }
