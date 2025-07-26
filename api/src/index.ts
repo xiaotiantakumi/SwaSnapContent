@@ -6,6 +6,7 @@ import { app } from '@azure/functions';
 
 // 全ての関数をインポート
 import './functions/extractContent';
+import './functions/collectLinks';
 
 // 明示的なエクスポート
 export { app };
