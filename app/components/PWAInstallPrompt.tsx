@@ -32,10 +32,10 @@ export default function PWAInstallPrompt() {
       }
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('beforeinstallprompt', handler as EventListener);
     checkInstalled();
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler as EventListener);
   }, []);
 
   const handleInstallClick = (
