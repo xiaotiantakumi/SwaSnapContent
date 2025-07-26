@@ -11,7 +11,15 @@ interface UserInfo {
   } | null;
 }
 
-export function useAuth() {
+export function useAuth(): {
+  user: UserInfo | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  userEmail: string;
+  userRoles: string[];
+  login: () => void;
+  logout: () => void;
+} {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

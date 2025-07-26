@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
-import { useDebounce } from './useDebounce';
+
 import { DEBOUNCE_DELAY } from '../lib/markdown-constants';
+
+import { useDebounce } from './useDebounce';
 
 /**
  * Custom hook for debounced markdown parsing

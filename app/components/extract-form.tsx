@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
+
+import { type CustomAction, DEFAULT_ACTIONS } from '../config/default-actions';
 import { type ArticleOutput } from '../utils/extract-content';
-import CustomActionModal from './custom-action-modal';
+
 import ActionSelector from './action-selector';
 import ArticleDisplay from './article-display';
-import { type CustomAction, DEFAULT_ACTIONS } from '../config/default-actions';
+import CustomActionModal from './custom-action-modal';
 
 // ローカルストレージのキー
 const STORAGE_KEY = 'swasnapcontent-custom-actions';
@@ -37,7 +39,7 @@ export default function ExtractForm() {
       try {
         const storedActionsJson = localStorage.getItem(STORAGE_KEY);
         const storedCustomActions: CustomAction[] = storedActionsJson
-          ? JSON.parse(storedActionsJson)
+          ? JSON.parse(storedActionsJson) as CustomAction[]
           : [];
         // isBuiltIn フラグを確実に false にする (または削除)
         const sanitizedCustomActions = storedCustomActions.map((a) => ({
@@ -85,7 +87,9 @@ export default function ExtractForm() {
       } else if (existingActionIndex !== -1) {
         // 既存アクションの編集 (名前変更なし)
         updatedCustomActions = [...customActions];
-        updatedCustomActions[existingActionIndex] = { name, prompt };
+        if (existingActionIndex >= 0 && existingActionIndex < updatedCustomActions.length) {
+          updatedCustomActions[existingActionIndex] = { name, prompt };
+        }
       } else {
         // 新規追加
         if (getAllActionNames().has(name)) {
@@ -173,7 +177,7 @@ export default function ExtractForm() {
           (a) => a.name === importedAction.name
         );
 
-        if (existingActionIndex !== -1) {
+        if (existingActionIndex !== -1 && existingActionIndex >= 0 && existingActionIndex < currentCustomActions.length) {
           // 既存のカスタムアクションを上書き
           currentCustomActions[existingActionIndex] = importedAction;
           updatedCount++;
@@ -260,21 +264,21 @@ export default function ExtractForm() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json() as { error?: string; message?: string };
         // エラーと詳細メッセージの両方を取得して表示
-        throw new Error(
-          errorData.error + (errorData.message ? `\n${errorData.message}` : '')
-        );
+        const errorMessage = errorData.error || 'Unknown error';
+        const detailMessage = errorData.message ? `\n${errorData.message}` : '';
+        throw new Error(errorMessage + detailMessage);
       }
 
-      const result = await response.json();
+      const result = await response.json() as unknown;
 
       if (!result) {
         setError('コンテンツを抽出できませんでした');
         return;
       }
 
-      setArticle(result);
+      setArticle(result as typeof article);
     } catch (error) {
       setError(
         'エラーが発生しました: ' +
@@ -309,20 +313,20 @@ export default function ExtractForm() {
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
           <input
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="URLを入力"
-            className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="grow rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={isLoading}
           />
           <button
             type="submit"
-            className={`px-6 py-2 text-white rounded-md ${
+            className={`rounded-md px-6 py-2 text-white ${
               isLoading
-                ? 'bg-gray-400 cursor-not-allowed'
+                ? 'cursor-not-allowed bg-gray-400'
                 : 'bg-blue-600 hover:bg-blue-700'
             }`}
             disabled={isLoading}
@@ -331,15 +335,12 @@ export default function ExtractForm() {
           </button>
         </div>
 
-        {error && (
-          <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-800">
+        {error ? <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-800">
             {error}
-          </div>
-        )}
+          </div> : null}
       </form>
 
-      {article && (
-        <>
+      {article ? <>
           {/* 記事表示部分を ArticleDisplay コンポーネントに置き換え */}
           <ArticleDisplay article={article} />
 
@@ -354,16 +355,13 @@ export default function ExtractForm() {
             isPromptCopied={isPromptCopied}
           />
           {/* 選択中のアクションを編集するボタンを追加 */}
-          {selectedAction && !selectedAction.isBuiltIn && (
-            <button
+          {selectedAction && !selectedAction.isBuiltIn ? <button
               onClick={() => handleOpenModalForEdit(selectedAction)}
-              className="mt-2 ml-2 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md text-sm"
+              className="ml-2 mt-2 rounded-md bg-yellow-500 px-3 py-1 text-sm text-white hover:bg-yellow-600"
             >
               選択中アクションを編集
-            </button>
-          )}
-        </>
-      )}
+            </button> : null}
+        </> : null}
 
       <CustomActionModal
         isOpen={isModalOpen}

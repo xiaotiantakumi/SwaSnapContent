@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
+
 import Header from '../components/header';
-import LinkCollectorClient from './link-collector-client';
 import ThemeToggle from '../components/theme-toggle';
+
+import LinkCollectorClient from './link-collector-client';
 
 export default function LinkCollectorPage() {
   return (
@@ -21,7 +23,7 @@ export default function LinkCollectorPage() {
           description="ウェブページから複数のURLを効率的に収集し、NotebookLM用に整理します"
           showBackButton={true}
         />
-        <div className="w-full max-w-4xl mt-8">
+        <div className="mt-8 w-full max-w-4xl">
           <Suspense fallback={<div className="text-center">読み込み中...</div>}>
             <LinkCollectorClient />
           </Suspense>

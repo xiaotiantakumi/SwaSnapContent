@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+
 import { useAuth } from '../../hooks/useAuth';
 
-export default function UserMenu() {
+export default function UserMenu(): JSX.Element {
   const { isAuthenticated, isLoading, userEmail, login, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -28,7 +29,7 @@ export default function UserMenu() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+      <div className="flex size-10 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
         <span className="text-sm">...</span>
       </div>
     );
@@ -39,7 +40,7 @@ export default function UserMenu() {
     return (
       <button
         onClick={login}
-        className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         aria-label="ログイン"
       >
         <span className="mr-2">👤</span>
@@ -56,7 +57,7 @@ export default function UserMenu() {
       {/* User Avatar Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        className="flex size-10 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="ユーザーメニューを開く"
@@ -65,13 +66,13 @@ export default function UserMenu() {
       </button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 dark:ring-gray-700">
+      {isOpen ? (
+        <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-gray-800 dark:ring-gray-700">
           <div className="py-1">
             {/* User Info */}
-            <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+            <div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
               <p className="text-xs text-gray-500 dark:text-gray-400">ログイン中</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+              <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
                 {userEmail}
               </p>
             </div>
@@ -91,7 +92,7 @@ export default function UserMenu() {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

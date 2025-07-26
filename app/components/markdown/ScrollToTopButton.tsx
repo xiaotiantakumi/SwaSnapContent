@@ -40,14 +40,14 @@ export function ScrollToTopButton({ threshold = 300 }: ScrollToTopButtonProps) {
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-4 right-4 z-50 p-3 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 active:bg-blue-700 transition-all duration-200 transform hover:scale-110 active:scale-95"
+      className="fixed bottom-4 right-4 z-50 rounded-full bg-blue-500 p-3 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:bg-blue-600 active:scale-95 active:bg-blue-700"
       style={{ minWidth: '48px', minHeight: '48px' }} // 十分なタッチターゲット
       aria-label="ページトップに戻る"
       title="ページトップに戻る"
       data-testid="scroll-to-top"
     >
       <svg
-        className="w-5 h-5"
+        className="size-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

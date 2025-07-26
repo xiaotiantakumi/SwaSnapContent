@@ -173,3 +173,6 @@ Before testing with Playwright:
 - Content Security Policy configured for external API access
 - Large content extraction may require increased Node.js memory limits
 - Markdown rendering is debounced (300ms) to prevent excessive re-renders
+
+## Development Reminders
+- ちゃんとコミット前にビルドしたりテストしたりするようにして下さい。

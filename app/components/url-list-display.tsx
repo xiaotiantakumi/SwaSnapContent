@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { CollectedLink, NotebookLMFormat } from '../types/link-collector';
+
+import { type CollectedLink, type NotebookLMFormat } from '../types/link-collector';
 
 interface URLListDisplayProps {
   urls: CollectedLink[];
@@ -40,38 +41,40 @@ function FilterPanel({ filterText, onFilterChange, excludePatterns, onExcludePat
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-3">
+    <div className="space-y-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">フィルタ</h4>
       
       <div>
-        <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+        <label htmlFor="url-search" className="mb-1 block text-xs text-gray-600 dark:text-gray-400">
           URL検索
         </label>
         <input
+          id="url-search"
           type="text"
           value={filterText}
           onChange={(e) => onFilterChange(e.target.value)}
           placeholder="URLで絞り込み..."
-          className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+          className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-400"
         />
       </div>
       
       <div>
-        <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+        <label htmlFor="exclude-pattern" className="mb-1 block text-xs text-gray-600 dark:text-gray-400">
           除外パターン
         </label>
         <div className="flex space-x-2">
           <input
+            id="exclude-pattern"
             type="text"
             value={newPattern}
             onChange={(e) => setNewPattern(e.target.value)}
             placeholder="除外パターンを追加..."
-            className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            className="flex-1 rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-400"
             onKeyPress={(e) => e.key === 'Enter' && addPattern()}
           />
           <button
             onClick={addPattern}
-            className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+            className="rounded bg-gray-500 px-3 py-1 text-sm text-white hover:bg-gray-600"
           >
             追加
           </button>
@@ -82,7 +85,7 @@ function FilterPanel({ filterText, onFilterChange, excludePatterns, onExcludePat
             {excludePatterns.map((pattern) => (
               <span
                 key={pattern}
-                className="inline-flex items-center px-2 py-1 text-xs bg-red-100 text-red-800 rounded"
+                className="inline-flex items-center rounded bg-red-100 px-2 py-1 text-xs text-red-800"
               >
                 {pattern}
                 <button
@@ -162,14 +165,13 @@ export default function URLListDisplay({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
       {/* Stats Header */}
-      {stats && (
-        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+      {stats ? <div className="mb-4 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+          <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
             収集結果
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
             <div>
               <span className="text-gray-600 dark:text-gray-400">処理時間: </span>
               <span className="font-medium text-gray-900 dark:text-gray-100">{stats.processingTime}ms</span>
@@ -187,8 +189,7 @@ export default function URLListDisplay({
               <span className="font-medium text-gray-900 dark:text-gray-100">{stats.uniqueLinks}</span>
             </div>
           </div>
-        </div>
-      )}
+        </div> : null}
 
       {/* Filter Panel */}
       <FilterPanel
@@ -199,7 +200,7 @@ export default function URLListDisplay({
       />
 
       {/* Action Panel */}
-      <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-3">
+      <div className="mt-4 space-y-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <label className="flex items-center">
@@ -222,7 +223,7 @@ export default function URLListDisplay({
             <select
               value={copyFormat.separator}
               onChange={(e) => setCopyFormat({ ...copyFormat, separator: e.target.value as 'space' | 'newline' })}
-              className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             >
               <option value="newline">改行区切り</option>
               <option value="space">スペース区切り</option>
@@ -231,7 +232,7 @@ export default function URLListDisplay({
             <button
               onClick={handleCopy}
               disabled={selectedUrls.size === 0}
-              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              className="rounded bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               コピー ({selectedUrls.size})
             </button>
@@ -240,7 +241,7 @@ export default function URLListDisplay({
       </div>
 
       {/* URL List */}
-      <div className="mt-4 max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg">
+      <div className="mt-4 max-h-96 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-600">
         {filteredUrls.length === 0 ? (
           <div className="p-4 text-center text-gray-500 dark:text-gray-400">
             {urls.length === 0 ? 'URLがありません' : 'フィルタ条件に一致するURLがありません'}
@@ -250,7 +251,7 @@ export default function URLListDisplay({
             {filteredUrls.map((item, index) => (
               <div
                 key={`${item.url}-${index}`}
-                className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-start space-x-3"
+                className="flex items-start space-x-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <input
                   type="checkbox"
@@ -259,14 +260,14 @@ export default function URLListDisplay({
                   className="mt-1"
                 />
                 
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-gray-900 dark:text-gray-100 break-all">
+                <div className="min-w-0 flex-1">
+                  <div className="break-all text-sm text-gray-900 dark:text-gray-100">
                     {item.url}
                   </div>
                   
                   <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     ソース: {item.source} | 深度: {item.depth}
-                    {item.title && ` | タイトル: ${item.title}`}
+                    {item.title ? ` | タイトル: ${item.title}` : null}
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 interface TooltipProps {
   content: string;
@@ -74,18 +74,16 @@ export function Tooltip({
     >
       {children}
       
-      {isVisible && (
-        <div
-          className={`absolute z-50 px-2 py-1 text-xs text-white bg-gray-800 rounded shadow-lg whitespace-nowrap ${getPositionClasses()}`}
+      {isVisible ? <div
+          className={`absolute z-50 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white shadow-lg ${getPositionClasses()}`}
           role="tooltip"
         >
           {content}
           {/* Arrow */}
           <div
-            className={`absolute w-0 h-0 border-4 ${getArrowClasses()}`}
+            className={`absolute size-0 border-4 ${getArrowClasses()}`}
           />
-        </div>
-      )}
+        </div> : null}
     </div>
   );
 }

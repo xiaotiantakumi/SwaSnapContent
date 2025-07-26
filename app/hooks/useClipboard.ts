@@ -13,7 +13,7 @@ export function useClipboard(): ClipboardHook {
 
   // Check if Clipboard API is supported
   const supportsClipboard = typeof navigator !== 'undefined' && Boolean(
-    navigator.clipboard && navigator.clipboard.readText,
+    navigator.clipboard && typeof navigator.clipboard.readText === 'function'
   );
 
   const pasteFromClipboard = useCallback(async (): Promise<string | null> => {

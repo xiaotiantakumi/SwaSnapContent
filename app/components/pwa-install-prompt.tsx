@@ -11,7 +11,7 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
-export default function PWAInstallPrompt() {
+export default function PWAInstallPrompt(): JSX.Element | null {
   const [supportsPWA, setSupportsPWA] = useState(false);
   const [promptInstall, setPromptInstall] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -20,7 +20,6 @@ export default function PWAInstallPrompt() {
   useEffect(() => {
     const handler = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
-      console.log('PWAインストールイベントを検知しました。', e);
       setSupportsPWA(true);
       setPromptInstall(e);
     };
@@ -45,15 +44,17 @@ export default function PWAInstallPrompt() {
     if (!promptInstall) {
       return;
     }
-    promptInstall.prompt();
-    promptInstall.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        console.log('ユーザーがPWAのインストールを承認しました');
-        setIsInstalled(true);
-      } else {
-        console.log('ユーザーがPWAのインストールを拒否しました');
-      }
-    });
+    void promptInstall.prompt();
+    void promptInstall.userChoice
+      .then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          setIsInstalled(true);
+        }
+        return choiceResult;
+      })
+      .catch((error) => {
+        console.error('PWA installation failed:', error);
+      });
   };
 
   const handleDismiss = () => {
@@ -75,9 +76,9 @@ export default function PWAInstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 z-50">
-      <div className="flex justify-between items-start mb-2">
-        <p className="text-sm font-medium mr-4">
+    <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-white p-4 shadow-lg">
+      <div className="mb-2 flex items-start justify-between">
+        <p className="mr-4 text-sm font-medium">
           このアプリをインストールしますか？
         </p>
         <button
@@ -87,7 +88,7 @@ export default function PWAInstallPrompt() {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
+            className="size-5"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -100,7 +101,7 @@ export default function PWAInstallPrompt() {
         </button>
       </div>
       <button
-        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
         onClick={handleInstallClick}
       >
         インストール

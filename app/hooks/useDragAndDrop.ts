@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+
 import { MAX_FILE_SIZE, SUPPORTED_FILE_EXTENSIONS } from '../lib/markdown-constants';
 
 interface DragAndDropHookReturn {
@@ -79,15 +80,6 @@ export function useDragAndDrop({
 
       const files = Array.from(event.dataTransfer.files);
 
-      console.log(
-        'Dropped files:',
-        files.map((f) => ({
-          name: f.name,
-          size: f.size,
-          type: f.type,
-          lastModified: f.lastModified,
-        })),
-      );
 
       if (files.length === 0) {
         onError(
