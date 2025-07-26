@@ -8,6 +8,10 @@
 
 # testing
 /coverage
+# Playwright test results
+/test-results/
+/playwright-report/
+/playwright/.cache/
 
 # next.js
 /.next/
@@ -38,5 +42,14 @@ api/out
 api/build
 api/dist
 api/local.settings.json
+# temporary files and directories
 tmp/*
+!tmp/.gitkeep
+
+# public directory (generated files)
 public/*
+!public/.gitkeep
+
+# logs
+*.log
+/tmp/*.log

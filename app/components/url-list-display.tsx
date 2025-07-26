@@ -52,7 +52,7 @@ function FilterPanel({ filterText, onFilterChange, excludePatterns, onExcludePat
           value={filterText}
           onChange={(e) => onFilterChange(e.target.value)}
           placeholder="URLで絞り込み..."
-          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+          className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
         />
       </div>
       
@@ -66,7 +66,7 @@ function FilterPanel({ filterText, onFilterChange, excludePatterns, onExcludePat
             value={newPattern}
             onChange={(e) => setNewPattern(e.target.value)}
             placeholder="除外パターンを追加..."
-            className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+            className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             onKeyPress={(e) => e.key === 'Enter' && addPattern()}
           />
           <button
@@ -172,19 +172,19 @@ export default function URLListDisplay({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <span className="text-gray-600 dark:text-gray-400">処理時間: </span>
-              <span className="font-medium">{stats.processingTime}ms</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">{stats.processingTime}ms</span>
             </div>
             <div>
               <span className="text-gray-600 dark:text-gray-400">総ページ数: </span>
-              <span className="font-medium">{stats.totalPages}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">{stats.totalPages}</span>
             </div>
             <div>
               <span className="text-gray-600 dark:text-gray-400">総リンク数: </span>
-              <span className="font-medium">{stats.totalLinks}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">{stats.totalLinks}</span>
             </div>
             <div>
               <span className="text-gray-600 dark:text-gray-400">ユニーク数: </span>
-              <span className="font-medium">{stats.uniqueLinks}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">{stats.uniqueLinks}</span>
             </div>
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function URLListDisplay({
             <select
               value={copyFormat.separator}
               onChange={(e) => setCopyFormat({ ...copyFormat, separator: e.target.value as 'space' | 'newline' })}
-              className="text-sm border border-gray-300 rounded px-2 py-1"
+              className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               <option value="newline">改行区切り</option>
               <option value="space">スペース区切り</option>

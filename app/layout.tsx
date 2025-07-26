@@ -43,6 +43,17 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="URL抽出アプリ" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              const theme = localStorage.getItem('theme');
+              const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if (theme === 'dark' || (!theme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+              }
+            })();
+          `
+        }} />
       </head>
       <body className={inter.className}>
         <PWAProvider />
