@@ -4,7 +4,7 @@
 declare global {
   interface Window {
     workbox: {
-      addEventListener: (event: string, callback: (event: any) => void) => void;
+      addEventListener: (event: string, callback: (event: { isUpdate?: boolean }) => void) => void;
       register: () => void;
     };
   }
@@ -19,7 +19,7 @@ export function registerServiceWorker() {
     const wb = window.workbox;
 
     // 新しいService Workerが利用可能になったときの処理
-    wb.addEventListener('installed', (event: { isUpdate: boolean }) => {
+    wb.addEventListener('installed', (event: { isUpdate?: boolean }) => {
       if (event.isUpdate) {
         if (confirm('新しいバージョンが利用可能です。更新しますか？')) {
           window.location.reload();

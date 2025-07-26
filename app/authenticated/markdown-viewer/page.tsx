@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Header from '../../components/header';
+import ThemeToggle from '../../components/theme-toggle';
 import { ThreadProvider } from '../../contexts/ThreadContext';
 import { MarkdownPreview } from '../../components/markdown/MarkdownPreview';
 import { OpenedFiles } from '../../components/markdown/OpenedFiles';
@@ -57,6 +58,15 @@ function MarkdownViewerContent() {
 
   return (
     <main className="flex min-h-screen flex-col bg-white dark:bg-gray-900">
+      {/* Top navigation bar with theme toggle */}
+      <nav className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-end">
+            <ThemeToggle />
+          </div>
+        </div>
+      </nav>
+
       {/* Header with back button */}
       <div className="p-4">
         <Header 

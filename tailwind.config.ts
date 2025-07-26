@@ -6,6 +6,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class', // Tailwind CSS ダークモードをクラスベースで有効化
   theme: {
     extend: {
       backgroundImage: {

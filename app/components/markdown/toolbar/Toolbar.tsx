@@ -24,12 +24,10 @@ interface ToolbarProps {
  * localStorage integration for file persistence
  */
 export function Toolbar({
-  content,
   files,
   onFilesAdd,
   onClearAllFiles,
   onError,
-  parsedContent,
   isDragOver,
   onDragOver,
   onDragLeave,
@@ -72,7 +70,6 @@ export function Toolbar({
         {/* Visual Drop Zone */}
         <DropZone
           onFiles={onFilesAdd}
-          onError={onError}
           isDragOver={isDragOver}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
@@ -122,8 +119,6 @@ export function Toolbar({
           onFilesAdd={onFilesAdd}
           onClearAllFiles={onClearAllFiles}
           onError={onError}
-          parsedContent={parsedContent}
-          content={content}
         />
       </div>
     </div>

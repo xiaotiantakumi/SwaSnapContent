@@ -25,6 +25,13 @@ const apps: AppOption[] = [
     icon: '📝',
     color: 'bg-green-500 hover:bg-green-600',
   },
+  {
+    title: 'リンクコレクター',
+    description: 'ウェブページから複数のURLを効率的に収集し、NotebookLM用に整理します',
+    href: '/link-collector',
+    icon: '🔗',
+    color: 'bg-purple-500 hover:bg-purple-600',
+  },
 ];
 
 export default function AppSelector() {

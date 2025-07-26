@@ -1,6 +1,7 @@
 import Header from './components/header';
 import AppSelector from './components/app-selector';
 import UserMenu from './components/auth/UserMenu';
+import ThemeToggle from './components/theme-toggle';
 
 export default function Home() {
   return (
@@ -8,7 +9,8 @@ export default function Home() {
       {/* Top navigation bar with user menu */}
       <nav className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-end">
+          <div className="flex h-16 items-center justify-end space-x-3">
+            <ThemeToggle />
             <UserMenu />
           </div>
         </div>

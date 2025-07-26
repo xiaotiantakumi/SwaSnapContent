@@ -3,7 +3,7 @@ import { Tooltip } from '../ui/Tooltip';
 
 interface DropZoneProps {
   onFiles: (files: File[]) => void;
-  onError: (error: string) => void;
+  onError?: (error: string) => void;
   isDragOver: boolean;
   onDragOver: (event: React.DragEvent) => void;
   onDragLeave: (event: React.DragEvent) => void;
@@ -16,12 +16,11 @@ interface DropZoneProps {
  */
 export function DropZone({
   onFiles,
-  onError,
   isDragOver,
   onDragOver,
   onDragLeave,
   onDrop,
-}: DropZoneProps) {
+}: Omit<DropZoneProps, 'onError'>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {

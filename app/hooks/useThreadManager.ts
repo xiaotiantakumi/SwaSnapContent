@@ -110,7 +110,7 @@ export function useThreadManager(): ThreadManagerHook {
       const order = legacyOrder ? JSON.parse(legacyOrder) : [];
       
       // Convert legacy files to new format
-      const markdownFiles: MarkdownFile[] = files.map((file: any) => ({
+      const markdownFiles: MarkdownFile[] = files.map((file: { name: string; content: string; lastModified?: number }) => ({
         id: generateFileId(),
         name: file.name,
         content: file.content,
