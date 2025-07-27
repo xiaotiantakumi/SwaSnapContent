@@ -35,9 +35,6 @@ export default defineConfig({
     
     /* Navigation timeout - 認証処理に時間がかかる場合があるため長めに設定 */
     navigationTimeout: 30000,
-    
-    /* ページの読み込み待機時間 */
-    waitForTimeout: 5000,
   },
 
   /* Configure projects for major browsers */
