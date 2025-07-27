@@ -112,6 +112,8 @@ swa start out --api-location api
 1. **開発サーバーを起動**:
    ```bash
    npm run swa:all
+   # または
+   make run
    ```
 
 2. **ブラウザでアクセス**:
@@ -121,15 +123,19 @@ swa start out --api-location api
 3. **認証フロー**:
    - 保護されたページにアクセス時、自動的に認証ページにリダイレクト
    - 認証エミュレーターで任意のユーザー情報を入力:
-     - **ユーザー名**: 任意（例: `local.dev@example.com`）
-     - **ロール**: 自動設定済み（authenticated, reader, contributor, admin）
+     - **Provider**: `aad` (自動設定)
+     - **User ID**: ランダムに生成（またはカスタム）
+     - **Username**: 任意（例: `local.dev@example.com`）
+     - **User's roles**: `authenticated` が自動追加
+     - **User's claims**: JSON形式（例: `[]` または `[{"typ":"name","val":"Local User"}]`）
    - 認証完了後、markdown-viewer にアクセス可能
 
 4. **手動ログイン/ログアウト**:
    - ログイン: http://localhost:4280/.auth/login/aad
    - ログアウト: http://localhost:4280/.auth/logout
+   - 認証状態確認: http://localhost:4280/.auth/me
 
-> **注意**: 初回起動時に `AZURE_CLIENT_ID not found` エラーが表示される場合がありますが、`.env.local` ファイルが作成されているため、サーバーを再起動すると解決されます。
+> **環境変数**: 認証エミュレーターには `AZURE_CLIENT_ID` と `AZURE_CLIENT_SECRET` のダミー値が自動設定され、実際の Azure AD の設定は不要です。
 
 #### 認証設定のカスタマイズ
 

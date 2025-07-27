@@ -51,8 +51,13 @@ export default defineConfig({
     },
   ],
 
-  /* SWA CLI サーバーが既に起動していることを前提とする */
-  /* webServer設定は使用しない（手動起動） */
+  /* SWA CLI を自動起動 */
+  webServer: {
+    command: 'npm run swa:all',
+    port: 4280,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000, // 2分のタイムアウト
+  },
 
   /* Test output directory */
   outputDir: 'test-results',
