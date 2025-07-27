@@ -6,9 +6,19 @@ test.describe('SWA CLI 認証エミュレーター', () => {
   const swaBaseUrl = 'http://localhost:4280';
 
   test.beforeEach(async ({ page }) => {
-    // SWA CLI のログアウトエンドポイントで認証状態をクリア
-    await page.goto(`${swaBaseUrl}/.auth/logout`);
-    await page.waitForTimeout(1000);
+    // SWA CLI のログアウトエンドポイントで認証状態をクリア（リダイレクトエラーを無視）
+    try {
+      await page.goto(`${swaBaseUrl}/.auth/logout`, { 
+        waitUntil: 'domcontentloaded',
+        timeout: 3000 
+      });
+    } catch (error) {
+      console.log('beforeEach ログアウト処理（予期された動作）:', error.message);
+    }
+    
+    // メインページに移動して状態をリセット
+    await page.goto(`${swaBaseUrl}/`);
+    await page.waitForTimeout(500);
   });
 
   test('メインページにアクセスできること', async ({ page }) => {
@@ -159,8 +169,25 @@ test.describe('SWA CLI 認証エミュレーター', () => {
     await page.goto(`${swaBaseUrl}/.auth/login/aad`);
     await page.waitForTimeout(2000);
     
-    // ログアウトエンドポイントにアクセス
-    await page.goto(`${swaBaseUrl}/.auth/logout`);
+    // 認証後の状態を確認
+    await page.goto(`${swaBaseUrl}/.auth/me`);
+    const authResponse = await page.textContent('body');
+    console.log('認証前の状態:', authResponse);
+    
+    // ログアウトエンドポイントにアクセス（リダイレクトを無視）
+    try {
+      await page.goto(`${swaBaseUrl}/.auth/logout`, { 
+        waitUntil: 'domcontentloaded',
+        timeout: 5000 
+      });
+    } catch (error) {
+      console.log('ログアウトリダイレクト処理中:', error.message);
+      // リダイレクトエラーは予期される動作なので続行
+    }
+    
+    // メインページに移動
+    await page.goto(`${swaBaseUrl}/`);
+    await page.waitForTimeout(1000);
     
     // ログアウト後、認証が必要なページにアクセスすると再度認証ページにリダイレクトされることを確認
     await page.goto(`${swaBaseUrl}/authenticated/markdown-viewer`);

@@ -132,7 +132,7 @@ swa start out --api-location api
 
 4. **手動ログイン/ログアウト**:
    - ログイン: http://localhost:4280/.auth/login/aad
-   - ログアウト: http://localhost:4280/.auth/logout
+   - ログアウト: http://localhost:4280/.auth/logout （注：リダイレクトエラーが表示されますが正常動作です）
    - 認証状態確認: http://localhost:4280/.auth/me
 
 > **環境変数**: 認証エミュレーターには `AZURE_CLIENT_ID` と `AZURE_CLIENT_SECRET` のダミー値が自動設定され、実際の Azure AD の設定は不要です。
@@ -248,3 +248,18 @@ API が起動しない場合やエラーが発生する場合は、以下を試�
 
 5. **「No job functions found」警告**：
    これは HTTP トリガー関数のみを使用している場合は無視して構いません。
+
+### 認証エミュレーター関連のトラブルシューティング
+
+1. **ログアウト時の「ERR_INVALID_REDIRECT」エラー**:
+   - これは SWA CLI 認証エミュレーターの既知の動作です
+   - ログアウト処理は正常に完了しているため、エラーメッセージは無視して構いません
+   - ログアウト後はメインページ（http://localhost:4280）に移動してください
+
+2. **認証エミュレーターでユーザー情報が保存されない**:
+   - ブラウザの開発者ツールでローカルストレージをクリアしてください
+   - またはシークレット/プライベートブラウジングモードを使用してください
+
+3. **「AZURE_CLIENT_ID not found」エラーが再発した場合**:
+   - `make run` または `npm run swa:all` を使用していることを確認
+   - SWA CLI が `staticwebapp.config.local.json` を読み込んでいることを確認
