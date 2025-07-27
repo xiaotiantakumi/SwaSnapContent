@@ -319,7 +319,7 @@ export default function ExtractForm() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="URLを入力"
-            className="grow rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="grow rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
             disabled={isLoading}
           />
           <button
@@ -357,7 +357,7 @@ export default function ExtractForm() {
           {/* 選択中のアクションを編集するボタンを追加 */}
           {selectedAction && !selectedAction.isBuiltIn ? <button
               onClick={() => handleOpenModalForEdit(selectedAction)}
-              className="ml-2 mt-2 rounded-md bg-yellow-500 px-3 py-1 text-sm text-white hover:bg-yellow-600"
+              className="ml-2 mt-2 rounded-md bg-yellow-500 px-3 py-1 text-sm text-white hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700"
             >
               選択中アクションを編集
             </button> : null}
