@@ -31,7 +31,9 @@ help:
 	@echo "  make test-e2e-mock - E2Eテストを実行（高速・モックAPI）"
 	@echo "  make test-e2e-headed - E2Eテストを実行（ブラウザ表示・API統合）"
 	@echo "  make test-e2e-mock-headed - E2Eテストを実行（ブラウザ表示・モックAPI）"
-	@echo "  make test        - 全テストを実行"
+	@echo "  make test-auth   - SWA CLI認証エミュレーターテストを実行"
+	@echo "  make test        - 全テストを実行（認証テスト含む）"
+	@echo "  make test-no-auth - 通常のE2Eテストのみ実行（認証テスト除く）"
 	@echo "  make test-clean  - テスト結果をクリーンアップ"
 	@echo ""
 	@echo "ユーティリティ:"
@@ -226,10 +228,15 @@ test-e2e-mock-headed: kill-ports
 	@sleep 3
 	npm run test:e2e:mock:headed
 
-# 全テストの実行
-test: test-e2e
+# 通常のE2Eテストのみ実行（認証テスト除く）
+test-no-auth: kill-ports
+	@echo "🎭 E2Eテストを実行中（認証テスト除く）..."
+	@echo "🚀 APIサーバーを自動起動してテストします..."
+	@echo "  ⏱️  ポートクリア後、3秒待機..."
+	@sleep 3
+	npm run test:e2e:no-auth
 	@echo ""
-	@echo "✅ 全テスト実行完了"
+	@echo "✅ 通常のE2Eテスト実行完了（認証テスト除く）"
 	@echo ""
 	@echo "📋 テスト概要:"
 	@echo "  • Link Collectorフォーム表示テスト"
@@ -237,6 +244,37 @@ test: test-e2e
 	@echo "  • フォームバリデーションテスト"
 	@echo "  • 詳細オプション削除確認テスト"
 	@echo "  • エラーシナリオスクリーンショットテスト"
+
+# SWA CLI認証エミュレーターテストの実行
+test-auth:
+	@echo "🔐 SWA CLI認証エミュレーターテストを実行中..."
+	@echo "🚀 SWA CLIを自動起動してテストします..."
+	npm run test:e2e:swa
+	@echo ""
+	@echo "✅ SWA CLI認証テスト実行完了"
+
+# 全テストの実行（認証テスト含む）
+test: kill-ports
+	@echo "🎭 全E2Eテストを実行中（認証テスト含む）..."
+	@echo "🚀 通常テスト → 認証テストの順で実行します..."
+	@echo "  ⏱️  ポートクリア後、3秒待機..."
+	@sleep 3
+	@echo ""
+	@echo "📋 Step 1/2: 通常のE2Eテストを実行中..."
+	npm run test:e2e:no-auth
+	@echo ""
+	@echo "📋 Step 2/2: SWA CLI認証テストを実行中..."
+	npm run test:e2e:swa
+	@echo ""
+	@echo "✅ 全テスト（認証テスト含む）実行完了"
+	@echo ""
+	@echo "📊 テスト結果の保存場所:"
+	@echo "  📁 通常テスト結果: test-results/no-auth/"
+	@echo "  📁 認証テスト結果: test-results/auth/"
+	@echo "  📁 HTMLレポート: playwright-report/"
+	@echo ""
+	@echo "🔍 詳細なHTMLレポートを表示するには:"
+	@echo "  npx playwright show-report"
 
 # テスト結果のクリーンアップ
 test-clean:

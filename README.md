@@ -103,6 +103,62 @@ swa start out --api-location api
 
 いずれの方法でも、http://localhost:4280 でアプリケーション全体（フロントエンド + API）にアクセスできます。
 
+### 認証が必要なページのローカル開発
+
+このアプリケーションには `/authenticated/*` の認証が必要なページ（markdown-viewer など）があります。ローカル開発時は SWA CLI の認証エミュレーターを使用します。
+
+#### 認証エミュレーターの使用方法
+
+1. **開発サーバーを起動**:
+   ```bash
+   npm run swa:all
+   # または
+   make run
+   ```
+
+2. **ブラウザでアクセス**:
+   - http://localhost:4280 を開く
+   - 認証が必要なページ（例: `/authenticated/markdown-viewer`）にアクセス
+
+3. **認証フロー**:
+   - 保護されたページにアクセス時、自動的に認証ページにリダイレクト
+   - 認証エミュレーターで任意のユーザー情報を入力:
+     - **Provider**: `aad` (自動設定)
+     - **User ID**: ランダムに生成（またはカスタム）
+     - **Username**: 任意（例: `local.dev@example.com`）
+     - **User's roles**: `authenticated` が自動追加
+     - **User's claims**: JSON形式（例: `[]` または `[{"typ":"name","val":"Local User"}]`）
+   - 認証完了後、markdown-viewer にアクセス可能
+
+4. **手動ログイン/ログアウト**:
+   - ログイン: http://localhost:4280/.auth/login/aad
+   - ログアウト: http://localhost:4280/.auth/logout （注：リダイレクトエラーが表示されますが正常動作です）
+   - 認証状態確認: http://localhost:4280/.auth/me
+
+> **環境変数**: 認証エミュレーターには `AZURE_CLIENT_ID` と `AZURE_CLIENT_SECRET` のダミー値が自動設定され、実際の Azure AD の設定は不要です。
+
+#### 認証設定のカスタマイズ
+
+認証エミュレーターの設定は `swa-cli.config.json` で変更できます：
+
+```json
+{
+  "configurations": {
+    "app": {
+      "auth": {
+        "identityProviders": {
+          "azureActiveDirectory": {
+            "userRoles": ["anonymous", "authenticated", "admin"]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+ロールを変更した後は、開発サーバーを再起動してください。
+
 ## 本番環境向けビルド
 
 ```bash
@@ -141,6 +197,47 @@ GitHub Actions によって自動的にビルドとデプロイが行われま�
 - `api/template.local.settings.json` の CORS 設定は開発環境用です
 - 本番環境では Azure Static Web Apps の構成で、特定のドメインのみを許可するように CORS を設定してください
 - 詳細は [Azure Static Web Apps のドキュメント](https://learn.microsoft.com/ja-jp/azure/static-web-apps/configuration) を参照してください
+
+## テスト
+
+このプロジェクトには2種類のE2Eテストがあります：
+
+### 全テストの実行（推奨）
+```bash
+# 全テスト（認証テスト含む）を実行
+make test
+# または
+npm run test:e2e（通常テスト）+ npm run test:e2e:swa（認証テスト）
+```
+
+### 通常のE2Eテストのみ
+```bash
+# 通常のE2Eテストを実行（認証テスト除く）
+make test-no-auth
+# または
+npm run test:e2e:no-auth
+```
+
+### 認証エミュレーターテストのみ
+```bash
+# SWA CLI認証エミュレーターテストを実行
+make test-auth
+# または
+npm run test:e2e:swa
+```
+
+### テスト結果の保存場所
+テスト結果は以下のディレクトリに保存されます：
+- **通常テスト結果**: `test-results/no-auth/`
+- **認証テスト結果**: `test-results/auth/`
+- **HTMLレポート**: `playwright-report/`
+
+詳細なHTMLレポートを表示するには：
+```bash
+npx playwright show-report
+```
+
+> **注意**: 認証テストは SWA CLI を自動起動するため、専用の設定ファイルで実行されます。`make test` では両方のテストが順次実行されます。
 
 ## 使い方
 
@@ -192,3 +289,18 @@ API が起動しない場合やエラーが発生する場合は、以下を試�
 
 5. **「No job functions found」警告**：
    これは HTTP トリガー関数のみを使用している場合は無視して構いません。
+
+### 認証エミュレーター関連のトラブルシューティング
+
+1. **ログアウト時の「ERR_INVALID_REDIRECT」エラー**:
+   - これは SWA CLI 認証エミュレーターの既知の動作です
+   - ログアウト処理は正常に完了しているため、エラーメッセージは無視して構いません
+   - ログアウト後はメインページ（http://localhost:4280）に移動してください
+
+2. **認証エミュレーターでユーザー情報が保存されない**:
+   - ブラウザの開発者ツールでローカルストレージをクリアしてください
+   - またはシークレット/プライベートブラウジングモードを使用してください
+
+3. **「AZURE_CLIENT_ID not found」エラーが再発した場合**:
+   - `make run` または `npm run swa:all` を使用していることを確認
+   - SWA CLI が `staticwebapp.config.local.json` を読み込んでいることを確認
