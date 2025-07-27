@@ -103,6 +103,54 @@ swa start out --api-location api
 
 いずれの方法でも、http://localhost:4280 でアプリケーション全体（フロントエンド + API）にアクセスできます。
 
+### 認証が必要なページのローカル開発
+
+このアプリケーションには `/authenticated/*` の認証が必要なページ（markdown-viewer など）があります。ローカル開発時は SWA CLI の認証エミュレーターを使用します。
+
+#### 認証エミュレーターの使用方法
+
+1. **開発サーバーを起動**:
+   ```bash
+   npm run swa:all
+   ```
+
+2. **ログイン**:
+   - ブラウザで http://localhost:4280 を開く
+   - 認証が必要なページ（例: `/authenticated/markdown-viewer`）にアクセス
+   - 自動的に認証画面にリダイレクトされるか、直接以下のURLにアクセス:
+     **http://localhost:4280/.auth/login/aad**
+
+3. **認証エミュレーターでのログイン**:
+   - 任意のユーザー名（例: `local.dev@example.com`）を入力
+   - ロールは自動的に設定済み: `anonymous`, `authenticated`, `reader`, `contributor`, `admin`
+   - ログイン完了後、認証が必要なページにアクセス可能
+
+4. **ログアウトのテスト**:
+   - http://localhost:4280/.auth/logout にアクセス
+   - 認証状態がクリアされ、保護されたページへのアクセス時に再度ログインが必要
+
+#### 認証設定のカスタマイズ
+
+認証エミュレーターの設定は `swa-cli.config.json` で変更できます：
+
+```json
+{
+  "configurations": {
+    "app": {
+      "auth": {
+        "identityProviders": {
+          "azureActiveDirectory": {
+            "userRoles": ["anonymous", "authenticated", "admin"]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+ロールを変更した後は、開発サーバーを再起動してください。
+
 ## 本番環境向けビルド
 
 ```bash

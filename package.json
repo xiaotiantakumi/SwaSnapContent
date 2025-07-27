@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "build:api": "cd api && npm run build",
-    "swa:all": "concurrently \"npm:dev\" \"swa start http://localhost:3000 --api-location api\"",
+    "swa:all": "swa start",
     "swa:build": "npm run build && (cd api && npm run build)",
     "swa:start": "swa start out --api-location api",
     "test:e2e": "WITH_API=true npx playwright test",
