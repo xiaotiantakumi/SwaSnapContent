@@ -119,6 +119,16 @@ lint-fix:
 	@echo "🔧 リント問題を自動修正中..."
 	npm run lint -- --fix
 
+# 特定のファイルをlint（Claude Codeフックで使用）
+lint-file:
+	@if [ -z "$(FILE)" ]; then \
+		echo "❌ エラー: FILEパラメータが必要です"; \
+		echo "使用方法: make lint-file FILE=path/to/file.ts"; \
+		exit 1; \
+	fi
+	@echo "🔍 $(FILE) をリント中..."
+	@npx eslint --fix "$(FILE)"
+
 # クリーンアップ
 clean:
 	@echo "🧹 ビルド成果物を削除中..."
