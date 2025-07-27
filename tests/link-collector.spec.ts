@@ -127,29 +127,19 @@ test.describe('Link Collector E2E Tests', () => {
     });
   });
 
-  test('should test options accordion functionality', async ({ page }) => {
-    // 詳細オプションアコーディオンをクリック
-    const optionsButton = page.locator('text=詳細オプション');
-    await optionsButton.click();
+  test('should verify options are fixed to default values', async ({ page }) => {
+    // 詳細オプションが削除されていることを確認
+    await expect(page.locator('text=詳細オプション')).not.toBeVisible();
     
-    // オプション項目が表示されることを確認（より具体的なセレクタを使用）
-    await expect(page.locator('label:has-text("クロール深度")')).toBeVisible();
-    await expect(page.locator('label:has-text("リクエスト間隔")')).toBeVisible();
+    // クロール深度設定も存在しないことを確認
+    await expect(page.locator('label:has-text("クロール深度")')).not.toBeVisible();
+    await expect(page.locator('label:has-text("リクエスト間隔")')).not.toBeVisible();
     
-    // 深度の値を変更
-    await page.fill('input[type="number"][min="1"][max="5"]', '2');
-    
-    // スクリーンショット（オプション展開）
+    // スクリーンショット（簡素化されたUI）
     await page.screenshot({ 
-      path: 'test-results/link-collector-options.png',
+      path: 'test-results/link-collector-simplified.png',
       fullPage: true 
     });
-    
-    // アコーディオンを閉じる
-    await optionsButton.click();
-    
-    // オプション項目が非表示になることを確認
-    await expect(page.locator('label:has-text("クロール深度")')).not.toBeVisible();
   });
 
   test('should toggle dark mode correctly', async ({ page }) => {

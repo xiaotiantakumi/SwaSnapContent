@@ -1,7 +1,7 @@
 # SwaSnapContent Makefile
 # 開発効率向上のためのタスク自動化
 
-.PHONY: help install build dev dev-no-kill clean test test-e2e test-e2e-headed test-e2e-with-api test-e2e-with-api-headed test-install test-clean lint start-api start-frontend start-all status deps kill-ports run run-no-kill
+.PHONY: help install build dev dev-no-kill clean test test-e2e test-e2e-headed test-e2e-mock test-e2e-mock-headed test-install test-clean lint start-api start-frontend start-all status deps kill-ports run run-no-kill
 
 # デフォルトターゲット
 help:
@@ -27,9 +27,10 @@ help:
 	@echo "  make lint        - リンタを実行"
 	@echo "  make lint-fix    - 自動修正可能なリント問題を修正"
 	@echo "  make test-install - Playwrightテスト環境をセットアップ"
-	@echo "  make test-e2e    - E2Eテストを実行（高速・モックAPI）"
-	@echo "  make test-e2e-with-api - E2Eテストを実行（API統合・自動起動）"
-	@echo "  make test-e2e-headed - E2Eテストを実行（ブラウザ表示）"
+	@echo "  make test-e2e    - E2Eテストを実行（API統合・自動起動）"
+	@echo "  make test-e2e-mock - E2Eテストを実行（高速・モックAPI）"
+	@echo "  make test-e2e-headed - E2Eテストを実行（ブラウザ表示・API統合）"
+	@echo "  make test-e2e-mock-headed - E2Eテストを実行（ブラウザ表示・モックAPI）"
 	@echo "  make test        - 全テストを実行"
 	@echo "  make test-clean  - テスト結果をクリーンアップ"
 	@echo ""
@@ -171,15 +172,32 @@ test-install:
 	npx playwright install
 	@echo "✅ Playwrightテスト環境のセットアップ完了"
 
-# E2Eテストの実行
+# E2Eテストの実行（API統合）
 test-e2e: kill-ports
-	@echo "🎭 E2Eテストを実行中（モックAPI使用）..."
-	@echo "📡 アプリケーションサーバーの準備を確認中..."
+	@echo "🎭 E2Eテストを実行中（API統合）..."
+	@echo "🚀 APIサーバーを自動起動してテストを実行します..."
 	@echo "  ⏱️  ポートクリア後、3秒待機..."
 	@sleep 3
 	npm run test:e2e
 	@echo ""
-	@echo "✅ E2Eテスト実行完了"
+	@echo "✅ API統合E2Eテスト実行完了"
+	@echo ""
+	@echo "📊 テスト結果の保存場所:"
+	@echo "  📁 テスト結果: test-results/"
+	@echo "  📁 HTMLレポート: playwright-report/"
+	@echo ""
+	@echo "🔍 詳細なHTMLレポートを表示するには:"
+	@echo "  npx playwright show-report"
+
+# モックAPI E2Eテストの実行
+test-e2e-mock: kill-ports
+	@echo "🎭 E2Eテストを実行中（モックAPI使用）..."
+	@echo "📡 アプリケーションサーバーの準備を確認中..."
+	@echo "  ⏱️  ポートクリア後、3秒待機..."
+	@sleep 3
+	npm run test:e2e:mock
+	@echo ""
+	@echo "✅ モックE2Eテスト実行完了"
 	@echo ""
 	@echo "📊 テスト結果の保存場所:"
 	@echo "  📁 テスト結果: test-results/"
@@ -194,36 +212,19 @@ test-e2e: kill-ports
 	@echo "🔍 詳細なHTMLレポートを表示するには:"
 	@echo "  npx playwright show-report"
 
-# API統合E2Eテストの実行
-test-e2e-with-api: kill-ports
-	@echo "🎭 E2Eテストを実行中（API統合）..."
-	@echo "🚀 APIサーバーを自動起動してテストを実行します..."
-	@echo "  ⏱️  ポートクリア後、3秒待機..."
-	@sleep 3
-	npm run test:e2e:with-api
-	@echo ""
-	@echo "✅ API統合E2Eテスト実行完了"
-	@echo ""
-	@echo "📊 テスト結果の保存場所:"
-	@echo "  📁 テスト結果: test-results/"
-	@echo "  📁 HTMLレポート: playwright-report/"
-	@echo ""
-	@echo "🔍 詳細なHTMLレポートを表示するには:"
-	@echo "  npx playwright show-report"
-
-# ヘッド付きテストの実行
+# ヘッド付きテストの実行（API統合）
 test-e2e-headed: kill-ports
-	@echo "🎭 E2Eテストを実行中（ブラウザ表示あり）..."
+	@echo "🎭 E2Eテストを実行中（API統合・ブラウザ表示あり）..."
 	@echo "  ⏱️  ポートクリア後、3秒待機..."
 	@sleep 3
 	npm run test:e2e:headed
 
-# API統合ヘッド付きテストの実行
-test-e2e-with-api-headed: kill-ports
-	@echo "🎭 E2Eテストを実行中（API統合・ブラウザ表示あり）..."
+# モックAPIヘッド付きテストの実行
+test-e2e-mock-headed: kill-ports
+	@echo "🎭 E2Eテストを実行中（モックAPI・ブラウザ表示あり）..."
 	@echo "  ⏱️  ポートクリア後、3秒待機..."
 	@sleep 3
-	npm run test:e2e:with-api:headed
+	npm run test:e2e:mock:headed
 
 # 全テストの実行
 test: test-e2e
@@ -234,7 +235,7 @@ test: test-e2e
 	@echo "  • Link Collectorフォーム表示テスト"
 	@echo "  • https://takumi-oda.com/blog/ でのリンク収集テスト"
 	@echo "  • フォームバリデーションテスト"
-	@echo "  • オプションアコーディオンテスト"
+	@echo "  • 詳細オプション削除確認テスト"
 	@echo "  • エラーシナリオスクリーンショットテスト"
 
 # テスト結果のクリーンアップ
