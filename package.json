@@ -15,6 +15,8 @@
     "test:e2e:headed": "WITH_API=true npx playwright test --headed",
     "test:e2e:mock": "npx playwright test",
     "test:e2e:mock:headed": "npx playwright test --headed",
+    "test:e2e:swa": "npx playwright test --config=playwright.config.swa.ts",
+    "test:e2e:swa:headed": "npx playwright test --config=playwright.config.swa.ts --headed",
     "dev:with-api": "npm run build:api && swa start http://localhost:3000 --api-location api --run \"npm run dev\"",
     "prepare": "husky"
   },
