@@ -5,7 +5,7 @@ import { useState } from 'react';
 import LinkCollectorForm from '../components/link-collector-form';
 import URLListDisplay from '../components/url-list-display';
 import { useLinkCollector } from '../hooks/useLinkCollector';
-import { CollectionOptions } from '../types/link-collector';
+import { type CollectionOptions } from '../types/link-collector';
 
 export default function LinkCollectorClient() {
   const {
@@ -42,17 +42,13 @@ export default function LinkCollectorClient() {
   return (
     <div className="space-y-6">
       {/* Success/Error Messages */}
-      {successMessage && (
-        <div className="rounded border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+      {successMessage ? <div className="rounded border border-green-200 bg-green-50 px-4 py-3 text-green-700">
           {successMessage}
-        </div>
-      )}
+        </div> : null}
       
-      {error && (
-        <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+      {error ? <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
           <strong>エラー:</strong> {error}
-        </div>
-      )}
+        </div> : null}
 
       {/* Collection Form */}
       <LinkCollectorForm
@@ -88,8 +84,7 @@ export default function LinkCollectorClient() {
       )}
 
       {/* Loading State */}
-      {isCollecting && (
-        <div className="rounded border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700">
+      {isCollecting ? <div className="rounded border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700">
           <div className="flex items-center">
             <svg className="-ml-1 mr-3 size-5 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -97,8 +92,7 @@ export default function LinkCollectorClient() {
             </svg>
             リンクを収集中です... サーバーの負荷を避けるため、少し時間がかかる場合があります。
           </div>
-        </div>
-      )}
+        </div> : null}
 
       {/* Help Text */}
       {collectedUrls.length === 0 && !isCollecting && (
@@ -109,8 +103,6 @@ export default function LinkCollectorClient() {
           <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <li>• <strong>ターゲットURL:</strong> リンクを収集したいウェブページのURLを入力してください</li>
             <li>• <strong>CSSセレクタ:</strong> 特定の要素内のリンクのみを収集したい場合に指定します（例: .content a, #main a）</li>
-            <li>• <strong>クロール深度:</strong> リンクをどこまで深くたどるかを設定します（1-5）</li>
-            <li>• <strong>リクエスト間隔:</strong> サーバーへの負荷を避けるための待機時間を設定します</li>
             <li>• 収集後は、フィルタ機能で不要なURLを除外し、チェックボックスで必要なURLを選択してコピーできます</li>
             <li>• NotebookLMで使用する場合は、改行区切りまたはスペース区切りを選択できます</li>
           </ul>
