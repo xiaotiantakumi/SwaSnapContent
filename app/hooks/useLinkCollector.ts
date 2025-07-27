@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-import { CollectedLink, CollectionOptions, NotebookLMFormat } from '../types/link-collector';
+import { type CollectedLink, type CollectionOptions, type NotebookLMFormat } from '../types/link-collector';
 import { collectLinksAPI } from '../utils/link-collector-api';
 
 export function useLinkCollector() {
@@ -37,7 +37,7 @@ export function useLinkCollector() {
 
       // Convert API response to CollectedLink format
       const urls: CollectedLink[] = result.data.allCollectedUrls.map((linkUrl) => {
-        const relationship = result.data!.linkRelationships.find(rel => rel.found === linkUrl);
+        const relationship = result.data?.linkRelationships.find(rel => rel.found === linkUrl);
         return {
           url: linkUrl,
           source: relationship?.source || url,

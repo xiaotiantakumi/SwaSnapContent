@@ -321,6 +321,7 @@ export default function ExtractForm() {
             placeholder="URLを入力"
             className="grow rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400"
             disabled={isLoading}
+            data-testid="url-input"
           />
           <button
             type="submit"
@@ -330,17 +331,18 @@ export default function ExtractForm() {
                 : 'bg-blue-600 hover:bg-blue-700'
             }`}
             disabled={isLoading}
+            data-testid="extract-button"
           >
             {isLoading ? '抽出中...' : '抽出'}
           </button>
         </div>
 
-        {error ? <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-800">
+        {error ? <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-800" data-testid="error-message">
             {error}
           </div> : null}
       </form>
 
-      {article ? <>
+      {article ? <div data-testid="extracted-content">
           {/* 記事表示部分を ArticleDisplay コンポーネントに置き換え */}
           <ArticleDisplay article={article} />
 
@@ -361,7 +363,7 @@ export default function ExtractForm() {
             >
               選択中アクションを編集
             </button> : null}
-        </> : null}
+        </div> : null}
 
       <CustomActionModal
         isOpen={isModalOpen}

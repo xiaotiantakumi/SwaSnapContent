@@ -36,6 +36,7 @@ export default function ActionSelector({
             className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             value={selectedAction?.name || ''}
             onChange={(e) => onSelectedActionChange(e.target.value || null)}
+            data-testid="action-selector"
           >
             <option value="">アクションを選択</option>
             {actions.map((action) => (
@@ -53,6 +54,7 @@ export default function ActionSelector({
               ? 'bg-green-600 text-white'
               : 'bg-blue-600 text-white hover:bg-blue-700'
           }`}
+          data-testid="copy-button"
         >
           {isPromptCopied ? 'コピーしました！' : 'コピー'}
         </button>
@@ -60,6 +62,7 @@ export default function ActionSelector({
         <button
           onClick={onOpenCustomActionModal}
           className="ml-auto rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+          data-testid="custom-action-button"
         >
           カスタムアクション
         </button>
