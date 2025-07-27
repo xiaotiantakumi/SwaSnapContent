@@ -24,16 +24,16 @@ export default function ActionSelector({
   isPromptCopied,
 }: ActionSelectorProps): JSX.Element {
   return (
-    <div className="mt-6 rounded-md border border-gray-200 bg-gray-50 p-4">
-      <h3 className="mb-3 text-lg font-medium">テキストアクション</h3>
-      <p className="mb-3 text-sm text-gray-600">
+    <div className="mt-6 rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
+      <h3 className="mb-3 text-lg font-medium text-gray-900 dark:text-white">テキストアクション</h3>
+      <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
         選択したアクションを実行すると、整形されたテキストと指定したプロンプトが一緒にコピーされます。
       </p>
 
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
         <div className="w-full sm:w-64">
           <select
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             value={selectedAction?.name || ''}
             onChange={(e) => onSelectedActionChange(e.target.value || null)}
           >
@@ -59,20 +59,20 @@ export default function ActionSelector({
 
         <button
           onClick={onOpenCustomActionModal}
-          className="ml-auto rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+          className="ml-auto rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
         >
           カスタムアクション
         </button>
       </div>
 
       {selectedAction ? (
-        <div className="mt-3 rounded-md bg-gray-100 p-3">
-          <p className="text-sm font-medium">選択中: {selectedAction.name}</p>
-          <p className="mt-1 text-sm text-gray-600">{selectedAction.prompt}</p>
+        <div className="mt-3 rounded-md bg-gray-100 p-3 dark:bg-gray-700">
+          <p className="text-sm font-medium text-gray-900 dark:text-white">選択中: {selectedAction.name}</p>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{selectedAction.prompt}</p>
           {!selectedAction.isBuiltIn ? (
             <button
               onClick={() => onDeleteCustomAction(selectedAction.name)}
-              className="mt-2 text-xs text-red-600 hover:text-red-800"
+              className="mt-2 text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
             >
               このカスタムアクションを削除
             </button>
