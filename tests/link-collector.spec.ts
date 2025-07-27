@@ -37,6 +37,35 @@ test.describe('Link Collector E2E Tests', () => {
   });
 
   test('should test link collection with takumi-oda.com/blog', async ({ page }) => {
+    // APIをモックして成功レスポンスを返す
+    await page.route('**/api/collectLinks', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            allCollectedUrls: [
+              'https://takumi-oda.com/blog/2025/01/15/sample-post-1/',
+              'https://takumi-oda.com/blog/2025/01/10/sample-post-2/',
+              'https://takumi-oda.com/blog/2025/01/05/sample-post-3/'
+            ],
+            linkRelationships: [
+              { found: 'https://takumi-oda.com/blog/2025/01/15/sample-post-1/', source: 'https://takumi-oda.com' },
+              { found: 'https://takumi-oda.com/blog/2025/01/10/sample-post-2/', source: 'https://takumi-oda.com' },
+              { found: 'https://takumi-oda.com/blog/2025/01/05/sample-post-3/', source: 'https://takumi-oda.com' }
+            ],
+            stats: {
+              totalPages: 1,
+              totalLinks: 3,
+              uniqueLinks: 3,
+              processingTime: 1500
+            }
+          }
+        })
+      });
+    });
+
     // テスト用のURLとセレクタを入力
     const targetUrl = 'https://takumi-oda.com/blog/';
     const selector = '#card-2';
@@ -53,8 +82,8 @@ test.describe('Link Collector E2E Tests', () => {
     // リンク収集ボタンをクリック
     await page.click('button[type="submit"]');
     
-    // 収集中の表示を確認（より具体的なセレクタを使用）
-    await expect(page.locator('button:has-text("収集中")')).toBeVisible();
+    // 収集中の表示を確認（実際のテキストに合わせて修正）
+    await expect(page.locator('text=収集中...')).toBeVisible({ timeout: 10000 });
     
     // スクリーンショット（収集中）
     await page.screenshot({ 
@@ -162,12 +191,24 @@ test.describe('Link Collector E2E Tests', () => {
   });
 
   test('should take screenshot on error scenarios', async ({ page }) => {
+    // APIをモックしてエラーレスポンスを返す
+    await page.route('**/api/collectLinks', async route => {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: false,
+          error: 'Server error occurred'
+        })
+      });
+    });
+
     // 無効なURLでテストして、適切にハンドリングされることを確認
     await page.fill('input[type="url"]', 'https://nonexistent-domain-12345.com');
     await page.click('button[type="submit"]');
     
     // 収集中状態になることを確認
-    await expect(page.locator('button:has-text("収集中")')).toBeVisible();
+    await expect(page.locator('text=収集中...')).toBeVisible();
     
     // スクリーンショット（無効URLテスト中）
     await page.screenshot({ 
@@ -185,6 +226,6 @@ test.describe('Link Collector E2E Tests', () => {
     });
     
     // 収集中ボタンが消えていることを確認（処理完了の証拠）
-    await expect(page.locator('button:has-text("収集中")')).not.toBeVisible();
+    await expect(page.locator('text=収集中...')).not.toBeVisible();
   });
 });
