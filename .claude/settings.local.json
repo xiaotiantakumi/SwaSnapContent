@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__zen__chat",
+      "mcp__MCP_DOCKER__create_issue"
+    ],
+    "deny": []
+  }
+}
