@@ -1,14 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * SWA CLI (Azure Static Web Apps CLI) 用の Playwright 設定
- * ポート 4280 で動作する SWA 認証エミュレーターをテスト
+ * Playwright configuration for tests excluding authentication tests
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
   testDir: './tests',
-  /* 認証テストのみ実行 */
-  testMatch: '**/auth-emulator.spec.ts',
+  /* 認証エミュレーターテストを除外 */
+  testIgnore: '**/auth-emulator.spec.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -22,7 +21,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:4280',
+    baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -33,11 +32,8 @@ export default defineConfig({
     /* Wait for actionability */
     actionTimeout: 10000,
     
-    /* Navigation timeout - 認証処理に時間がかかる場合があるため長めに設定 */
+    /* Navigation timeout */
     navigationTimeout: 30000,
-    
-    /* ページの読み込み待機時間 */
-    waitForTimeout: 5000,
   },
 
   /* Configure projects for major browsers */
@@ -46,19 +42,32 @@ export default defineConfig({
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        headless: false, // 認証エミュレーターを確認するため表示モード
+        headless: true,
       },
     },
   ],
 
-  /* SWA CLI を自動起動 */
-  webServer: {
-    command: 'npm run swa:all',
-    port: 4280,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000, // 2分のタイムアウト
-  },
+  /* Run your local dev server before starting the tests */
+  webServer: [
+    {
+      command: 'npm run dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      stderr: 'ignore',
+      stdout: 'ignore',
+    },
+    // API server for integration tests
+    ...(process.env.WITH_API ? [{
+      command: 'cd api && npm run build && npx func start --port 7072 --cors true',
+      url: 'http://localhost:7072',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000, // Increased timeout for Azure Functions startup
+      stderr: 'ignore' as const,
+      stdout: 'ignore' as const,
+    }] : []),
+  ],
 
   /* Test output directory */
-  outputDir: 'test-results/auth',
+  outputDir: 'test-results/no-auth',
 });

@@ -198,6 +198,36 @@ GitHub Actions によって自動的にビルドとデプロイが行われま�
 - 本番環境では Azure Static Web Apps の構成で、特定のドメインのみを許可するように CORS を設定してください
 - 詳細は [Azure Static Web Apps のドキュメント](https://learn.microsoft.com/ja-jp/azure/static-web-apps/configuration) を参照してください
 
+## テスト
+
+このプロジェクトには2種類のE2Eテストがあります：
+
+### 全テストの実行（推奨）
+```bash
+# 全テスト（認証テスト含む）を実行
+make test
+# または
+npm run test:e2e（通常テスト）+ npm run test:e2e:swa（認証テスト）
+```
+
+### 通常のE2Eテストのみ
+```bash
+# 通常のE2Eテストを実行（認証テスト除く）
+make test-no-auth
+# または
+npm run test:e2e:no-auth
+```
+
+### 認証エミュレーターテストのみ
+```bash
+# SWA CLI認証エミュレーターテストを実行
+make test-auth
+# または
+npm run test:e2e:swa
+```
+
+> **注意**: 認証テストは SWA CLI を自動起動するため、専用の設定ファイルで実行されます。`make test` では両方のテストが順次実行されます。
+
 ## 使い方
 
 1. 入力欄に URL を入力します
