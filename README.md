@@ -226,6 +226,17 @@ make test-auth
 npm run test:e2e:swa
 ```
 
+### テスト結果の保存場所
+テスト結果は以下のディレクトリに保存されます：
+- **通常テスト結果**: `test-results/no-auth/`
+- **認証テスト結果**: `test-results/auth/`
+- **HTMLレポート**: `playwright-report/`
+
+詳細なHTMLレポートを表示するには：
+```bash
+npx playwright show-report
+```
+
 > **注意**: 認証テストは SWA CLI を自動起動するため、専用の設定ファイルで実行されます。`make test` では両方のテストが順次実行されます。
 
 ## 使い方
