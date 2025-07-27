@@ -255,7 +255,13 @@ export default function ExtractForm() {
       // Azure Static Web Apps APIを呼び出す
       // ローカル開発時: /api/extractContent
       // 本番環境: /api/extractContent
-      const response = await fetch('/api/extractContent', {
+      // API統合テスト時: http://localhost:7072/api/extractContent
+      const apiEndpoint = process.env.NODE_ENV === 'development' && 
+                          typeof window !== 'undefined' && 
+                          window.location.search.includes('api=7072')
+                          ? 'http://localhost:7072/api/extractContent'
+                          : '/api/extractContent';
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

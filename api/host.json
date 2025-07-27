@@ -17,5 +17,12 @@
     "extensionBundle": {
         "id": "Microsoft.Azure.Functions.ExtensionBundle",
         "version": "[4.*, 5.0.0)"
+    },
+    "http": {
+        "cors": {
+            "allowedOrigins": ["http://localhost:3000", "http://localhost:3001"],
+            "allowedMethods": ["GET", "POST", "OPTIONS"],
+            "allowedHeaders": ["Content-Type", "Authorization"]
+        }
     }
 }

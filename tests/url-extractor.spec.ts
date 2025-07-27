@@ -3,7 +3,9 @@ import { test, expect } from '@playwright/test';
 test.describe('URL本文抽出アプリ E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     // URL本文抽出アプリのページに移動
-    await page.goto('/url-extractor');
+    // API統合テスト時は特別なクエリパラメータを追加
+    const urlPath = process.env.WITH_API ? '/url-extractor?api=7072' : '/url-extractor';
+    await page.goto(urlPath);
   });
 
   test('should display URL extractor form and UI elements', async ({ page }) => {
@@ -355,6 +357,45 @@ test.describe('URL本文抽出アプリ E2E Tests', () => {
     // 注意: このテストは実際のAPIサーバーが起動している場合のみ成功します
     const testUrl = 'https://takumi-oda.com/blog/2025/07/07/post-4788/';
     
+    // まずAPIエンドポイントが利用可能かチェック
+    let apiAvailable = false;
+    try {
+      // Azure Functions API (WITH_API=true時) または SWA API を確認
+      const apiEndpoint = process.env.WITH_API ? 'http://localhost:7072/api/extractContent' : '/api/extractContent';
+      const apiCheckResponse = await page.request.post(apiEndpoint, {
+        data: { url: 'https://example.com' },
+        failOnStatusCode: false,
+      });
+      // 500エラーでもAPIは存在するとみなす（処理エラーだが、エンドポイントは存在）
+      apiAvailable = apiCheckResponse.status() !== 404;
+    } catch (error) {
+      console.log('ℹ️ API事前チェック失敗 - APIサーバーが起動していない可能性があります');
+    }
+
+    if (!apiAvailable) {
+      console.log('⚠️ APIサーバーが利用できません。テストをスキップします。');
+      console.log('ℹ️ 統合テストを実行するには: npm run test:e2e:with-api または make test-e2e-with-api を使用してください。');
+      test.skip();
+      return;
+    }
+
+    // WITH_API=true の場合、API呼び出しをインターセプトして直接Azure Functions APIにリダイレクト
+    if (process.env.WITH_API) {
+      await page.route('**/api/extractContent', async route => {
+        const request = route.request();
+        const response = await page.request.post('http://localhost:7072/api/extractContent', {
+          data: request.postDataJSON(),
+          headers: request.headers(),
+        });
+        const body = await response.body();
+        await route.fulfill({
+          status: response.status(),
+          headers: response.headers(),
+          body: body,
+        });
+      });
+    }
+    
     // URLを入力
     const urlInput = page.getByTestId('url-input');
     const extractButton = page.getByTestId('extract-button');
@@ -374,61 +415,26 @@ test.describe('URL本文抽出アプリ E2E Tests', () => {
     await page.waitForTimeout(1000);
     
     // 結果を最大30秒待機（実際のAPI呼び出しのため）
-    try {
-      const extractedContent = page.getByTestId('extracted-content');
-      await expect(extractedContent).toBeVisible({ timeout: 30000 });
-      
-      // 記事タイトルまたはコンテンツが表示されることを確認
-      // takumi-oda.comのブログ記事の場合、h2タグでタイトルが表示される
-      await expect(page.locator('h2')).toBeVisible();
-      
-      // 実際に抽出されたコンテンツの一部を確認
-      // (実際のブログ記事の内容に依存するため、汎用的なチェック)
-      await expect(extractedContent).toContainText('');
-      
-      // アクション選択セクションが表示されることを確認
-      const actionSelector = page.getByTestId('action-selector');
-      await expect(actionSelector).toBeVisible();
-      
-      // スクリーンショット（実URL抽出成功）
-      await page.screenshot({ 
-        path: 'test-results/url-extractor-real-url-success.png',
-        fullPage: true 
-      });
-      
-      console.log('✅ 実際のURL抽出テストが成功しました - takumi-oda.comからのコンテンツ抽出完了');
-      
-    } catch (error) {
-      // ネットワークエラーやAPI制限の場合はエラーメッセージを確認
-      const errorMessage = page.getByTestId('error-message');
-      const isErrorVisible = await errorMessage.isVisible();
-      
-      if (isErrorVisible) {
-        const errorText = await errorMessage.textContent();
-        console.log('⚠️ 実URL抽出でエラーが発生:', errorText);
-        
-        // スクリーンショット（実URLエラー）
-        await page.screenshot({ 
-          path: 'test-results/url-extractor-real-url-error.png',
-          fullPage: true 
-        });
-        
-        // APIサーバーが起動していない場合のエラーメッセージをチェック
-        if (errorText?.includes('Unexpected token') && errorText?.includes('<!DOCTYPE')) {
-          console.log('ℹ️ APIサーバーが起動していません。フロントエンドのみでテスト実行中。');
-          console.log('ℹ️ 統合テストを実行するには: npm run swa:all でAPI付きサーバーを起動してください。');
-        } else if (errorText?.includes('fetch') || errorText?.includes('Connection') || errorText?.includes('Network')) {
-          console.log('ℹ️ ネットワーク接続エラー。CI環境では正常な動作です。');
-        } else {
-          console.log('ℹ️ その他のAPIエラー。開発環境での制限や一時的な問題の可能性があります。');
-        }
-        
-        // テストは「成功」として扱う（エラーハンドリングが正常に動作）
-        console.log('✅ エラーハンドリングのテストとしては成功');
-      } else {
-        // 予期しないエラーの場合は再スロー
-        throw error;
-      }
-    }
+    const extractedContent = page.getByTestId('extracted-content');
+    await expect(extractedContent).toBeVisible({ timeout: 30000 });
+    
+    // 記事タイトルまたはコンテンツが表示されることを確認
+    // takumi-oda.comのブログ記事の場合、h2タグでタイトルが表示される
+    await expect(page.locator('h2')).toBeVisible();
+    
+    // 実際に抽出されたコンテンツの一部を確認
+    await expect(extractedContent).toContainText('');
+    
+    // アクション選択セクションが表示されることを確認
+    const actionSelector = page.getByTestId('action-selector');
+    await expect(actionSelector).toBeVisible();
+    
+    // スクリーンショット（実URL抽出成功）
+    await page.screenshot({ 
+      path: 'test-results/url-extractor-real-url-success.png',
+      fullPage: true 
+    });
+    
+    console.log('✅ 実際のURL抽出テストが成功しました - takumi-oda.comからのコンテンツ抽出完了');
   });
 });

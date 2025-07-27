@@ -39,14 +39,25 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-    stderr: 'ignore',
-    stdout: 'ignore',
-  },
+  webServer: [
+    {
+      command: 'npm run dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      stderr: 'ignore',
+      stdout: 'ignore',
+    },
+    // API server for integration tests
+    ...(process.env.WITH_API ? [{
+      command: 'cd api && npm run build && npx func start --port 7072 --cors true',
+      url: 'http://localhost:7072',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000, // Increased timeout for Azure Functions startup
+      stderr: 'pipe',
+      stdout: 'pipe',
+    }] : []),
+  ],
 
   /* Test output directory */
   outputDir: 'test-results',

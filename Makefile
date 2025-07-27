@@ -14,7 +14,7 @@ help:
 	@echo "開発コマンド:"
 	@echo "  make dev         - フロントエンドの開発サーバーを起動"
 	@echo "  make start-api   - Azure Functions APIを起動"
-	@echo "  make start-all   - 統合環境を起動 (frontend + API)"
+	@echo "  make run         - 統合環境を起動 (frontend + API)"
 	@echo ""
 	@echo "ビルドコマンド:"
 	@echo "  make build       - 全体をビルド"
@@ -25,7 +25,9 @@ help:
 	@echo "  make lint        - リンタを実行"
 	@echo "  make lint-fix    - 自動修正可能なリント問題を修正"
 	@echo "  make test-install - Playwrightテスト環境をセットアップ"
-	@echo "  make test-e2e    - E2Eテストを実行"
+	@echo "  make test-e2e    - E2Eテストを実行（高速・モックAPI）"
+	@echo "  make test-e2e-with-api - E2Eテストを実行（API統合・自動起動）"
+	@echo "  make test-e2e-headed - E2Eテストを実行（ブラウザ表示）"
 	@echo "  make test        - 全テストを実行"
 	@echo "  make test-clean  - テスト結果をクリーンアップ"
 	@echo ""
@@ -129,9 +131,9 @@ test-install:
 
 # E2Eテストの実行
 test-e2e:
-	@echo "🎭 E2Eテストを実行中..."
+	@echo "🎭 E2Eテストを実行中（モックAPI使用）..."
 	@echo "📡 アプリケーションサーバーの準備を確認中..."
-	npx playwright test
+	npm run test:e2e
 	@echo ""
 	@echo "✅ E2Eテスト実行完了"
 	@echo ""
@@ -147,6 +149,31 @@ test-e2e:
 	@echo ""
 	@echo "🔍 詳細なHTMLレポートを表示するには:"
 	@echo "  npx playwright show-report"
+
+# API統合E2Eテストの実行
+test-e2e-with-api:
+	@echo "🎭 E2Eテストを実行中（API統合）..."
+	@echo "🚀 APIサーバーを自動起動してテストを実行します..."
+	npm run test:e2e:with-api
+	@echo ""
+	@echo "✅ API統合E2Eテスト実行完了"
+	@echo ""
+	@echo "📊 テスト結果の保存場所:"
+	@echo "  📁 テスト結果: test-results/"
+	@echo "  📁 HTMLレポート: playwright-report/"
+	@echo ""
+	@echo "🔍 詳細なHTMLレポートを表示するには:"
+	@echo "  npx playwright show-report"
+
+# ヘッド付きテストの実行
+test-e2e-headed:
+	@echo "🎭 E2Eテストを実行中（ブラウザ表示あり）..."
+	npm run test:e2e:headed
+
+# API統合ヘッド付きテストの実行
+test-e2e-with-api-headed:
+	@echo "🎭 E2Eテストを実行中（API統合・ブラウザ表示あり）..."
+	npm run test:e2e:with-api:headed
 
 # 全テストの実行
 test: test-e2e
