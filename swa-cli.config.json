@@ -6,23 +6,7 @@
       "apiLocation": "api",
       "run": "npm run dev",
       "appDevserverTimeout": 120000,
-      "auth": {
-        "identityProviders": {
-          "azureActiveDirectory": {
-            "userDetails": {
-              "userId": "dev-user-local-001",
-              "userDetails": "local.dev@swasnap.local"
-            },
-            "userRoles": [
-              "anonymous",
-              "authenticated",
-              "reader",
-              "contributor",
-              "admin"
-            ]
-          }
-        }
-      }
+      "authEnabled": true
     }
   }
 }

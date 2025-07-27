@@ -114,20 +114,22 @@ swa start out --api-location api
    npm run swa:all
    ```
 
-2. **ログイン**:
-   - ブラウザで http://localhost:4280 を開く
+2. **ブラウザでアクセス**:
+   - http://localhost:4280 を開く
    - 認証が必要なページ（例: `/authenticated/markdown-viewer`）にアクセス
-   - 自動的に認証画面にリダイレクトされるか、直接以下のURLにアクセス:
-     **http://localhost:4280/.auth/login/aad**
 
-3. **認証エミュレーターでのログイン**:
-   - 任意のユーザー名（例: `local.dev@example.com`）を入力
-   - ロールは自動的に設定済み: `anonymous`, `authenticated`, `reader`, `contributor`, `admin`
-   - ログイン完了後、認証が必要なページにアクセス可能
+3. **認証フロー**:
+   - 保護されたページにアクセス時、自動的に認証ページにリダイレクト
+   - 認証エミュレーターで任意のユーザー情報を入力:
+     - **ユーザー名**: 任意（例: `local.dev@example.com`）
+     - **ロール**: 自動設定済み（authenticated, reader, contributor, admin）
+   - 認証完了後、markdown-viewer にアクセス可能
 
-4. **ログアウトのテスト**:
-   - http://localhost:4280/.auth/logout にアクセス
-   - 認証状態がクリアされ、保護されたページへのアクセス時に再度ログインが必要
+4. **手動ログイン/ログアウト**:
+   - ログイン: http://localhost:4280/.auth/login/aad
+   - ログアウト: http://localhost:4280/.auth/logout
+
+> **注意**: 初回起動時に `AZURE_CLIENT_ID not found` エラーが表示される場合がありますが、`.env.local` ファイルが作成されているため、サーバーを再起動すると解決されます。
 
 #### 認証設定のカスタマイズ
 
