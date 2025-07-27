@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test';
 
+import { 
+  fillLinkCollectorForm, 
+  waitForCollectionToComplete,
+  mockCollectionAPI,
+  createSuccessResponse,
+  createErrorResponse
+} from './helpers/link-collector-helpers';
+
 test.describe('Link Collector E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Link Collectorページに移動
@@ -37,41 +45,18 @@ test.describe('Link Collector E2E Tests', () => {
   });
 
   test('should test link collection with takumi-oda.com/blog', async ({ page }) => {
-    // APIをモックして成功レスポンスを返す
-    await page.route('**/api/collectLinks', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          data: {
-            allCollectedUrls: [
-              'https://takumi-oda.com/blog/2025/01/15/sample-post-1/',
-              'https://takumi-oda.com/blog/2025/01/10/sample-post-2/',
-              'https://takumi-oda.com/blog/2025/01/05/sample-post-3/'
-            ],
-            linkRelationships: [
-              { found: 'https://takumi-oda.com/blog/2025/01/15/sample-post-1/', source: 'https://takumi-oda.com' },
-              { found: 'https://takumi-oda.com/blog/2025/01/10/sample-post-2/', source: 'https://takumi-oda.com' },
-              { found: 'https://takumi-oda.com/blog/2025/01/05/sample-post-3/', source: 'https://takumi-oda.com' }
-            ],
-            stats: {
-              totalPages: 1,
-              totalLinks: 3,
-              uniqueLinks: 3,
-              processingTime: 1500
-            }
-          }
-        })
-      });
-    });
-
-    // テスト用のURLとセレクタを入力
-    const targetUrl = 'https://takumi-oda.com/blog/';
-    const selector = '#card-2';
+    // テスト用のURL
+    const testUrls = [
+      'https://takumi-oda.com/blog/2025/01/15/sample-post-1/',
+      'https://takumi-oda.com/blog/2025/01/10/sample-post-2/',
+      'https://takumi-oda.com/blog/2025/01/05/sample-post-3/'
+    ];
     
-    await page.fill('input[type="url"]', targetUrl);
-    await page.fill('input[placeholder*="例: .main-content a"]', selector);
+    // APIをモック
+    await mockCollectionAPI(page, createSuccessResponse(testUrls), 200, 1000);
+
+    // フォームに入力
+    await fillLinkCollectorForm(page, 'https://takumi-oda.com/blog/', '#card-2');
     
     // スクリーンショット（入力後）
     await page.screenshot({ 
@@ -79,11 +64,17 @@ test.describe('Link Collector E2E Tests', () => {
       fullPage: true 
     });
     
-    // リンク収集ボタンをクリック
-    await page.click('button[type="submit"]');
+    // APIリクエストを待つPromiseを作成
+    const responsePromise = page.waitForResponse('**/api/collectLinks');
     
-    // 収集中の表示を確認（実際のテキストに合わせて修正）
-    await expect(page.locator('text=収集中...')).toBeVisible({ timeout: 10000 });
+    // リンク収集ボタンをクリック
+    const submitButton = page.locator('button[type="submit"]');
+    await expect(submitButton).toBeEnabled();
+    await submitButton.click();
+    
+    // ボタンが無効化され、収集中テキストが表示されることを確認
+    await expect(submitButton).toBeDisabled();
+    await expect(submitButton).toContainText('収集中...');
     
     // スクリーンショット（収集中）
     await page.screenshot({ 
@@ -91,15 +82,20 @@ test.describe('Link Collector E2E Tests', () => {
       fullPage: true 
     });
     
-    // 結果が表示されるまで待機（最大30秒）
-    await page.waitForSelector('h2:has-text("収集結果")', { timeout: 30000 });
+    // APIレスポンスを待つ
+    const response = await responsePromise;
+    expect(response.status()).toBe(200);
     
-    // 結果表示エリアの確認
-    await expect(page.locator('h2:has-text("収集結果")')).toBeVisible();
+    // 収集が完了するまで待つ
+    await waitForCollectionToComplete(page, true);
     
-    // 収集されたURLがあることを確認（実際のDOM構造に基づく）
-    const urlList = page.locator('.divide-y .p-3, .divide-gray-200 > div');
-    await expect(urlList.first()).toBeVisible();
+    // 収集されたURLがあることを確認
+    const urlList = page.locator('.divide-y > div').filter({ hasText: 'takumi-oda.com' });
+    await expect(urlList).toHaveCount(3);
+    
+    // 統計情報が表示されていることを確認
+    await expect(page.locator('text=総リンク数: 3')).toBeVisible();
+    await expect(page.locator('text=ユニーク数: 3')).toBeVisible();
     
     // スクリーンショット（成功時）
     await page.screenshot({ 
@@ -190,42 +186,49 @@ test.describe('Link Collector E2E Tests', () => {
     });
   });
 
-  test('should take screenshot on error scenarios', async ({ page }) => {
+  test('should handle error scenarios gracefully', async ({ page }) => {
     // APIをモックしてエラーレスポンスを返す
-    await page.route('**/api/collectLinks', async route => {
-      await route.fulfill({
-        status: 500,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: false,
-          error: 'Server error occurred'
-        })
-      });
-    });
+    await mockCollectionAPI(page, createErrorResponse('Server error occurred'), 500, 500);
 
-    // 無効なURLでテストして、適切にハンドリングされることを確認
-    await page.fill('input[type="url"]', 'https://nonexistent-domain-12345.com');
-    await page.click('button[type="submit"]');
+    // フォームに入力
+    await fillLinkCollectorForm(page, 'https://nonexistent-domain-12345.com');
     
-    // 収集中状態になることを確認
-    await expect(page.locator('text=収集中...')).toBeVisible();
+    // ボタンが有効になっていることを確認
+    const submitButton = page.locator('button[type="submit"]');
+    await expect(submitButton).toBeEnabled();
     
-    // スクリーンショット（無効URLテスト中）
+    // APIリクエストを待つPromiseを作成
+    const responsePromise = page.waitForResponse('**/api/collectLinks');
+    
+    // ボタンをクリック
+    await submitButton.click();
+    
+    // ボタンが無効化され、収集中テキストが表示されることを確認
+    await expect(submitButton).toBeDisabled();
+    await expect(submitButton).toContainText('収集中...');
+    
+    // スクリーンショット（収集中）
     await page.screenshot({ 
-      path: 'test-results/link-collector-invalid-url-test.png',
+      path: 'test-results/link-collector-collecting-error.png',
       fullPage: true 
     });
     
-    // 一定時間待機してから結果をチェック（エラーまたは結果）
-    await page.waitForTimeout(10000);
+    // APIレスポンスを待つ
+    const response = await responsePromise;
+    expect(response.status()).toBe(500);
+    
+    // エラーが処理されるまで待つ
+    await waitForCollectionToComplete(page, false);
+    
+    // エラーメッセージが表示されていることを確認
+    const errorDiv = page.locator('.border-red-200.bg-red-50.text-red-700');
+    await expect(errorDiv).toBeVisible();
+    await expect(errorDiv).toContainText('エラー:');
     
     // 最終的なスクリーンショット
     await page.screenshot({ 
-      path: 'test-results/link-collector-final-state.png',
+      path: 'test-results/link-collector-error-state.png',
       fullPage: true 
     });
-    
-    // 収集中ボタンが消えていることを確認（処理完了の証拠）
-    await expect(page.locator('text=収集中...')).not.toBeVisible();
   });
 });
