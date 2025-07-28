@@ -2,8 +2,31 @@ import { useState, useCallback } from 'react';
 
 import { type CollectedLink, type CollectionOptions, type NotebookLMFormat } from '../types/link-collector';
 import { collectLinksAPI } from '../utils/link-collector-api';
+import { isTargetUrl } from '../utils/url-pattern-matching';
 
-export function useLinkCollector() {
+interface LinkCollectorReturn {
+  // State
+  collectedUrls: CollectedLink[];
+  selectedUrls: Set<string>;
+  isCollecting: boolean;
+  error: string | null;
+  stats: {
+    totalPages: number;
+    totalLinks: number;
+    uniqueLinks: number;
+    processingTime: number;
+  } | null;
+  
+  // Actions
+  collectLinks: (url: string, selector: string, options: CollectionOptions) => Promise<void>;
+  toggleUrlSelection: (url: string) => void;
+  selectAll: (selectAll: boolean) => void;
+  copySelectedUrls: (format: NotebookLMFormat) => Promise<void>;
+  exportResults: () => void;
+  clearResults: () => void;
+}
+
+export function useLinkCollector(): LinkCollectorReturn {
   const [collectedUrls, setCollectedUrls] = useState<CollectedLink[]>([]);
   const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
   const [isCollecting, setIsCollecting] = useState(false);
@@ -36,15 +59,18 @@ export function useLinkCollector() {
       }
 
       // Convert API response to CollectedLink format
-      const urls: CollectedLink[] = result.data.allCollectedUrls.map((linkUrl) => {
-        const relationship = result.data?.linkRelationships.find(rel => rel.found === linkUrl);
-        return {
-          url: linkUrl,
-          source: relationship?.source || url,
-          depth: 0, // depth information is not available from linkRelationships
-          selected: false,
-        };
-      });
+      // ターゲットURL自体を除外してからマッピング
+      const urls: CollectedLink[] = result.data.allCollectedUrls
+        .filter(linkUrl => !isTargetUrl(linkUrl, url)) // ターゲットURL除外
+        .map((linkUrl) => {
+          const relationship = result.data?.linkRelationships.find(rel => rel.found === linkUrl);
+          return {
+            url: linkUrl,
+            source: relationship?.source || url,
+            depth: 0, // depth information is not available from linkRelationships
+            selected: false,
+          };
+        });
       
       setCollectedUrls(urls);
       setSelectedUrls(new Set());
