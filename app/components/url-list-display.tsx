@@ -261,9 +261,15 @@ export default function URLListDisplay({
                 />
                 
                 <div className="min-w-0 flex-1">
-                  <div className="break-all text-sm text-gray-900 dark:text-gray-100">
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="break-all rounded text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
                     {item.url}
-                  </div>
+                  </a>
                   
                   <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     ソース: {item.source} | 深度: {item.depth}
