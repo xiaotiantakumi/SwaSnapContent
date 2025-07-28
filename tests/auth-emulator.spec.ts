@@ -13,7 +13,7 @@ test.describe('SWA CLI 認証エミュレーター', () => {
         timeout: 3000 
       });
     } catch (error) {
-      console.log('beforeEach ログアウト処理（予期された動作）:', error.message);
+      console.log('beforeEach ログアウト処理（予期された動作）:', error instanceof Error ? error.message : String(error));
     }
     
     // メインページに移動して状態をリセット
@@ -74,15 +74,17 @@ test.describe('SWA CLI 認証エミュレーター', () => {
       // フォームが存在する場合の処理
       await page.waitForSelector('input', { timeout: 5000 });
       
-      // ユーザー名フィールドがある場合は入力
+      // ユーザー名フィールドがある場合は入力（有効な場合のみ）
       const usernameField = page.locator('input[type="text"], input[type="email"], input[name*="user"], input[name*="email"]').first();
-      if (await usernameField.count() > 0) {
+      if (await usernameField.count() > 0 && await usernameField.isEnabled()) {
         await usernameField.fill('test-user@swasnap.local');
+      } else {
+        console.log('ユーザー名フィールドが無効またはエミュレーターが自動認証モード');
       }
       
-      // 送信ボタンがある場合はクリック
+      // 送信ボタンがある場合はクリック（有効な場合のみ）
       const submitButton = page.locator('input[type="submit"], button[type="submit"], button:has-text("Login"), button:has-text("Sign in")').first();
-      if (await submitButton.count() > 0) {
+      if (await submitButton.count() > 0 && await submitButton.isEnabled()) {
         await submitButton.click();
       }
       
@@ -123,16 +125,24 @@ test.describe('SWA CLI 認証エミュレーター', () => {
     try {
       await page.waitForSelector('input', { timeout: 3000 });
       
-      // 可能な限り自動でフォームを処理
+      // 可能な限り自動でフォームを処理（有効な要素のみ）
       const inputs = page.locator('input[type="text"], input[type="email"]');
       if (await inputs.count() > 0) {
-        await inputs.first().fill('test-user@swasnap.local');
+        const firstInput = inputs.first();
+        if (await firstInput.isEnabled()) {
+          await firstInput.fill('test-user@swasnap.local');
+        } else {
+          console.log('入力フィールドが無効 - エミュレーターの自動認証モードの可能性');
+        }
       }
       
       const buttons = page.locator('button, input[type="submit"]');
       if (await buttons.count() > 0) {
-        await buttons.first().click();
-        await page.waitForTimeout(2000);
+        const firstButton = buttons.first();
+        if (await firstButton.isEnabled()) {
+          await firstButton.click();
+          await page.waitForTimeout(2000);
+        }
       }
     } catch (error) {
       console.log('認証フォーム処理をスキップ:', error);
@@ -181,7 +191,7 @@ test.describe('SWA CLI 認証エミュレーター', () => {
         timeout: 5000 
       });
     } catch (error) {
-      console.log('ログアウトリダイレクト処理中:', error.message);
+      console.log('ログアウトリダイレクト処理中:', error instanceof Error ? error.message : String(error));
       // リダイレクトエラーは予期される動作なので続行
     }
     

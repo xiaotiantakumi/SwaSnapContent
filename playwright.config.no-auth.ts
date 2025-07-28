@@ -26,8 +26,11 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
 
-    /* Take screenshot on failure */
-    screenshot: 'only-on-failure',
+    /* Take screenshot on failure - オブジェクト形式で設定 */
+    screenshot: {
+      mode: 'only-on-failure',
+      fullPage: true,
+    },
     
     /* Wait for actionability */
     actionTimeout: 10000,

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { type CollectedLink, type NotebookLMFormat } from '../types/link-collector';
+import { isUrlExcluded } from '../utils/url-pattern-matching';
 
 interface URLListDisplayProps {
   urls: CollectedLink[];
@@ -107,9 +108,10 @@ export default function URLListDisplay({
   urls,
   selectedUrls,
   onToggleSelection,
+  onSelectAll: _onSelectAll,
   onCopy,
   stats
-}: URLListDisplayProps) {
+}: URLListDisplayProps): JSX.Element {
   const [filterText, setFilterText] = useState('');
   const [excludePatterns, setExcludePatterns] = useState<string[]>([]);
   const [copyFormat, setCopyFormat] = useState<NotebookLMFormat>({
@@ -118,6 +120,22 @@ export default function URLListDisplay({
     includeSource: false,
   });
 
+  // 除外パターン変更時に該当URLの選択を自動解除する関数
+  const handleExcludePatternsChange = (patterns: string[]) => {
+    setExcludePatterns(patterns);
+    
+    // 新しく除外されるURLを特定
+    const excludedUrls = urls.filter(item => isUrlExcluded(item.url, patterns))
+      .map(item => item.url);
+    
+    // 除外されたURLの選択を解除
+    excludedUrls.forEach(url => {
+      if (selectedUrls.has(url)) {
+        onToggleSelection(url);
+      }
+    });
+  };
+
   // Apply filters
   const filteredUrls = urls.filter(item => {
     // Text filter
@@ -125,14 +143,8 @@ export default function URLListDisplay({
       return false;
     }
 
-    // Exclude patterns
-    if (excludePatterns.some(pattern => {
-      try {
-        return new RegExp(pattern, 'i').test(item.url);
-      } catch {
-        return item.url.toLowerCase().includes(pattern.toLowerCase());
-      }
-    })) {
+    // Exclude patterns - 共通ユーティリティ関数を使用
+    if (isUrlExcluded(item.url, excludePatterns)) {
       return false;
     }
 
@@ -196,7 +208,7 @@ export default function URLListDisplay({
         filterText={filterText}
         onFilterChange={setFilterText}
         excludePatterns={excludePatterns}
-        onExcludePatternsChange={setExcludePatterns}
+        onExcludePatternsChange={handleExcludePatternsChange}
       />
 
       {/* Action Panel */}
