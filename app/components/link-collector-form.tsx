@@ -24,6 +24,7 @@ export default function LinkCollectorForm({ onCollect, isCollecting }: LinkColle
     if (!targetUrl.trim() || isCollecting) return;
     
     await onCollect(targetUrl, selector, options);
+    setTargetUrl(''); // 収集開始後にURL入力欄をクリア
   };
 
   return (

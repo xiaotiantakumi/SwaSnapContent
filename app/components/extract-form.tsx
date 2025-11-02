@@ -285,6 +285,7 @@ export default function ExtractForm() {
       }
 
       setArticle(result as typeof article);
+      setUrl(''); // 抽出成功後にURL入力欄をクリア
     } catch (error) {
       setError(
         'エラーが発生しました: ' +

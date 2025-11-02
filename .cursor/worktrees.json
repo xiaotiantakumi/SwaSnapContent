@@ -1,0 +1,9 @@
+{
+  "setup-worktree": [
+    "npm ci",
+    "cd api && npm ci && cd ..",
+    "cp $ROOT_WORKTREE_PATH/.env.local .env.local 2>/dev/null || true",
+    "cp $ROOT_WORKTREE_PATH/api/local.settings.json api/local.settings.json 2>/dev/null || true"
+  ]
+}
+
