@@ -24,7 +24,11 @@ export default function LinkCollectorClient() {
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleCollect = async (url: string, selector: string, options: CollectionOptions) => {
+  const handleCollect = async (
+    url: string,
+    selector: string,
+    options: CollectionOptions
+  ) => {
     setSuccessMessage(null);
     await collectLinks(url, selector, options);
   };
@@ -35,8 +39,8 @@ export default function LinkCollectorClient() {
   ) => {
     try {
       await copySelectedUrls(format, filteredUrls);
-      const copiedCount = filteredUrls 
-        ? filteredUrls.filter(item => selectedUrls.has(item.url)).length
+      const copiedCount = filteredUrls
+        ? filteredUrls.filter((item) => selectedUrls.has(item.url)).length
         : selectedUrls.size;
       setSuccessMessage(`${copiedCount}個のURLをコピーしました`);
       setTimeout(() => setSuccessMessage(null), 3000);
@@ -48,13 +52,17 @@ export default function LinkCollectorClient() {
   return (
     <div className="space-y-6">
       {/* Success/Error Messages */}
-      {successMessage ? <div className="rounded border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+      {successMessage ? (
+        <div className="rounded border border-green-200 bg-green-50 px-4 py-3 text-green-700">
           {successMessage}
-        </div> : null}
-      
-      {error ? <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+        </div>
+      ) : null}
+
+      {error ? (
+        <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
           <strong>エラー:</strong> {error}
-        </div> : null}
+        </div>
+      ) : null}
 
       {/* Collection Form */}
       <LinkCollectorForm
@@ -76,7 +84,7 @@ export default function LinkCollectorClient() {
               結果をクリア
             </button>
           </div>
-          
+
           <URLListDisplay
             urls={collectedUrls}
             selectedUrls={selectedUrls}
@@ -90,15 +98,34 @@ export default function LinkCollectorClient() {
       )}
 
       {/* Loading State */}
-      {isCollecting ? <div className="rounded border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700">
+      {isCollecting ? (
+        <div className="rounded border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700">
           <div className="flex items-center">
-            <svg className="-ml-1 mr-3 size-5 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            <svg
+              className="-ml-1 mr-3 size-5 animate-spin text-blue-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
             </svg>
-            リンクを収集中です... サーバーの負荷を避けるため、少し時間がかかる場合があります。
+            リンクを収集中です...
+            サーバーの負荷を避けるため、少し時間がかかる場合があります。
           </div>
-        </div> : null}
+        </div>
+      ) : null}
 
       {/* Help Text */}
       {collectedUrls.length === 0 && !isCollecting && (
@@ -107,10 +134,23 @@ export default function LinkCollectorClient() {
             使い方
           </h3>
           <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            <li>• <strong>ターゲットURL:</strong> リンクを収集したいウェブページのURLを入力してください</li>
-            <li>• <strong>CSSセレクタ:</strong> 特定の要素内のリンクのみを収集したい場合に指定します（例: .content a, #main a）</li>
-            <li>• 収集後は、フィルタ機能で不要なURLを除外し、チェックボックスで必要なURLを選択してコピーできます</li>
-            <li>• NotebookLMで使用する場合は、改行区切りまたはスペース区切りを選択できます</li>
+            <li>
+              • <strong>ターゲットURL:</strong>{' '}
+              リンクを収集したいウェブページのURLを入力してください
+            </li>
+            <li>
+              • <strong>CSSセレクタ:</strong>{' '}
+              特定の要素内のリンクのみを収集したい場合に指定します（例: .content
+              a, #main a）
+            </li>
+            <li>
+              •
+              収集後は、フィルタ機能で不要なURLを除外し、チェックボックスで必要なURLを選択してコピーできます
+            </li>
+            <li>
+              •
+              NotebookLMで使用する場合は、改行区切りまたはスペース区切りを選択できます
+            </li>
           </ul>
         </div>
       )}
