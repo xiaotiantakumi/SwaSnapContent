@@ -29,10 +29,16 @@ export default function LinkCollectorClient() {
     await collectLinks(url, selector, options);
   };
 
-  const handleCopy = async (format: Parameters<typeof copySelectedUrls>[0]) => {
+  const handleCopy = async (
+    format: Parameters<typeof copySelectedUrls>[0],
+    filteredUrls?: Parameters<typeof copySelectedUrls>[1]
+  ) => {
     try {
-      await copySelectedUrls(format);
-      setSuccessMessage(`${selectedUrls.size}個のURLをコピーしました`);
+      await copySelectedUrls(format, filteredUrls);
+      const copiedCount = filteredUrls 
+        ? filteredUrls.filter(item => selectedUrls.has(item.url)).length
+        : selectedUrls.size;
+      setSuccessMessage(`${copiedCount}個のURLをコピーしました`);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error('Copy error:', err);

@@ -78,10 +78,16 @@ export function useLinkCollector() {
     }
   }, [collectedUrls]);
 
-  const copySelectedUrls = useCallback(async (format: NotebookLMFormat) => {
-    const selectedUrlsList = Array.from(selectedUrls);
+  const copySelectedUrls = useCallback(async (
+    format: NotebookLMFormat,
+    filteredUrls?: CollectedLink[]
+  ) => {
+    // フィルタ済みURLが提供されている場合、フィルタ済みURLのうち選択されているもののみを使用
+    const urlsToCopy = filteredUrls 
+      ? filteredUrls.filter(item => selectedUrls.has(item.url))
+      : Array.from(selectedUrls).map(url => collectedUrls.find(item => item.url === url)).filter((item): item is CollectedLink => item !== undefined);
     
-    if (selectedUrlsList.length === 0) {
+    if (urlsToCopy.length === 0) {
       throw new Error('選択されたURLがありません');
     }
 
@@ -89,15 +95,14 @@ export function useLinkCollector() {
     
     if (format.includeTitle || format.includeSource) {
       // Include additional information
-      const urlsWithInfo = selectedUrlsList.map(url => {
-        const item = collectedUrls.find(item => item.url === url);
-        const parts = [url];
+      const urlsWithInfo = urlsToCopy.map(item => {
+        const parts = [item.url];
         
-        if (format.includeTitle && item?.title) {
+        if (format.includeTitle && item.title) {
           parts.push(`(${item.title})`);
         }
         
-        if (format.includeSource && item?.source && item.source !== url) {
+        if (format.includeSource && item.source && item.source !== item.url) {
           parts.push(`[from: ${item.source}]`);
         }
         
@@ -109,9 +114,10 @@ export function useLinkCollector() {
         : urlsWithInfo.join('\n');
     } else {
       // URLs only
+      const urlStrings = urlsToCopy.map(item => item.url);
       textToCopy = format.separator === 'space' 
-        ? selectedUrlsList.join(' ') 
-        : selectedUrlsList.join('\n');
+        ? urlStrings.join(' ') 
+        : urlStrings.join('\n');
     }
     
     try {

@@ -221,4 +221,208 @@ test.describe('Link Collector E2E Tests', () => {
       fullPage: true 
     });
   });
+
+  test('should filter URLs correctly with exclude patterns', async ({ page }) => {
+    // テスト用のURL（一部は除外対象）
+    const testUrls = [
+      'https://takumi-oda.com/blog/2025/01/15/sample-post-1/',
+      'https://takumi-oda.com/blog/2025/01/10/sample-post-2/',
+      'https://takumi-oda.com/blog/2025/01/05/sample-post-3/',
+      'https://takumi-oda.com/about/',
+      'https://takumi-oda.com/contact/',
+      'https://external-site.com/article/1'
+    ];
+    
+    // APIをモック
+    await mockCollectionAPI(page, createSuccessResponse(testUrls), 200, 1000);
+
+    // フォームに入力してリンクを収集
+    await fillLinkCollectorForm(page, 'https://takumi-oda.com/blog/');
+    
+    // APIリクエストを待つPromiseを作成
+    const responsePromise = page.waitForResponse('**/api/collectLinks');
+    
+    // リンク収集ボタンをクリック
+    const submitButton = page.locator('button[type="submit"]');
+    await submitButton.click();
+    
+    // APIレスポンスを待つ
+    await responsePromise;
+    
+    // 収集が完了するまで待つ
+    await waitForCollectionToComplete(page, true);
+    
+    // 初期状態では全てのURLが表示されていることを確認
+    const urlList = page.locator('.divide-y > div');
+    await expect(urlList).toHaveCount(6); // 全てのURL
+    
+    // 統計情報を確認（フィルタ前）
+    await expect(page.locator('text=/総リンク数: 6/')).toBeVisible();
+    await expect(page.locator('text=/ユニーク数: 6/')).toBeVisible();
+    
+    // 除外パターン入力欄を見つける
+    const excludePatternInput = page.locator('input[id="exclude-pattern"]');
+    await expect(excludePatternInput).toBeVisible();
+    
+    // 除外パターンを追加（blogを含むURLを除外）
+    await excludePatternInput.fill('blog');
+    await excludePatternInput.press('Enter');
+    
+    // 除外パターンが追加されたことを確認
+    await expect(page.locator('text=blog')).toBeVisible();
+    
+    // フィルタ後の統計情報を確認（about + contact + external-site = 3つ）
+    // フィルタ適用時は「3 / 6」形式で表示される
+    // 親要素を取得してテキスト全体を確認
+    const totalLinksDiv = page.locator('div').filter({ hasText: /総リンク数:/ }).first();
+    await expect(totalLinksDiv).toBeVisible();
+    await expect(totalLinksDiv).toContainText('3');
+    
+    const uniqueLinksDiv = page.locator('div').filter({ hasText: /ユニーク数:/ }).first();
+    await expect(uniqueLinksDiv).toBeVisible();
+    await expect(uniqueLinksDiv).toContainText('3');
+    
+    // blogを含むURLが表示されないことを確認
+    const filteredUrlList = page.locator('.divide-y > div');
+    const count = await filteredUrlList.count();
+    expect(count).toBe(3); // about + contact + external-site
+    
+    // blogを含むURLが除外されていることを確認
+    const blogUrls = page.locator('.divide-y > div').filter({ hasText: 'blog' });
+    await expect(blogUrls).toHaveCount(0);
+    
+    // about、contact、external-siteのURLが表示されていることを確認
+    await expect(page.locator('text=/about/')).toBeVisible();
+    await expect(page.locator('text=/contact/')).toBeVisible();
+    await expect(page.locator('text=/external-site/')).toBeVisible();
+    
+    // スクリーンショット
+    await page.screenshot({ 
+      path: 'test-results/link-collector-exclusion-patterns.png',
+      fullPage: true 
+    });
+  });
+
+  test('should copy only filtered URLs when exclude patterns are applied', async ({ page }) => {
+    // テスト用のURL
+    const testUrls = [
+      'https://takumi-oda.com/blog/post-1/',
+      'https://takumi-oda.com/blog/post-2/',
+      'https://takumi-oda.com/about/',
+      'https://takumi-oda.com/contact/',
+    ];
+    
+    // APIをモック
+    await mockCollectionAPI(page, createSuccessResponse(testUrls), 200, 1000);
+
+    // フォームに入力してリンクを収集
+    await fillLinkCollectorForm(page, 'https://takumi-oda.com/');
+    
+    // APIリクエストを待つPromiseを作成
+    const responsePromise = page.waitForResponse('**/api/collectLinks');
+    
+    // リンク収集ボタンをクリック
+    const submitButton = page.locator('button[type="submit"]');
+    await submitButton.click();
+    
+    // APIレスポンスを待つ
+    await responsePromise;
+    
+    // 収集が完了するまで待つ
+    await waitForCollectionToComplete(page, true);
+    
+    // 全選択チェックボックスをクリック
+    const selectAllCheckbox = page.locator('input[type="checkbox"]').first();
+    await selectAllCheckbox.click();
+    
+    // 除外パターンを追加（blogを含むURLを除外）
+    const excludePatternInput = page.locator('input[id="exclude-pattern"]');
+    await excludePatternInput.fill('blog');
+    await excludePatternInput.press('Enter');
+    
+    // フィルタが適用されるまで少し待つ
+    await page.waitForTimeout(300);
+    
+    // コピー対象の数が正しく更新されることを確認（blogを除いた2つ）
+    await expect(page.locator('button:has-text("コピー (2)")')).toBeVisible();
+    
+    // コピーボタンをクリック
+    const copyButton = page.locator('button:has-text("コピー")');
+    await copyButton.click();
+    
+    // 成功メッセージを確認
+    await expect(page.locator('text=/2個のURLをコピーしました/')).toBeVisible();
+    
+    // クリップボードの内容を確認（簡易チェック）
+    // 実際のクリップボードAPIはPlaywrightでは直接アクセスできないため、
+    // 成功メッセージとコピー対象数の整合性で確認
+    
+    // スクリーンショット
+    await page.screenshot({ 
+      path: 'test-results/link-collector-exclusion-patterns-copy.png',
+      fullPage: true 
+    });
+  });
+
+  test('should handle multiple exclude patterns', async ({ page }) => {
+    // テスト用のURL
+    const testUrls = [
+      'https://takumi-oda.com/blog/post-1/',
+      'https://takumi-oda.com/blog/post-2/',
+      'https://takumi-oda.com/about/',
+      'https://takumi-oda.com/contact/',
+      'https://external-site.com/article/1',
+      'https://external-site.com/article/2'
+    ];
+    
+    // APIをモック
+    await mockCollectionAPI(page, createSuccessResponse(testUrls), 200, 1000);
+
+    // フォームに入力してリンクを収集
+    await fillLinkCollectorForm(page, 'https://takumi-oda.com/');
+    
+    // APIリクエストを待つPromiseを作成
+    const responsePromise = page.waitForResponse('**/api/collectLinks');
+    
+    // リンク収集ボタンをクリック
+    const submitButton = page.locator('button[type="submit"]');
+    await submitButton.click();
+    
+    // APIレスポンスを待つ
+    await responsePromise;
+    
+    // 収集が完了するまで待つ
+    await waitForCollectionToComplete(page, true);
+    
+    // 除外パターン入力欄を見つける
+    const excludePatternInput = page.locator('input[id="exclude-pattern"]');
+    
+    // 最初の除外パターンを追加（blogを含むURLを除外）
+    await excludePatternInput.fill('blog');
+    await excludePatternInput.press('Enter');
+    
+    // 2つ目の除外パターンを追加（externalを含むURLを除外）
+    await excludePatternInput.fill('external');
+    await excludePatternInput.press('Enter');
+    
+    // フィルタ後の統計情報を確認（about + contactのみ）
+    const totalLinksDiv = page.locator('div').filter({ hasText: /総リンク数:/ }).first();
+    await expect(totalLinksDiv).toBeVisible();
+    await expect(totalLinksDiv).toContainText('2');
+    
+    // aboutとcontactのURLのみが表示されることを確認
+    const filteredUrlList = page.locator('.divide-y > div');
+    const count = await filteredUrlList.count();
+    expect(count).toBe(2);
+    
+    await expect(page.locator('text=/about/')).toBeVisible();
+    await expect(page.locator('text=/contact/')).toBeVisible();
+    
+    // blogとexternalを含むURLが除外されていることを確認
+    const blogUrls = page.locator('.divide-y > div').filter({ hasText: 'blog' });
+    await expect(blogUrls).toHaveCount(0);
+    
+    const externalUrls = page.locator('.divide-y > div').filter({ hasText: 'external' });
+    await expect(externalUrls).toHaveCount(0);
+  });
 });
