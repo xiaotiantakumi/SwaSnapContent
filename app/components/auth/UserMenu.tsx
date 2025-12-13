@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import { useAuth } from '../../hooks/useAuth';
 
-export default function UserMenu(): JSX.Element {
+export default function UserMenu(): React.JSX.Element {
   const { isAuthenticated, isLoading, userEmail, login, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);

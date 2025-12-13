@@ -1,12 +1,14 @@
 'use client';
 
+import React from 'react';
+
 import { type ArticleOutput } from '../utils/extract-content';
 
 interface ArticleDisplayProps {
   article: ArticleOutput;
 }
 
-export default function ArticleDisplay({ article }: ArticleDisplayProps): JSX.Element {
+export default function ArticleDisplay({ article }: ArticleDisplayProps): React.JSX.Element {
   return (
     <div className="mt-8 space-y-4">
       {article.title ? (

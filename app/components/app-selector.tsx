@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 import Link from 'next/link';
 
 interface AppOption {
@@ -34,7 +36,7 @@ const apps: AppOption[] = [
   },
 ];
 
-export default function AppSelector(): JSX.Element {
+export default function AppSelector(): React.JSX.Element {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {apps.map((app) => (

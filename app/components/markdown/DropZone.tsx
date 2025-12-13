@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Tooltip } from '../ui/Tooltip';
 
@@ -21,7 +21,7 @@ export function DropZone({
   onDragOver,
   onDragLeave,
   onDrop,
-}: Omit<DropZoneProps, 'onError'>): JSX.Element {
+}: Omit<DropZoneProps, 'onError'>): React.JSX.Element {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {

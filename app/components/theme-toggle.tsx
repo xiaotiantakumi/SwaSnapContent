@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function ThemeToggle(): JSX.Element {
+export default function ThemeToggle(): React.JSX.Element {
   const [isDark, setIsDark] = useState(false);
   const [mounted, setMounted] = useState(false);
 

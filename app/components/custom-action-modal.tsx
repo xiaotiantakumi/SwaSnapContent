@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { type CustomAction } from '../config/default-actions';
 
@@ -22,7 +22,7 @@ export default function CustomActionModal({
   onExportAll,
   initialName = '',
   initialPrompt = '',
-}: CustomActionModalProps): JSX.Element | null {
+}: CustomActionModalProps): React.JSX.Element | null {
   const [name, setName] = useState(initialName);
   const [prompt, setPrompt] = useState(initialPrompt);
 
