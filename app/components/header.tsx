@@ -1,3 +1,7 @@
+import React from 'react';
+
+import Link from 'next/link';
+
 interface HeaderProps {
   title?: string;
   description?: string;
@@ -8,18 +12,18 @@ export default function Header({
   title, 
   description, 
   showBackButton = false
-}: HeaderProps = {}): JSX.Element {
+}: HeaderProps = {}): React.JSX.Element {
   return (
     <header className="w-full max-w-3xl">
       {showBackButton ? (
         <div className="mb-4">
-          <a 
+          <Link 
             href="/" 
             className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             data-testid="back-to-home"
           >
             ← アプリ選択に戻る
-          </a>
+          </Link>
         </div>
       ) : null}
       

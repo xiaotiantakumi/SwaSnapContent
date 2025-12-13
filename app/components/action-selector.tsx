@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 // 親コンポーネントの CustomAction 型をインポートします。
 // 本来は共通の型定義ファイルに移動するのが望ましいです。
 import { type CustomAction } from '../config/default-actions';
@@ -22,7 +24,7 @@ export default function ActionSelector({
   onOpenCustomActionModal,
   onDeleteCustomAction,
   isPromptCopied,
-}: ActionSelectorProps): JSX.Element {
+}: ActionSelectorProps): React.JSX.Element {
   return (
     <div className="mt-6 rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
       <h3 className="mb-3 text-lg font-medium text-gray-900 dark:text-white">テキストアクション</h3>
