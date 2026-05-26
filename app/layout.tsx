@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <head>
         <meta name="application-name" content="URL本文抽出アプリ" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -47,10 +47,15 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{
           __html: `
             (function() {
-              const theme = localStorage.getItem('theme');
-              const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              var theme = localStorage.getItem('theme');
+              var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
               if (theme === 'dark' || (!theme && systemPrefersDark)) {
                 document.documentElement.classList.add('dark');
+              }
+              if (location.hostname === 'localhost' && 'serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                  regs.forEach(function(reg) { reg.unregister(); });
+                });
               }
             })();
           `

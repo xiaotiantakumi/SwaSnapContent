@@ -39,6 +39,11 @@
     "node_modules",
     "api/**",
     "frontend/**",
-    "tmp/**"
+    "tmp/**",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }

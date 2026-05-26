@@ -34,6 +34,13 @@ const apps: AppOption[] = [
     icon: '🔗',
     color: 'bg-purple-500 hover:bg-purple-600',
   },
+  {
+    title: '100マス計算',
+    description: 'たし算・ひき算・かけ算・わり算を100問。タイム・バッジ・グラフでゲーミフィケーション',
+    href: '/sansu-100',
+    icon: '🧮',
+    color: 'bg-orange-500 hover:bg-orange-600',
+  },
 ];
 
 export default function AppSelector(): React.JSX.Element {

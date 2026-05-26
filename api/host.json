@@ -20,8 +20,8 @@
     },
     "http": {
         "cors": {
-            "allowedOrigins": ["http://localhost:3000", "http://localhost:3001"],
-            "allowedMethods": ["GET", "POST", "OPTIONS"],
+            "allowedOrigins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:4280"],
+            "allowedMethods": ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
             "allowedHeaders": ["Content-Type", "Authorization"]
         }
     }
