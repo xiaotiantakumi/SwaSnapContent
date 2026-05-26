@@ -6,23 +6,28 @@ interface HeaderProps {
   title?: string;
   description?: string;
   showBackButton?: boolean;
+  backHref?: string;
+  backLabel?: string;
 }
 
-export default function Header({ 
-  title, 
-  description, 
-  showBackButton = false
+export default function Header({
+  title,
+  description,
+  showBackButton = false,
+  backHref = '/',
+  backLabel,
 }: HeaderProps = {}): React.JSX.Element {
+  const label = backLabel ?? (backHref === '/' ? 'アプリ選択に戻る' : 'もどる');
   return (
     <header className="w-full max-w-3xl">
       {showBackButton ? (
         <div className="mb-4">
-          <Link 
-            href="/" 
+          <Link
+            href={backHref}
             className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             data-testid="back-to-home"
           >
-            ← アプリ選択に戻る
+            ← {label}
           </Link>
         </div>
       ) : null}

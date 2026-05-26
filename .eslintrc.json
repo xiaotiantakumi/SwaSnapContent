@@ -14,7 +14,11 @@
     "public/workbox-*.js",
     "*.config.js",
     "*.config.ts",
-    "node_modules/**"
+    "node_modules/**",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "vitest.setup.ts"
   ],
   "plugins": [
     "@typescript-eslint",

@@ -20,6 +20,10 @@
     "test:e2e:no-auth": "WITH_API=true npx playwright test --config=playwright.config.no-auth.ts",
     "test:e2e:no-auth:headed": "WITH_API=true npx playwright test --config=playwright.config.no-auth.ts --headed",
     "dev:with-api": "npm run build:api && swa start http://localhost:3000 --api-location api --run \"npm run dev\"",
+    "sansu:stop": "pkill -f 'azurite' 2>/dev/null; pkill -f 'swa start' 2>/dev/null; pkill -f 'func start' 2>/dev/null; lsof -ti:4280,7071,3000,10000,10001,10002 | xargs kill -9 2>/dev/null; sleep 1; echo 'stopped.'",
+    "sansu:dev": "npm run sansu:stop && mkdir -p /tmp/azurite-sansu && (azurite --location /tmp/azurite-sansu --loose > /tmp/azurite.log 2>&1 &) && sleep 1 && npm run build:api && swa start http://localhost:3000 --api-location api --run \"npm run dev\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -29,12 +33,15 @@
   },
   "dependencies": {
     "canvas": "^3.1.0",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.40.0",
     "highlight.js": "^11.11.1",
     "next": "^15.5.10",
     "next-pwa": "^5.6.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-markdown": "^10.1.0",
+    "recharts": "^3.8.1",
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
     "zod": "^3.24.4"
@@ -42,9 +49,14 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.2",
     "autoprefixer": "^10.0.1",
     "concurrently": "^8.2.2",
     "cross-env": "^10.0.0",
@@ -62,11 +74,13 @@
     "eslint-plugin-tailwindcss": "^3.18.2",
     "eslint-plugin-unicorn": "^48.0.1",
     "husky": "^9.1.7",
+    "jsdom": "^29.1.1",
     "lint-staged": "^16.1.2",
     "postcss": "^8",
     "prettier": "^3.6.2",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.7"
   },
   "engines": {
     "node": ">=18.18.0 || >=20.0.0"

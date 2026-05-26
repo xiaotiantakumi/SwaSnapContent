@@ -1,0 +1,227 @@
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import Header from '../components/header';
+import ThemeToggle from '../components/theme-toggle';
+
+import PinPad from './components/PinPad';
+import UserTile from './components/UserTile';
+import { useSansuSync } from './hooks/useSansuSync';
+import { useSansuUser } from './hooks/useSansuUser';
+import { sansuApi } from './lib/api-client';
+import { dailyLevel, todayKey } from './lib/daily';
+import { hashPin } from './lib/pin-hash';
+import type { SansuUserPublic } from './lib/types';
+
+const IS_DEV = process.env.NODE_ENV !== 'production';
+
+export default function SansuHome(): React.JSX.Element {
+  useSansuSync();
+  const router = useRouter();
+  const { recentUsers, currentUser, selectUser, saveUser, loaded, refreshUsers } =
+    useSansuUser();
+  const seedDone = useRef(false);
+  const [selectingUser, setSelectingUser] = useState<SansuUserPublic | null>(
+    null
+  );
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState<string | null>(null);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+
+  // Auto-seed test users in dev mode on first mount
+  useEffect(() => {
+    if (!IS_DEV || seedDone.current) return;
+    seedDone.current = true;
+    import('./lib/dev-seed').then(({ seedDevUsers }) =>
+      seedDevUsers().then((seeded) => {
+        if (seeded) refreshUsers();
+      }).catch(console.warn)
+    );
+  }, [refreshUsers]);
+
+  const handleSelect = (user: SansuUserPublic) => {
+    setSelectingUser(user);
+    setPin('');
+    setPinError(null);
+  };
+
+  const handleVerifyPin = async (pinValue: string = pin) => {
+    if (!selectingUser || pinValue.length !== 4) return;
+    if (failedAttempts >= 3) {
+      setPinError('3回まちがえたよ。すこし まってからもういちど ためしてね');
+      return;
+    }
+    setPinError(null);
+    try {
+      const hash = await hashPin(pinValue, selectingUser.id);
+      const result = await sansuApi
+        .verifyPin(selectingUser.id, hash)
+        .catch(() => ({ ok: false }) as { ok: false });
+      if (result.ok) {
+        if ('user' in result && result.user) {
+          saveUser(result.user);
+        } else {
+          selectUser(selectingUser);
+        }
+        setSelectingUser(null);
+      } else {
+        setFailedAttempts((n) => n + 1);
+        setPinError('あいことばが ちがうみたい');
+        setPin('');
+      }
+    } catch (e) {
+      setPinError(e instanceof Error ? e.message : 'エラーが おきたよ');
+    }
+  };
+
+  const goPlay = () => {
+    if (currentUser) router.push('/sansu-100/play');
+  };
+  const goDaily = () => {
+    if (currentUser) router.push('/sansu-100/play?daily=1');
+  };
+
+  if (!loaded) return <main className="p-8" />;
+
+  return (
+    <main className="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-gray-900">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
+      <div className="container mx-auto max-w-3xl space-y-8 px-4 py-8">
+        <Header
+          title="100マス計算"
+          description="毎日 100問。じぶんの ベストを ぬりかえよう！"
+          showBackButton
+        />
+
+        {currentUser ? (
+          <section className="space-y-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
+            <div className="flex items-center gap-4">
+              <span className="text-6xl">{currentUser.avatar}</span>
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  こんにちは
+                </p>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {currentUser.name}
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  これまで {currentUser.totalSessions}回 / バッジ{' '}
+                  {currentUser.earnedBadges.length}
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={goDaily}
+                className="rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 p-4 text-lg font-bold text-white shadow-md hover:from-yellow-600 hover:to-orange-600"
+                data-testid="daily-challenge-btn"
+              >
+                ⭐ きょうのチャレンジ
+                <p className="mt-1 text-xs font-normal opacity-90">
+                  {todayKey()}・Lv.{dailyLevel()}
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={goPlay}
+                className="rounded-xl bg-blue-600 p-4 text-lg font-bold text-white shadow-md hover:bg-blue-700"
+                data-testid="play-btn"
+              >
+                ▶︎ じぶんで えらんで れんしゅう
+              </button>
+            </div>
+            <div className="flex gap-3">
+              <Link
+                href="/sansu-100/history"
+                className="flex-1 rounded-lg bg-gray-200 px-4 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                📈 きろくをみる
+              </Link>
+              <button
+                type="button"
+                onClick={() => selectUser(null)}
+                className="rounded-lg bg-gray-200 px-4 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                👋 おわる
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="space-y-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              だれが あそぶ？
+            </h2>
+            {recentUsers.length === 0 ? (
+              <p className="text-center text-gray-600 dark:text-gray-400">
+                まだ だれも とうろくしていないよ
+              </p>
+            ) : (
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                {recentUsers.map((u) => (
+                  <UserTile key={u.id} user={u} onSelect={handleSelect} />
+                ))}
+              </div>
+            )}
+            <div className="flex flex-col gap-2 border-t border-gray-200 pt-4 dark:border-gray-700 sm:flex-row">
+              <Link
+                href="/sansu-100/register"
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-3 text-center font-bold text-white hover:bg-blue-700"
+                data-testid="register-link"
+              >
+                ＋ あたらしく とうろく
+              </Link>
+              <Link
+                href="/sansu-100/login"
+                className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                べつの たんまつで つくったよ
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {selectingUser ? (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setSelectingUser(null)}
+          >
+            <div
+              className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-6xl">{selectingUser.avatar}</span>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {selectingUser.name} の あいことば
+                </h3>
+              </div>
+              <PinPad
+                value={pin}
+                onChange={setPin}
+                onSubmit={handleVerifyPin}
+                error={pinError}
+              />
+              <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+                わからない時は おうちの人に きいてね
+              </p>
+              <button
+                type="button"
+                onClick={() => setSelectingUser(null)}
+                className="w-full rounded-lg bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                やめる
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </main>
+  );
+}
