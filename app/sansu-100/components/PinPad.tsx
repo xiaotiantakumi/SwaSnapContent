@@ -8,6 +8,7 @@ interface PinPadProps {
   onSubmit?: (value: string) => void;
   error?: string | null;
   disabled?: boolean;
+  confirmLabel?: string;
 }
 
 export default function PinPad({
@@ -16,6 +17,7 @@ export default function PinPad({
   onSubmit,
   error,
   disabled = false,
+  confirmLabel = 'OK！',
 }: PinPadProps): React.JSX.Element {
   const press = useCallback(
     (digit: string) => {
@@ -25,26 +27,28 @@ export default function PinPad({
         return;
       }
       if (value.length >= 4) return;
-      const next = value + digit;
-      onChange(next);
-      if (next.length === 4 && onSubmit) {
-        // tiny delay so the user sees the 4th dot before submitting
-        setTimeout(() => onSubmit(next), 80);
-      }
+      onChange(value + digit);
     },
-    [value, disabled, onChange, onSubmit]
+    [value, disabled, onChange]
   );
+
+  const handleConfirm = useCallback(() => {
+    if (disabled || value.length !== 4 || !onSubmit) return;
+    onSubmit(value);
+  }, [value, disabled, onSubmit]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (disabled) return;
       if (e.key >= '0' && e.key <= '9') press(e.key);
       else if (e.key === 'Backspace') press('back');
-      else if (e.key === 'Enter' && value.length === 4 && onSubmit) onSubmit(value);
+      else if (e.key === 'Enter') handleConfirm();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [press, value.length, onSubmit, disabled]);
+  }, [press, handleConfirm, disabled]);
+
+  const canConfirm = value.length === 4 && !disabled && !!onSubmit;
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -52,7 +56,7 @@ export default function PinPad({
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className={`size-6 rounded-full border-2 ${
+            className={`size-6 rounded-full border-2 transition-colors ${
               i < value.length
                 ? 'border-blue-600 bg-blue-600'
                 : 'border-gray-400 bg-transparent'
@@ -97,6 +101,21 @@ export default function PinPad({
         </button>
         <div className="size-16" />
       </div>
+
+      {onSubmit ? (
+        <button
+          type="button"
+          onClick={handleConfirm}
+          disabled={!canConfirm}
+          className={`w-full rounded-xl py-3 text-lg font-bold transition-all ${
+            canConfirm
+              ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700'
+              : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
+          }`}
+        >
+          {disabled ? 'たしかめてるよ...' : confirmLabel}
+        </button>
+      ) : null}
     </div>
   );
 }

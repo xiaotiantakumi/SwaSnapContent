@@ -13,7 +13,6 @@ import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
 import { sansuApi } from './lib/api-client';
-import { dailyLevel, todayKey } from './lib/daily';
 import { hashPin } from './lib/pin-hash';
 import type { SansuUserPublic } from './lib/types';
 
@@ -30,6 +29,7 @@ export default function SansuHome(): React.JSX.Element {
   );
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState<string | null>(null);
+  const [verifyingPin, setVerifyingPin] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
 
   // Auto-seed test users in dev mode on first mount
@@ -47,20 +47,27 @@ export default function SansuHome(): React.JSX.Element {
     setSelectingUser(user);
     setPin('');
     setPinError(null);
+    setFailedAttempts(0);
   };
 
   const handleVerifyPin = async (pinValue: string = pin) => {
-    if (!selectingUser || pinValue.length !== 4) return;
+    if (!selectingUser || pinValue.length !== 4 || verifyingPin) return;
     if (failedAttempts >= 3) {
       setPinError('3回まちがえたよ。すこし まってからもういちど ためしてね');
       return;
     }
     setPinError(null);
+    setVerifyingPin(true);
     try {
       const hash = await hashPin(pinValue, selectingUser.id);
-      const result = await sansuApi
-        .verifyPin(selectingUser.id, hash)
-        .catch(() => ({ ok: false }) as { ok: false });
+      let result: { ok: boolean; user?: SansuUserPublic };
+      try {
+        result = await sansuApi.verifyPin(selectingUser.id, hash);
+      } catch {
+        setPinError('サーバーに つながらなかったよ。もういちど ためしてね');
+        setPin('');
+        return;
+      }
       if (result.ok) {
         if ('user' in result && result.user) {
           saveUser(result.user);
@@ -75,14 +82,9 @@ export default function SansuHome(): React.JSX.Element {
       }
     } catch (e) {
       setPinError(e instanceof Error ? e.message : 'エラーが おきたよ');
+    } finally {
+      setVerifyingPin(false);
     }
-  };
-
-  const goPlay = () => {
-    if (currentUser) router.push('/sansu-100/play');
-  };
-  const goDaily = () => {
-    if (currentUser) router.push('/sansu-100/play?daily=1');
   };
 
   if (!loaded) return <main className="p-8" />;
@@ -95,7 +97,7 @@ export default function SansuHome(): React.JSX.Element {
       <div className="container mx-auto max-w-3xl space-y-8 px-4 py-8">
         <Header
           title="100マス計算"
-          description="毎日 100問。じぶんの ベストを ぬりかえよう！"
+          description="じぶんの ベストを ぬりかえよう！"
           showBackButton
         />
 
@@ -116,27 +118,14 @@ export default function SansuHome(): React.JSX.Element {
                 </p>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={goDaily}
-                className="rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 p-4 text-lg font-bold text-white shadow-md hover:from-yellow-600 hover:to-orange-600"
-                data-testid="daily-challenge-btn"
-              >
-                ⭐ きょうのチャレンジ
-                <p className="mt-1 text-xs font-normal opacity-90">
-                  {todayKey()}・Lv.{dailyLevel()}
-                </p>
-              </button>
-              <button
-                type="button"
-                onClick={goPlay}
-                className="rounded-xl bg-blue-600 p-4 text-lg font-bold text-white shadow-md hover:bg-blue-700"
-                data-testid="play-btn"
-              >
-                ▶︎ じぶんで えらんで れんしゅう
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => router.push('/sansu-100/play')}
+              className="w-full rounded-xl bg-blue-600 p-5 text-xl font-bold text-white shadow-md hover:bg-blue-700"
+              data-testid="play-btn"
+            >
+              ▶︎ れんしゅう スタート！
+            </button>
             <div className="flex gap-3">
               <Link
                 href="/sansu-100/history"
@@ -190,7 +179,7 @@ export default function SansuHome(): React.JSX.Element {
         {selectingUser ? (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-            onClick={() => setSelectingUser(null)}
+            onClick={() => !verifyingPin && setSelectingUser(null)}
           >
             <div
               className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800"
@@ -207,6 +196,8 @@ export default function SansuHome(): React.JSX.Element {
                 onChange={setPin}
                 onSubmit={handleVerifyPin}
                 error={pinError}
+                disabled={verifyingPin}
+                confirmLabel="これでOK！"
               />
               <p className="text-center text-xs text-gray-500 dark:text-gray-400">
                 わからない時は おうちの人に きいてね
@@ -214,7 +205,8 @@ export default function SansuHome(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => setSelectingUser(null)}
-                className="w-full rounded-lg bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                disabled={verifyingPin}
+                className="w-full rounded-lg bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               >
                 やめる
               </button>

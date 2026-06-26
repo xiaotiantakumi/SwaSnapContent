@@ -65,7 +65,7 @@ export default function HistoryPage(): React.JSX.Element {
               {latest.map((s) => (
                 <li
                   key={s.id}
-                  className="flex items-center justify-between py-2"
+                  className={`flex items-center justify-between py-2 ${s.isRetired ? 'opacity-70' : ''}`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -76,14 +76,22 @@ export default function HistoryPage(): React.JSX.Element {
                         minute: '2-digit',
                       })}
                     </span>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">
-                      Lv.{s.level} {s.operation}
-                      {s.isDaily ? ' ⭐' : ''}
-                    </span>
+                    <div>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        Lv.{s.level} {s.operation}
+                      </span>
+                      {s.isRetired ? (
+                        <span className="ml-1 rounded bg-gray-200 px-1 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                          ⏸ 途中
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-gray-900 dark:text-gray-100">
-                      {formatDuration(s.durationMs)}
+                      {s.isRetired
+                        ? `${s.totalProblems}/100問`
+                        : formatDuration(s.durationMs)}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
                       {s.correctCount}/{s.totalProblems} ・ +

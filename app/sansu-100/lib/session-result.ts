@@ -6,6 +6,7 @@ export type FinishSessionInput = {
   level: LevelId;
   operation: Operation;
   isDaily: boolean;
+  isRetired?: boolean;
   startedAt: number;
   completedAt: number;
   problems: AnsweredProblem[];
@@ -25,6 +26,7 @@ export function finishSession(input: FinishSessionInput): FinishSessionResult {
     level,
     operation,
     isDaily,
+    isRetired = false,
     startedAt,
     completedAt,
     problems,
@@ -46,6 +48,7 @@ export function finishSession(input: FinishSessionInput): FinishSessionResult {
     level,
     operation,
     isDaily,
+    ...(isRetired ? { isRetired: true } : {}),
     startedAt,
     completedAt,
     durationMs,

@@ -112,6 +112,7 @@ function PlaySession({
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [finalized, setFinalized] = useState(false);
   const [showRetire, setShowRetire] = useState(false);
+  const [retiring, setRetiring] = useState(false);
 
   const judge = useCallback(
     (value: string, isSkip = false) => {
@@ -245,10 +246,37 @@ function PlaySession({
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => router.replace('/sansu-100')}
-                  className="rounded-xl bg-red-500 py-3 font-bold text-white hover:bg-red-600"
+                  disabled={retiring}
+                  onClick={async () => {
+                    if (finalized || retiring) return;
+                    if (session.answered.length > 0 && user) {
+                      setRetiring(true);
+                      const now = Date.now();
+                      const result = finishSession({
+                        user,
+                        level: pick.level,
+                        operation: pick.operation,
+                        isDaily: false,
+                        isRetired: true,
+                        startedAt: session.startedAt,
+                        completedAt: now,
+                        problems: session.answered,
+                        pastSessions: storage.getSessions(user.id),
+                      });
+                      setFinalized(true);
+                      storage.appendSession(result.session);
+                      storage.pushPending(result.session);
+                      onFinishUpdate(() => result.updatedUser);
+                      sansuApi
+                        .submitSession(result.session)
+                        .then(() => storage.clearPending([result.session.id]))
+                        .catch(() => {});
+                    }
+                    router.replace('/sansu-100');
+                  }}
+                  className="rounded-xl bg-red-500 py-3 font-bold text-white hover:bg-red-600 disabled:opacity-60"
                 >
-                  やめる
+                  {retiring ? 'きろく中...' : 'やめる'}
                 </button>
                 <button
                   type="button"

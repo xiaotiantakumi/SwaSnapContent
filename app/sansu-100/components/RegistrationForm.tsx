@@ -176,6 +176,7 @@ export default function RegistrationForm(): React.JSX.Element {
             onSubmit={handleSubmit}
             error={error}
             disabled={submitting}
+            confirmLabel="これでとうろく！"
           />
           <button
             type="button"

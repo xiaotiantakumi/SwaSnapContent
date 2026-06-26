@@ -40,12 +40,19 @@ export default function LoginPage(): React.JSX.Element {
   };
 
   const handleVerify = async (pinValue: string = pin) => {
-    if (!foundUser || pinValue.length !== 4) return;
+    if (!foundUser || pinValue.length !== 4 || loading) return;
     setLoading(true);
     setError(null);
     try {
       const hash = await hashPin(pinValue, foundUser.id);
-      const res = await sansuApi.verifyPin(foundUser.id, hash);
+      let res: { ok: boolean; user?: SansuUserPublic };
+      try {
+        res = await sansuApi.verifyPin(foundUser.id, hash);
+      } catch {
+        setError('サーバーに つながらなかったよ。もういちど ためしてね');
+        setPin('');
+        return;
+      }
       if (res.ok && res.user) {
         saveUser(res.user);
         router.push('/sansu-100');
@@ -112,6 +119,7 @@ export default function LoginPage(): React.JSX.Element {
               onSubmit={handleVerify}
               error={error}
               disabled={loading}
+              confirmLabel="これでOK！"
             />
             <button
               type="button"

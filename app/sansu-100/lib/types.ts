@@ -56,6 +56,7 @@ export type SansuSession = {
   level: LevelId;
   operation: Operation;
   isDaily: boolean;
+  isRetired?: boolean;
   startedAt: number;
   completedAt: number;
   durationMs: number;
