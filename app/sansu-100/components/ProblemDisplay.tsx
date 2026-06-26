@@ -39,7 +39,7 @@ export default function ProblemDisplay({
         : 'border-gray-400 dark:border-gray-500';
   return (
     <div
-      className="flex items-baseline justify-center gap-3 font-mono text-6xl font-bold text-gray-900 dark:text-gray-100 sm:text-7xl md:text-8xl"
+      className="flex items-baseline justify-center gap-2 font-mono text-5xl font-bold text-gray-900 dark:text-gray-100 sm:gap-3 sm:text-7xl md:text-8xl"
       data-testid="problem-display"
     >
       <span>{problem.a}</span>

@@ -47,7 +47,7 @@ export default function NumberKeypad({
       type="button"
       onClick={() => press(k)}
       disabled={disabled}
-      className={`flex h-16 items-center justify-center rounded-2xl text-2xl font-bold transition-colors disabled:opacity-50 sm:h-20 sm:text-3xl ${
+      className={`flex h-12 items-center justify-center rounded-2xl text-xl font-bold transition-colors disabled:opacity-50 sm:h-20 sm:text-3xl ${
         className ??
         'bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600'
       }`}
@@ -72,7 +72,7 @@ export default function NumberKeypad({
       <Btn
         k="skip"
         label="スキップ"
-        className="bg-gray-400 text-base text-white hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-500 sm:text-lg"
+        className="bg-gray-400 text-sm text-white hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-500 sm:text-lg"
       />
     </div>
   );

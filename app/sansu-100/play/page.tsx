@@ -208,8 +208,8 @@ function PlaySession({
   const correctCount = session.answered.filter((a) => a.isCorrect).length;
 
   return (
-    <main className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 p-4">
+    <main className="flex min-h-svh flex-col bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto flex w-full max-w-2xl flex-1 flex-col gap-3 p-3 sm:gap-4 sm:p-4">
         <header className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <button
@@ -241,7 +241,7 @@ function PlaySession({
                 れんしゅうを やめる？
               </p>
               <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-                {session.currentIndex}問め まで の きろくは のこらないよ
+                ここまでの {session.currentIndex}問は きろくに のこるよ
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button
