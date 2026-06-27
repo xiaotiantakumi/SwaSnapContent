@@ -17,20 +17,16 @@ app.http('sansuDebugGrantPost', {
     context: InvocationContext
   ): Promise<HttpResponseInit> => {
     try {
-      const candidates = [
+      // SWA 実環境では x-forwarded-host 単独だと内部ホストが入ることがあるため、
+      // 複数のホスト系ヘッダのいずれかが「正規ドメイン以外」なら許可する（本番ドメインは全て不一致→403）。
+      const allowed = [
         req.headers.get('x-forwarded-host'),
         req.headers.get('host'),
         req.headers.get('x-original-host'),
-        req.headers.get('x-ms-original-url'),
         req.headers.get('referer'),
-      ];
-      const allowed = candidates.some((c) => isDebugHost(c));
+      ].some((c) => isDebugHost(c));
       if (!allowed) {
-        // 診断用: どのホストヘッダが来ているか返す（本番では 403 のまま）
-        return {
-          status: 403,
-          jsonBody: { error: 'debug disabled', seen: candidates },
-        };
+        return { status: 403, jsonBody: { error: 'debug disabled' } };
       }
       const body = (await req.json()) as DebugGrantBody;
       if (!body.userId) {
