@@ -67,4 +67,16 @@ LOOP_PROMPT を改善した周は次も残す:
 - 学び/罠: なし。
 - 残課題 / 次にやること: C4 サーバー `sansuSessions.ts`（サーバーcalculateCoins統合＋冪等修正＋応答user）。
 - prompt改善: なし。
+- コミット: 888f600
+
+## 周 5 — C4 サーバーコイン統合＋冪等修正  (loop-version: v1)
+- やったこと: `sansuSessionsPost` を再構成。`created` フラグを導入し、ユーザー集計・コイン加算を
+  **新規作成成功時のみ**実行（再送409では現在のuserを無変更で返す＝二重加算バグ修正）。サーバー calculateCoins を
+  「実用厳密」で統合（base/best/上限はサーバー再計算、streakは body.streakDays/prevStreakDays 申告許容）。
+  応答を `{ ok, user: toPublic(refreshed) }` 化。`SubmitSessionBody` 型で isRetired/streak を受ける。
+- 検証: `cd api && npm run build` 緑（isRetired 型エラーを1件修正）。冪等修正はロジックレビューで確認（集計は created 時のみ）。
+  Table Storage e2e は azurite 環境が要るため Z1 回帰でまとめて確認。
+- 学び/罠: サーバーの SansuSession 型には isRetired が無い→SubmitSessionBody 側で受ける必要があった。
+- 残課題 / 次にやること: C5 `api-client.ts`（submitSession 戻り値 {ok,user}＋streak送信＋getUser）、play/page で saveUser。
+- prompt改善: なし。
 - コミット: （この周で記録）

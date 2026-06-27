@@ -26,9 +26,11 @@
       `FinishSessionResult` に `coinsEarned` と `coinBreakdown`（表示用）を追加。daily系3フィールドを更新
       受入: 既存 `session-result.test.ts` 緑 ＋ コイン反映の新テスト
       → 完了(周4): isNewBest を明示算出、coin統合。coinsEarned/coinBreakdown返却、coins/daily系をupdatedUserに反映。test88件緑
-- [ ] C4 `api/src/functions/sansuSessions.ts`: サーバー `calculateCoins` 統合で `coins` 加算、
+- [x] C4 `api/src/functions/sansuSessions.ts`: サーバー `calculateCoins` 統合で `coins` 加算、
       **冪等バグ修正**（`createEntity` 成功時のみ集計・コイン加算。409 は skip）、レスポンスを `{ ok, user: toPublic(...) }` に
       受入: `cd api && npm run build` 緑。同一セッション再送で二重加算しない（手動確認 or ロジックレビュー）
+      → 完了(周5): created フラグで集計を新規時のみ実行（冪等修正）。実用厳密=base/best/上限はサーバー再計算、streakは
+        body.streakDays/prevStreakDays 申告許容。再送は無変更でuser返却。応答 {ok,user}。api build緑。e2e検証はZ1へ
 - [ ] C5 `app/sansu-100/lib/api-client.ts`: `submitSession` 戻り値を `{ ok; user? }` 化、`getUser` で残高再同期。
       `app/sansu-100/play/page.tsx`: 送信応答の `user` で `saveUser`（残高をサーバー値に確定）
       受入: build緑。完走後ローカル残高がサーバー値に一致
