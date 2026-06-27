@@ -133,12 +133,18 @@ export default function SansuHome(): React.JSX.Element {
             >
               ▶︎ れんしゅう スタート！
             </button>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/sansu-100/shop"
                 className="rounded-lg bg-yellow-200 px-3 py-2 text-center font-semibold text-yellow-900 hover:bg-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-100 dark:hover:bg-yellow-900/60"
               >
                 🛍️ おみせ
+              </Link>
+              <Link
+                href="/sansu-100/closet"
+                className="rounded-lg bg-pink-200 px-3 py-2 text-center font-semibold text-pink-900 hover:bg-pink-300 dark:bg-pink-900/40 dark:text-pink-100 dark:hover:bg-pink-900/60"
+              >
+                🎨 きせかえ
               </Link>
               <Link
                 href="/sansu-100/minigame"

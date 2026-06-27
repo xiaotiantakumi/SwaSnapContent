@@ -4,12 +4,13 @@ import { getThemeClasses } from '../lib/avatar';
 import { getItemDef } from '../lib/shop-catalog';
 import type { SansuUserPublic } from '../lib/types';
 
-type Size = 'sm' | 'md' | 'lg';
+type Size = 'sm' | 'md' | 'lg' | 'xl';
 
 const SIZES: Record<Size, { box: string; emoji: string; overlay: string }> = {
   sm: { box: 'h-14 w-14', emoji: 'text-3xl', overlay: 'text-lg' },
   md: { box: 'h-20 w-20', emoji: 'text-5xl', overlay: 'text-2xl' },
   lg: { box: 'h-28 w-28', emoji: 'text-7xl', overlay: 'text-4xl' },
+  xl: { box: 'h-44 w-44', emoji: 'text-8xl', overlay: 'text-6xl' },
 };
 
 // アバターを装備アイテムごと重ねて描画する。

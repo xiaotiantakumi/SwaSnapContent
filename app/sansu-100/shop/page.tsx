@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import Header from '../../components/header';
@@ -57,7 +58,9 @@ export default function ShopPage(): React.JSX.Element {
       const res = await sansuApi.purchase(currentUser.id, action, item.id);
       if (res.ok && res.user) {
         saveUser(res.user);
-        if (action === 'buy') setMessage(`「${item.name}」を かったよ！`);
+        if (action === 'buy') {
+          setMessage(`「${item.name}」を かったよ！🎨きせかえで つけられるよ`);
+        }
       } else if (res.error === 'conflict') {
         setMessage(
           action === 'buy'
@@ -100,6 +103,13 @@ export default function ShopPage(): React.JSX.Element {
           </div>
           <CoinBalance coins={coins} size="lg" />
         </section>
+
+        <Link
+          href="/sansu-100/closet"
+          className="block rounded-xl bg-pink-100 py-2.5 text-center font-bold text-pink-800 hover:bg-pink-200 dark:bg-pink-900/30 dark:text-pink-200"
+        >
+          🎨 きせかえで つけかえる
+        </Link>
 
         {message ? (
           <div className="rounded-xl bg-yellow-100 px-4 py-3 text-center font-bold text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">

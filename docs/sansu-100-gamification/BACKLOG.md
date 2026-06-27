@@ -101,6 +101,11 @@
       サーバー `/sansu/debug-grant`（コイン付与、本番hostは403）、ホームに🐛コイン+1000ボタン、play の instant-finish を isDebugEnv 化。
       ライブ検証: 付与0→1000→2000、本番(独自/番号なしazurestaticapps)403・staging(-53)200、実機(computer-use)でパネル表示＋付与1000確認
 
+- [x] CLOSET 専用きせかえ画面（よくあるゲームの着せ替えUX）→ 完了(周20): Web検索で着せ替えゲームUXを調査し
+      `closet/page.tsx`（大きなアバターキャラ＋カテゴリ別の所持アイテム・タップで着脱・選択中ハイライト・「なし」で外す）を追加。
+      AvatarDisplay に xl サイズ追加。ホームに🎨きせかえ導線、ショップに「きせかえで つけかえる」リンク＋購入後メッセージ誘導。
+      iPhone(Playwright)＋実機(computer-use)で確認: 大アバター描画・装備反映・console error 0
+
 ## 仕上げ
 - [x] Z1 全体回帰 → 完了(周17): lint exit0(warningのみ)・frontend build・api build・test104件 全緑。
       導線（完走→コイン増→ショップ購入→着せ替え→スネーク）は各弾で実機/Playwright/curl 検証済み
