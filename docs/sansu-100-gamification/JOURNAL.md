@@ -178,3 +178,12 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: GS-A スネーク純粋ロジック `lib/games/snake.ts`＋テスト（周A）。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 14 — GS-A スネーク純粋ロジック  (loop-version: v4)
+- やったこと: `lib/games/snake.ts`（SnakeState、createSnake/stepSnake/placeFood、minigame-core の Dir/Vec2 利用）。
+  `__tests__/snake.test.ts` 7件（初期状態/前進で長さ維持/食べて成長＋スコア/壁over/反転無視で即死しない/自己衝突over/food空きマス）。
+- 検証: snake.test 7件緑、全104緑。lint object-injection warningのみ。純粋ロジックのため computer-use 確認は GS-B/C で。
+- 学び/罠: なし。
+- 残課題 / 次にやること: GS-B/C スネークの Canvas コンポーネント＋ゲームルート＋コイン参加費/報酬連携。実機(computer-use)で描画・操作・コイン確認。
+- prompt改善: なし。
+- コミット: （この周で記録）

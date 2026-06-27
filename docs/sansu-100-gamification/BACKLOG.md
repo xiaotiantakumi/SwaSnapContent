@@ -78,7 +78,7 @@
 
 ## 第4弾 ゲーム本体（1ゲーム=周A〜D。GAMES.md 参照）
 ### スネーク（基準実装）
-- [ ] GS-A `lib/games/snake.ts`（衝突/成長/food配置/score、純粋関数）＋ `__tests__/snake.test.ts`
+- [x] GS-A `lib/games/snake.ts`（衝突/成長/food配置/score、純粋関数）＋ `__tests__/snake.test.ts` → 完了(周14): 7テスト緑（成長/壁/自己衝突/反転無視/food配置）
 - [ ] GS-B `games/SnakeGame.tsx`（minigame-core に乗せて Canvas+操作）
 - [ ] GS-C コイン消費（参加費/コンティニュー）＋報酬連携 ＋ **ブラウザ3回プレイ動作確認**
 - [ ] GS-D 仕上げ（効果音 `sound-presets.ts` に eat/crash、難易度漸増、モバイル十字、軽量化）＋再確認
