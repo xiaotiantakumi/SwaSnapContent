@@ -98,6 +98,25 @@ export const sansuApi = {
       `${BASE}/sessions?userId=${encodeURIComponent(userId)}`
     );
   },
+  // アイテム購入・装備。サーバーが残高/所持を検証して更新後の user を返す。
+  async purchase(
+    userId: string,
+    action: 'buy' | 'equip' | 'unequip',
+    itemId: string
+  ): Promise<{ ok: boolean; user?: SansuUserPublic; error?: string }> {
+    try {
+      return await jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
+        `${BASE}/purchase`,
+        { method: 'POST', body: JSON.stringify({ userId, action, itemId }) }
+      );
+    } catch (e) {
+      // 409（残高不足/未所持）は例外にせず error として返す
+      if (e instanceof Error && /HTTP 409/.test(e.message)) {
+        return { ok: false, error: 'conflict' };
+      }
+      throw e;
+    }
+  },
 };
 
 export type AdminUserSummary = SansuUserPublic & {

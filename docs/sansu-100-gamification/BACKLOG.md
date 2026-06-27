@@ -53,9 +53,11 @@
       受入: 未装備ユーザーは従来見た目、装備で重なる をブラウザ確認
       → 完了(周9): AvatarDisplay 実装、UserTile/ホームを置換(resultは絵文字非表示なので対象外)。host Playwrightで検証=
         未装備は従来通り/装備(冠+宇宙背景+金枠)が重なる をスクショ確認、console error 0。build/test94緑
-- [ ] S3 `api/src/functions/sansuPurchase.ts`（購入=残高検証+減算+ownedItems追加 / equip=装備変更）＋
+- [x] S3 `api/src/functions/sansuPurchase.ts`（購入=残高検証+減算+ownedItems追加 / equip=装備変更）＋
       `api/src/index.ts` 登録 ＋ `api-client.ts` に `purchase`/`equip`
       受入: `cd api && npm run build` 緑。残高不足で409、価格はサーバーが引く
+      → 完了(周10): buy/equip/unequip を1エンドポイントに。価格はSHOP_PRICES(サーバー正)。ライブ検証(azurite)=
+        buy減算/不足409/equip装備/未所持equip409/再購入は二重課金なし/unequip解除。api build/test94緑
 - [ ] S4 `app/sansu-100/shop/page.tsx` ＋ `closet/page.tsx`（タブ統合可）＋ ホーム導線
       受入: 購入で残高減・所持追加・装備反映、不足で買えない、リロード維持 をブラウザ確認
 

@@ -125,3 +125,13 @@ LOOP_PROMPT を改善した周は次も残す:
 - prompt改善: **v2→v3**: UI検証の既定を host Playwright に変更、ビルドは dev 起動前に済ます旨を明記。
 - 残課題 / 次にやること: S3 `sansuPurchase.ts`（購入=残高検証+減算+owned追加 / equip）＋index登録＋api-client。
 - コミット: （この周で記録）
+
+## 周 10 — S3 購入API (buy/equip/unequip)  (loop-version: v3)
+- やったこと: `api/src/functions/sansuPurchase.ts`（POST /sansu/purchase、action=buy/equip/unequip。残高検証+減算+
+  ownedItems追加 / 装備変更。価格は SHOP_PRICES がサーバー正）。`index.ts` 登録。`api-client.ts` に purchase()（409はerror返し）。
+- 検証: api build緑、lint/clean、test94緑。**ライブ検証(azurite, curl)**: 70→buy hat_cap=20 / hat_crown(200)を20で=409不足 /
+  equip→{hat:hat_cap} / 未所持bg_space equip=409 / 再buyは二重課金なし(20) / unequip=解除。全期待一致。
+- 学び/罠: 新Functionは func 再起動しないとルート未登録(404)→stack再起動で反映。dev中はnext buildを避ける(v3)。
+- 残課題 / 次にやること: S4 `shop/page.tsx`＋`closet/page.tsx`(タブ統合可)＋ホーム導線。host Playwrightで購入→装備反映を確認。
+- prompt改善: なし。
+- コミット: （この周で記録）
