@@ -69,9 +69,12 @@
       受入: `cd api && npm run build` 緑。残高不足で開始不可（409）
       → 完了(周12): spend(play10/continue15、コストはサーバーSPEND_COSTS正)＋award-badge(バッジ＋最高スコア、コイン不変)。
         ライブ検証=play70→60/continue→45/不正reason400/award後coins不変・high更新/lowスコアは据置/枯渇で409。api build/test94緑
-- [ ] G0b `app/sansu-100/lib/minigame-rewards.ts`（スコア→限定バッジ判定）＋ `badge-catalog.ts` に `category:'minigame'` 称号追加 ＋
+- [x] G0b `app/sansu-100/lib/minigame-rewards.ts`（スコア→限定バッジ判定）＋ `badge-catalog.ts` に `category:'minigame'` 称号追加 ＋
       `app/sansu-100/minigame/page.tsx`（ハブ: ゲーム選択・参加費表示・結果演出は `BadgeUnlockOverlay` 再利用）
       受入: build緑。ハブからゲームに入れる、報酬演出が出る
+      → 完了(周13): minigame category＋snake/runner称号4種、BadgeShowcaseにラベル。evaluateMinigameBadges＋テスト3件。
+        minigame-list レジストリ。ハブ画面（残高・参加費・ゲーム一覧、available=falseはじゅんびちゅう）。ホームに🎮ゲーム導線。
+        computer-use実機確認: ハブ描画・残高60・両ゲームじゅんびちゅう表示OK。test97緑
 
 ## 第4弾 ゲーム本体（1ゲーム=周A〜D。GAMES.md 参照）
 ### スネーク（基準実装）

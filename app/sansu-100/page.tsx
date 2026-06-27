@@ -131,18 +131,24 @@ export default function SansuHome(): React.JSX.Element {
             >
               ▶︎ れんしゅう スタート！
             </button>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <Link
                 href="/sansu-100/shop"
-                className="rounded-lg bg-yellow-200 px-4 py-2 text-center font-semibold text-yellow-900 hover:bg-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-100 dark:hover:bg-yellow-900/60"
+                className="rounded-lg bg-yellow-200 px-3 py-2 text-center font-semibold text-yellow-900 hover:bg-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-100 dark:hover:bg-yellow-900/60"
               >
                 🛍️ おみせ
               </Link>
               <Link
-                href="/sansu-100/history"
-                className="rounded-lg bg-gray-200 px-4 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                href="/sansu-100/minigame"
+                className="rounded-lg bg-purple-200 px-3 py-2 text-center font-semibold text-purple-900 hover:bg-purple-300 dark:bg-purple-900/40 dark:text-purple-100 dark:hover:bg-purple-900/60"
               >
-                📈 きろくをみる
+                🎮 ゲーム
+              </Link>
+              <Link
+                href="/sansu-100/history"
+                className="rounded-lg bg-gray-200 px-3 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                📈 きろく
               </Link>
             </div>
             <button

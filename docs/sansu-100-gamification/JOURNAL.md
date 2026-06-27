@@ -167,3 +167,14 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: G0b `minigame-rewards.ts`＋badge-catalog に minigame称号＋`minigame/page.tsx`(ハブ)。UIなので computer-use 確認あり。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 13 — G0b ミニゲームハブ＋報酬バッジ  (loop-version: v4)
+- やったこと: badge-catalog に `minigame` category＋snake/runner称号4種、BadgeShowcase にラベル追加。
+  `lib/minigame-rewards.ts`(evaluateMinigameBadges＋テスト3件)、`lib/minigame-economy.ts`(SPEND_COSTS表示用)、
+  `lib/minigame-list.ts`(レジストリ、available フラグ)。`minigame/page.tsx`(ハブ: 残高・参加費・ゲーム一覧)。ホームに🎮ゲーム導線。
+- 検証: rewards test3緑、全97緑、lint(object-injection warningのみ)、ハブ dev コンパイル200。
+  **computer-use実機**: ハブ描画OK、残高🪙60、スネーク/ランナーが「じゅんびちゅう」表示（available=false）。
+- 学び/罠: なし。
+- 残課題 / 次にやること: GS-A スネーク純粋ロジック `lib/games/snake.ts`＋テスト（周A）。
+- prompt改善: なし。
+- コミット: （この周で記録）

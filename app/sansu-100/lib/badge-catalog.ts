@@ -8,6 +8,7 @@ export type BadgeCategory =
   | 'master'
   | 'timing'
   | 'special'
+  | 'minigame'
   | 'meta';
 
 export type BadgeDef = {
@@ -77,6 +78,12 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'birthday_play', category: 'special', name: 'たんじょうび練習', description: '誕生日に練習', icon: '🎂', tier: 'gold', rarity: 'epic' },
   { id: 'new_year_play', category: 'special', name: '元日チャレンジ', description: '元日に練習', icon: '🎍', tier: 'gold', rarity: 'epic' },
   { id: 'late_night', category: 'special', name: 'ナイトオウル', description: '深夜0-3時に練習', icon: '🦉', tier: 'silver', rarity: 'rare' },
+
+  // ミニゲーム称号（コイン経済に影響しない名誉バッジ）
+  { id: 'snake_charmer', category: 'minigame', name: 'ヘビつかい', description: 'スネークで10てん', icon: '🐍', tier: 'bronze', rarity: 'common' },
+  { id: 'snake_king', category: 'minigame', name: 'ヘビの王さま', description: 'スネークで30てん', icon: '👑', tier: 'gold', rarity: 'epic' },
+  { id: 'runner_ace', category: 'minigame', name: 'かけっこ名人', description: 'ランナーで500すすんだ', icon: '🏃', tier: 'silver', rarity: 'rare' },
+  { id: 'runner_wind', category: 'minigame', name: '風のランナー', description: 'ランナーで1500すすんだ', icon: '🌪️', tier: 'gold', rarity: 'epic' },
 
   // メタバッジ
   { id: 'badge_collector_25', category: 'meta', name: 'バッジハンター', description: 'バッジを25個集めた', icon: '🎖️', tier: 'gold', rarity: 'epic' },
