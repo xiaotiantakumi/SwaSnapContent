@@ -37,6 +37,19 @@
 - 症状: `npm test`（=`vitest run`）は全テストを走らせるため、1ファイル確認に時間がかかる。
 - 対策: 開発中は `npx vitest run app/sansu-100/lib/__tests__/<file>.test.ts` で対象だけ実行。コミット前に一度 `npm test` で全件確認。
 
+## [検証] フルスタック起動とブラウザ検証の罠（実証済み）
+- 症状: `npm run dev` だけだとユーザー作成（サーバー必須）ができず検証に入れない。また Playwright MCP で
+  `host.docker.internal:4280` を開くと `crypto.randomUUID is not a function` / PIN 検証失敗でユーザーを作れない。
+- 原因: (1) ユーザー作成/PIN は Azure Functions + ストレージが要る。(2) MCP ブラウザは Docker 内のため
+  `localhost` ではなく `host.docker.internal` を使うが、この origin は非セキュアで Web Crypto（randomUUID/subtle）が無効。
+- 対策:
+  - フルスタックは `npm run sansu:dev`（azurite+API+swa+next、:4280）を background 起動。`curl :4280/sansu-100`=200 を待つ。停止は `npm run sansu:stop`。
+  - **サーバーロジックは curl で API を直接検証**（最も確実・再現可能）。例: コインは `/api/sansu/sessions` POST の
+    応答 `user.coins` を確認、同一 id 再送で二重加算しないこと（冪等）も確認。注意: zsh では `UID` は readonly なので別名を使う。
+  - **UI は localStorage 注入**で表示。`sansu-100:current-user` は **`JSON.stringify('id')`**（生文字列だと getCurrentUserId の
+    JSON.parse が失敗して null になる）、`sansu-100:users` は配列JSON、結果画面は `sessionStorage['sansu-100:last-result']`。
+    `sansu-100:dev-seeded`='1' で API シードをスキップ。注入後リロードして snapshot/screenshot。
+
 ## [検証] ゲームは1回の確認では足りない
 - 症状: たまにしか出ない不具合（食べ物が壁に出る/再開でスコアが残る等）を見逃す。
 - 原因: 1回プレイだと再現しない。

@@ -196,6 +196,9 @@ function PlaySession({
         session: result.session,
         newBadges: result.newBadges,
         pointsEarned: result.pointsEarned,
+        coinsEarned: result.coinsEarned,
+        coinBreakdown: result.coinBreakdown,
+        coinsAfter: result.updatedUser.coins ?? 0,
         bestKey: `lv${pick.level}:${pick.operation}`,
         previousBest:
           user.bestTimesByLevel[`lv${pick.level}:${pick.operation}`] ?? null,

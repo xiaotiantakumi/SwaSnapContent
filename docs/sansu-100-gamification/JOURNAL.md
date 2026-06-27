@@ -90,4 +90,16 @@ LOOP_PROMPT を改善した周は次も残す:
 - 学び/罠: 第1弾のコイン獲得→サーバー権威同期の配線が完了。残るは C6 の残高UI。
 - 残課題 / 次にやること: C6 `CoinBalance.tsx` ＋ result/home 表示。ここで dev サーバー起動しブラウザ確認（完走でコイン増/上限/リロード一致/リタイヤ増えない）。
 - prompt改善: なし。
+- コミット: 9701583
+
+## 周 7 — C6 コイン残高UI＋ライブ検証  (loop-version: v1→v2)
+- やったこと: `components/CoinBalance.tsx`（🪙pill）、`result/page.tsx` にコイン獲得カード（内訳リスト＋残高、複雑度回避で
+  CoinEarnedCard 抽出）、`page.tsx` ホームに残高pill。play/page の last-result に coinsEarned/coinBreakdown/coinsAfter 追加。
+- 検証: build/test88緑、lint クリーン。**フルスタック(npm run sansu:dev)起動しライブ検証**:
+  - API(curl/azurite): 1回目perfect=70(50+20)/同id再送=70(冪等OK)/2回目=80(+10)/非perfect1回目=50/retire=据置/getUser一致。
+  - UI(Playwright MCP): ホーム🪙240 pill 描画、結果画面「+70ゲット」＋内訳(きょう1回目+50/ベストこうしん+20)＋残高310 描画。スクショ取得。
+- 学び/罠: MCPブラウザは Docker→host.docker.internal(非セキュアorigin)で Web Crypto 無効=ユーザー作成不可。
+  → サーバーは curl、UIは localStorage 注入(id は JSON.stringify)で検証する手順を確立。
+- prompt改善: **v1→v2**: LOOP_PROMPT step4 にブラウザ検証の実証済みレシピを追記、PLAYBOOK に罠2件追加。
+- 残課題 / 次にやること: **第1弾(コイン経済)完了**。次は第2弾 S1 `shop-catalog.ts`（ショップ・アイテム定義）。
 - コミット: （この周で記録）

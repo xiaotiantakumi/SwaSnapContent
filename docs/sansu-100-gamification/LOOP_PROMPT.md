@@ -1,4 +1,4 @@
-<!-- loop-version: 1 -->
+<!-- loop-version: 2 -->
 # LOOP_PROMPT — 100マス計算 ゲーミフィケーション 自走ループ
 
 あなたは 100マス計算アプリに「コイン経済 ＋ アバターショップ ＋ 複数アーケードゲーム」を、
@@ -41,6 +41,17 @@
   - [ ] 体感が軽い（カクつき・操作遅延・メモリ増の兆候がない）
 - 失敗したら直して**再検証**。`PLAYBOOK.md` に既知の罠があれば先に潰す。
 - **全部緑になるまで step 8（コミット）に進まない。**
+
+#### ブラウザ検証の手順（実証済みレシピ／詳細は PLAYBOOK）
+- フルスタックは `npm run sansu:dev`（azurite+API+next、:4280）をバックグラウンド起動し、`curl :4280/sansu-100` が
+  200 になるまで待つ。終了は `npm run sansu:stop`。
+- **サーバーロジック（コイン/購入/参加費）は curl で直接 API を叩いて検証**するのが最も確実
+  （例: `/api/sansu/sessions` に POST→応答 `user.coins` を確認、同一 id 再送で二重加算しないこと）。
+- **UI は Playwright MCP で確認**。ただし MCP ブラウザは Docker 内なので URL は `host.docker.internal:4280`。
+  この origin は**非セキュアで Web Crypto が使えず、ユーザー作成/PIN がブラウザ経由では失敗する**。
+  → ユーザーは `curl` で作るか、`localStorage` に直接注入する（**id 系キーは `JSON.stringify` して入れること**。
+  `sansu-100:current-user` は `JSON.stringify('id')`、`sansu-100:users` は配列JSON、結果画面は
+  `sessionStorage['sansu-100:last-result']` を注入）。注入後リロードして snapshot/screenshot で確認。
 
 ### 5. 記録（JOURNAL）
 - `JOURNAL.md` に追記（テンプ레は同ファイル末尾参照）: 周番号・タスクID・やったこと・検証結果要約・残課題。

@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Header from '../components/header';
 import ThemeToggle from '../components/theme-toggle';
 
+import CoinBalance from './components/CoinBalance';
 import PinPad from './components/PinPad';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
@@ -116,6 +117,9 @@ export default function SansuHome(): React.JSX.Element {
                   これまで {currentUser.totalSessions}回 / バッジ{' '}
                   {currentUser.earnedBadges.length}
                 </p>
+              </div>
+              <div className="ml-auto" data-testid="coin-balance">
+                <CoinBalance coins={currentUser.coins} size="lg" />
               </div>
             </div>
             <button

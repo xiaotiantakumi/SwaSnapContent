@@ -36,9 +36,11 @@
       受入: build緑。完走後ローカル残高がサーバー値に一致
       → 完了(周6): submitSession に streak文脈付き・戻り値{ok,user}。play/page で完走/リタイヤ両方 onServerSync(saveUser)で確定同期。
         getUser は既存。build/test88緑。視覚確認はC6（残高表示）でまとめて実施
-- [ ] C6 `app/sansu-100/components/CoinBalance.tsx`（🪙＋数値、増加アニメ）。`result/page.tsx` に獲得breakdown、
+- [x] C6 `app/sansu-100/components/CoinBalance.tsx`（🪙＋数値、増加アニメ）。`result/page.tsx` に獲得breakdown、
       `page.tsx`（ホーム）に残高表示
       受入: 完走でコイン増/上限150で頭打ち/リロードでサーバー値一致/リタイヤで増えない をブラウザ確認
+      → 完了(周7): CoinBalance/result coin card/home pill 実装。ライブAPI検証(azurite): 1回目perfect=70/同id再送=70(冪等)/
+        2回目=80/非perfect=50/retire据置/getUser一致。UI もブラウザで描画確認(home🪙240, result+70/内訳)。**第1弾コイン経済 完了**
 
 ## 第2弾 ショップ＋着せ替え
 - [ ] S1 `app/sansu-100/lib/shop-catalog.ts`（`ShopItemDef`/`SHOP_CATALOG`/`ITEM_PRICES{normal:50,rare:200,epic:1000}`、
