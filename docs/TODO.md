@@ -10,10 +10,10 @@
 - [x] GR-D 効果音(ジャンプ/crash)・難易度漸増・モバイル対応済。iPhone Playwrightで距離429・衝突over・console0 確認
 
 ## もぐらたたき（whack）3本目
-- [ ] GW-A `lib/games/whack.ts`（出現・タップ判定・制限時間・NG的）＋テスト
-- [ ] GW-B `games/WhackGame.tsx`
-- [ ] GW-C ルート＋コイン連携＋registry
-- [ ] GW-D 仕上げ＋プレイテスト
+- [x] GW-A whack.ts ＋テスト7件（出現/叩く+1/ばつ-1/空振り/ttl消滅/時間切れover）
+- [x] GW-B WhackGame.tsx（3x3 DOMグリッド＋rAF tick＋時間バー）
+- [x] GW-C whack ルート＋コイン連携＋registry＋whack称号バッジ2種
+- [x] GW-D 効果音(叩く/ばつ)・iPhone Playwrightで19タップ→スコア19・console0 確認
 
 ## ブロック崩し（breakout）4本目
 - [ ] GB-A `lib/games/breakout.ts`（パドル/ボール反射/ブロック）＋テスト

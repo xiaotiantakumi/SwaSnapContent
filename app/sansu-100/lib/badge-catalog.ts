@@ -84,6 +84,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'snake_king', category: 'minigame', name: 'ヘビの王さま', description: 'スネークで30てん', icon: '👑', tier: 'gold', rarity: 'epic' },
   { id: 'runner_ace', category: 'minigame', name: 'かけっこ名人', description: 'ランナーで500すすんだ', icon: '🏃', tier: 'silver', rarity: 'rare' },
   { id: 'runner_wind', category: 'minigame', name: '風のランナー', description: 'ランナーで1500すすんだ', icon: '🌪️', tier: 'gold', rarity: 'epic' },
+  { id: 'whack_master', category: 'minigame', name: 'もぐらマスター', description: 'もぐらたたきで15てん', icon: '🔨', tier: 'silver', rarity: 'rare' },
+  { id: 'whack_legend', category: 'minigame', name: 'もぐら名人', description: 'もぐらたたきで30てん', icon: '🏆', tier: 'gold', rarity: 'epic' },
 
   // メタバッジ
   { id: 'badge_collector_25', category: 'meta', name: 'バッジハンター', description: 'バッジを25個集めた', icon: '🎖️', tier: 'gold', rarity: 'epic' },

@@ -24,4 +24,11 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     desc: 'ジャンプで よけよう',
     available: true,
   },
+  {
+    id: 'whack',
+    name: 'もぐらたたき',
+    emoji: '🔨',
+    desc: '🐹を タップ！💣は だめ',
+    available: true,
+  },
 ];
