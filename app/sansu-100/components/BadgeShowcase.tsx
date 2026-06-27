@@ -15,7 +15,6 @@ const CATEGORY_LABELS: Record<BadgeDef['category'], string> = {
   streak: '🔥 れんぞく日数',
   master: '🎓 演算マスター',
   timing: '🕐 じかんたい',
-  daily: '📅 デイリー',
   special: '✨ とくべつ',
   meta: '🏆 メタ',
 };

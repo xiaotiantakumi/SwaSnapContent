@@ -206,19 +206,6 @@ describe('badges - timing', () => {
   });
 });
 
-describe('badges - daily', () => {
-  it('awards daily_first on daily session', () => {
-    const s = mkSession({ isDaily: true });
-    const newly = evaluateBadges(mkCtx({ session: s, allSessions: [s] }));
-    expect(newly).toContain('daily_first');
-  });
-
-  it('does not award daily_first on regular session', () => {
-    const newly = evaluateBadges(mkCtx());
-    expect(newly).not.toContain('daily_first');
-  });
-});
-
 describe('badges - special', () => {
   it('awards mix_master on perfect mix', () => {
     const s = mkSession({ level: 'mix', correctCount: 100 });

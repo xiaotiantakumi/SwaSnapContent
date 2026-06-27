@@ -141,13 +141,6 @@ const RULES: Record<string, Rule> = {
     return sawSat && sawSun;
   },
 
-  daily_first: ({ session }) => session.isDaily,
-  daily_7: ({ user, session }) => session.isDaily && user.currentStreakDays >= 7,
-  daily_30: ({ user, session }) =>
-    session.isDaily && user.currentStreakDays >= 30,
-  daily_100: ({ user, session }) =>
-    session.isDaily && user.currentStreakDays >= 100,
-
   comeback: ({ allSessions, session }) => {
     if (allSessions.length < 2) return false;
     const prev = allSessions[allSessions.length - 2];
