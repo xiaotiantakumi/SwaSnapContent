@@ -199,3 +199,13 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: GS-D 仕上げ（効果音 eat/crash、難易度、再確認）。
 - prompt改善: なし（v4手順に沿って分担を PLAYBOOK 明文化）。
 - コミット: （この周で記録）
+
+## 周 16 — GS-D スネーク仕上げ（効果音）  (loop-version: v4)
+- やったこと: sound-presets に eat()/crash() を追加。SnakeGame で soundRef(=storage.getSettings().soundOn) を尊重し、
+  food取得で eat、ゲームオーバーで crash。難易度漸増・モバイル十字は GS-B で実装済み。
+- 検証: 全104緑、lint(新規指摘なし)、route200。host Playwright 回帰: 無操作でゲームオーバー到達・console error 0
+  （crash 音パスを含めクラッシュなし）。**スネーク完成**。
+- 学び/罠: なし。
+- 残課題 / 次にやること: GR-A よけよけランナー純粋ロジック（2本目のゲーム）。
+- prompt改善: なし。
+- コミット: （この周で記録）

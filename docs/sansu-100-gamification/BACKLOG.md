@@ -82,7 +82,8 @@
 - [x] GS-B `games/SnakeGame.tsx`（minigame-core に乗せて Canvas+操作）→ 完了(周15): Canvas2D+rAF固定ステップ、useRef状態、キーボード＋十字ボタン
 - [x] GS-C コイン消費＋報酬連携＋ブラウザ動作確認 → 完了(周15): minigame/snake/page で参加費spend→play→over→award-badge→Overlay。
       host Playwrightで描画/操作/console0、Chrome MCPで実機 fee 60→50、computer-useで実機イントロ描画を確認
-- [ ] GS-D 仕上げ（効果音 `sound-presets.ts` に eat/crash、難易度漸増、モバイル十字、軽量化）＋再確認
+- [x] GS-D 仕上げ → 完了(周16): sound-presets に eat/crash 追加し soundOn 尊重で SnakeGame に配線。難易度漸増/モバイル十字は GS-B 済。
+      host Playwright 回帰: ゲームオーバー到達・console error 0。**スネーク完成**
 ### よけよけランナー（2本目・第1弾推奨）
 - [ ] GR-A `lib/games/runner.ts`＋テスト
 - [ ] GR-B `games/RunnerGame.tsx`

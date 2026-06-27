@@ -12,6 +12,8 @@ import {
   tickIntervalForScore,
   type Dir,
 } from '../lib/minigame-core';
+import { sound } from '../lib/sound-presets';
+import { storage } from '../lib/storage';
 
 const GRID = 15;
 const SIZE = 330; // 論理ピクセル（正方）
@@ -38,6 +40,7 @@ export default function SnakeGame({
   const stateRef = useRef<SnakeState>(createSnake(GRID, Math.random));
   const dirRef = useRef<Dir>('right');
   const overRef = useRef(false);
+  const soundRef = useRef(true);
   const [score, setScore] = useState(0);
 
   const setDir = (d: Dir) => {
@@ -52,6 +55,7 @@ export default function SnakeGame({
     stateRef.current = createSnake(GRID, Math.random);
     dirRef.current = 'right';
     overRef.current = false;
+    soundRef.current = storage.getSettings().soundOn;
     setScore(0);
 
     const handle = startGameLoop({
@@ -64,12 +68,15 @@ export default function SnakeGame({
         }),
       onTick: () => {
         if (overRef.current) return;
+        const prevScore = stateRef.current.score;
         const next = stepSnake(stateRef.current, dirRef.current, Math.random);
         stateRef.current = next;
         setScore(next.score); // 同値なら React が再描画を省く
+        if (next.score > prevScore && soundRef.current) sound.eat();
         if (next.over) {
           overRef.current = true;
           handle.stop();
+          if (soundRef.current) sound.crash();
           onGameOver(next.score);
         }
       },
