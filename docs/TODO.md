@@ -16,10 +16,10 @@
 - [x] GW-D 効果音(叩く/ばつ)・iPhone Playwrightで19タップ→スコア19・console0 確認
 
 ## ブロック崩し（breakout）4本目
-- [ ] GB-A `lib/games/breakout.ts`（パドル/ボール反射/ブロック）＋テスト
-- [ ] GB-B `games/BreakoutGame.tsx`
-- [ ] GB-C ルート＋コイン連携＋registry
-- [ ] GB-D 仕上げ＋プレイテスト
+- [x] GB-A breakout.ts ＋テスト7件（壁反射/ブロック消去/パドル反射/落下over/全消しwon/パドルクランプ）
+- [x] GB-B BreakoutGame.tsx（Canvas＋ドラッグ/左右ボタン/矢印、responsive）
+- [x] GB-C breakout ルート＋コイン連携＋registry＋breakout称号2種
+- [x] GB-D 効果音・iPhone Playwrightで brick破壊(score1)・描画・console0 確認
 
 ## 仕上げ（時間が許せば）
 - [ ] 各ゲームの称号バッジを minigame-rewards/badge-catalog に追加

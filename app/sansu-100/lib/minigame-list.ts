@@ -31,4 +31,11 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     desc: '🐹を タップ！💣は だめ',
     available: true,
   },
+  {
+    id: 'breakout',
+    name: 'ブロックくずし',
+    emoji: '🧱',
+    desc: 'パドルで ボールを はねかえそう',
+    available: true,
+  },
 ];
