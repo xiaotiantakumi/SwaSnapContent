@@ -17,10 +17,20 @@ app.http('sansuDebugGrantPost', {
     context: InvocationContext
   ): Promise<HttpResponseInit> => {
     try {
-      const host =
-        req.headers.get('x-forwarded-host') ?? req.headers.get('host');
-      if (!isDebugHost(host)) {
-        return { status: 403, jsonBody: { error: 'debug disabled' } };
+      const candidates = [
+        req.headers.get('x-forwarded-host'),
+        req.headers.get('host'),
+        req.headers.get('x-original-host'),
+        req.headers.get('x-ms-original-url'),
+        req.headers.get('referer'),
+      ];
+      const allowed = candidates.some((c) => isDebugHost(c));
+      if (!allowed) {
+        // 診断用: どのホストヘッダが来ているか返す（本番では 403 のまま）
+        return {
+          status: 403,
+          jsonBody: { error: 'debug disabled', seen: candidates },
+        };
       }
       const body = (await req.json()) as DebugGrantBody;
       if (!body.userId) {
