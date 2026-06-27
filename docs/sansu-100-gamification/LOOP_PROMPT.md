@@ -104,3 +104,14 @@
 - **周C**: コイン消費（参加費/コンティニュー）＋報酬バッジ連携 ＋ **ブラウザ3回プレイ動作確認**
 - **周D**: 仕上げ（効果音・難易度・モバイル十字・軽量化）＋再確認
 新ゲーム追加は「`GAMES.md` に1エントリ書く → `BACKLOG.md` に周A〜Dの4タスクを積む」の定型で行う。
+
+## 検証チェックリスト（PLAYBOOK から昇格・毎タスク）
+コミット前に該当するものを必ず通す:
+- [ ] `npm run lint`（exit 0／warning は許容）・`npm test`（lib変更時）・`cd api && npm run build`（API変更時）
+- [ ] 型を足したら `app/.../types.ts` と `api/.../sansuTypes.ts` の**両方**。coins ロジックは client/server **両 coins.ts** を同時更新
+- [ ] サーバー新関数は `api/src/index.ts` に登録し、**stack 再起動**してからルート確認（再起動しないと 404）
+- [ ] **dev 稼働中に `npm run build`(next) を流さない**（dev の `.next` を壊して 500）。本番ビルドは `sansu:stop` 後に
+- [ ] サーバーロジック（コイン/購入/参加費）は **curl で API 直叩き**検証（残高・409・冪等）
+- [ ] UI/ゲームの「動き」は **host Playwright**（プロジェクト直下スクリプト, `@playwright/test`, console error 0）
+- [ ] **実機の最低限確認は computer-use**（Chrome MCP で localStorage 注入＋`open`前面化→screenshot。stale は `?v=N`）
+- [ ] ゲームの「動く」は rAF が背面で止まるため host Playwright が確実、computer-use は実機UI描画の確認に使う

@@ -209,3 +209,13 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: GR-A よけよけランナー純粋ロジック（2本目のゲーム）。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 17 — Z1/Z2 全体回帰＋ドキュメント最終化  (loop-version: v4)
+- やったこと: スタック停止後にフル回帰（lint exit0・frontend build・api build・test104件 全緑）。LOOP_PROMPT に
+  「検証チェックリスト」を追加し PLAYBOOK の罠を昇格。BACKLOG に第1リリースの状態バナー、Z1/Z2 を完了に。
+- 検証: lint exit0（warningのみ、既存コードと同水準）・`npm run build` 成功・`cd api && npm run build` 成功・`npm test` 104件緑。
+  機能の導線は各弾で実機(computer-use)/host Playwright/curl により検証済み。
+- 学び/罠: なし。
+- 残課題 / 次にやること: 第1リリースは完成。追加ゲーム（よけよけランナー他）は GAMES.md から後続ループで実装。PR 準備。
+- prompt改善: なし（v4 で安定）。
+- コミット: （この周で記録）
