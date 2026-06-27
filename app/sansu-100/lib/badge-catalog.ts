@@ -7,7 +7,6 @@ export type BadgeCategory =
   | 'streak'
   | 'master'
   | 'timing'
-  | 'daily'
   | 'special'
   | 'meta';
 
@@ -71,12 +70,6 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'early_bird', category: 'timing', name: 'はやおき！', description: '朝6-9時に練習', icon: '🌅', tier: 'bronze', rarity: 'common' },
   { id: 'night_owl', category: 'timing', name: 'よふかし', description: '夜20-22時に練習', icon: '🌙', tier: 'bronze', rarity: 'common' },
   { id: 'weekend_warrior', category: 'timing', name: '週末王者', description: '土日両方練習', icon: '🎽', tier: 'silver', rarity: 'rare' },
-
-  // デイリーチャレンジ系
-  { id: 'daily_first', category: 'daily', name: 'デイリーデビュー', description: 'デイリーチャレンジ初参加', icon: '📅', tier: 'bronze', rarity: 'common' },
-  { id: 'daily_7', category: 'daily', name: 'デイリー7連', description: 'デイリー7日連続', icon: '📆', tier: 'silver', rarity: 'rare' },
-  { id: 'daily_30', category: 'daily', name: 'デイリー30連', description: 'デイリー30日連続', icon: '🗓️', tier: 'gold', rarity: 'epic' },
-  { id: 'daily_100', category: 'daily', name: 'デイリー100連', description: 'デイリー100日連続！', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 
   // 特殊・面白系
   { id: 'comeback', category: 'special', name: 'おかえり！', description: '7日空けて復帰', icon: '🌈', tier: 'silver', rarity: 'rare' },

@@ -58,7 +58,12 @@ export function finishSession(input: FinishSessionInput): FinishSessionResult {
     newBadges: [],
   };
 
-  const pointsEarned = calculatePoints(baseSession);
+  // リタイヤ（途中終了）は履歴には残すが、回数・ポイント・バッジ・ベストタイムの
+  // 集計には加えない（記録の水増し防止）。lastPlayedAt と streak は「練習した事実」
+  // として更新する。
+  const isCountable = !isRetired;
+
+  const pointsEarned = isCountable ? calculatePoints(baseSession) : 0;
   const session: SansuSession = { ...baseSession, pointsEarned };
 
   const allSessions = [...pastSessions, session];
@@ -68,26 +73,30 @@ export function finishSession(input: FinishSessionInput): FinishSessionResult {
   const prevBest = user.bestTimesByLevel[bestKey];
   const isPerfect = correctCount === problems.length;
   const newBest =
-    isPerfect && (!prevBest || durationMs < prevBest) ? durationMs : prevBest;
+    isCountable && isPerfect && (!prevBest || durationMs < prevBest)
+      ? durationMs
+      : prevBest;
 
   const intermediateUser: SansuUserPublic = {
     ...user,
     currentStreakDays: streak,
     lastPlayedDate: new Date(completedAt).toISOString().slice(0, 10),
     lastPlayedAt: completedAt,
-    totalSessions: user.totalSessions + 1,
+    totalSessions: isCountable ? user.totalSessions + 1 : user.totalSessions,
     bestTimesByLevel: {
       ...user.bestTimesByLevel,
       ...(newBest !== undefined ? { [bestKey]: newBest } : {}),
     },
   };
 
-  const newBadges = evaluateBadges({
-    user: intermediateUser,
-    session,
-    allSessions,
-    playedAt: new Date(completedAt),
-  });
+  const newBadges = isCountable
+    ? evaluateBadges({
+        user: intermediateUser,
+        session,
+        allSessions,
+        playedAt: new Date(completedAt),
+      })
+    : [];
 
   session.newBadges = newBadges;
 

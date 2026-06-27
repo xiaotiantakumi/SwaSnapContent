@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -110,9 +110,11 @@ function PlaySession({
   });
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
-  const [finalized, setFinalized] = useState(false);
   const [showRetire, setShowRetire] = useState(false);
   const [retiring, setRetiring] = useState(false);
+  // 同期ガード: 完走/リタイヤの finishSession が二重起動（連打や再レンダ）しないよう、
+  // state より先に効く ref で1回だけ確定させる。
+  const finalizingRef = useRef(false);
 
   const judge = useCallback(
     (value: string, isSkip = false) => {
@@ -153,8 +155,8 @@ function PlaySession({
   }, [feedback, input, judge]);
 
   useEffect(() => {
-    if (!session.isComplete || finalized || !user) return;
-    setFinalized(true);
+    if (!session.isComplete || finalizingRef.current || !user) return;
+    finalizingRef.current = true;
     const result = finishSession({
       user,
       level: pick.level,
@@ -191,7 +193,6 @@ function PlaySession({
     router.replace('/sansu-100/result');
   }, [
     session.isComplete,
-    finalized,
     user,
     pick.level,
     pick.operation,
@@ -247,9 +248,10 @@ function PlaySession({
                 <button
                   type="button"
                   disabled={retiring}
-                  onClick={async () => {
-                    if (finalized || retiring) return;
+                  onClick={() => {
+                    if (finalizingRef.current) return;
                     if (session.answered.length > 0 && user) {
+                      finalizingRef.current = true;
                       setRetiring(true);
                       const now = Date.now();
                       const result = finishSession({
@@ -263,7 +265,6 @@ function PlaySession({
                         problems: session.answered,
                         pastSessions: storage.getSessions(user.id),
                       });
-                      setFinalized(true);
                       storage.appendSession(result.session);
                       storage.pushPending(result.session);
                       onFinishUpdate(() => result.updatedUser);
