@@ -103,3 +103,13 @@ LOOP_PROMPT を改善した周は次も残す:
 - prompt改善: **v1→v2**: LOOP_PROMPT step4 にブラウザ検証の実証済みレシピを追記、PLAYBOOK に罠2件追加。
 - 残課題 / 次にやること: **第1弾(コイン経済)完了**。次は第2弾 S1 `shop-catalog.ts`（ショップ・アイテム定義）。
 - コミット: （この周で記録）
+
+## 周 8 — S1 ショップ・アイテムカタログ  (loop-version: v2)
+- やったこと: `lib/shop-catalog.ts`（17アイテム: hat5/bg5/frame4/effect3、ITEM_PRICES、ShopItemDef、render種別、
+  SHOP_BY_ID/getItemDef/RARITY_LABEL）＋ `api/src/shared/shopCatalog.ts`（SHOP_PRICES 価格/スロット複製）＋ `shop-catalog.test.ts`(6件)。
+  Tailwind クラスは完全文字列で記述しパージ回避。
+- 検証: shop-catalog.test 6件緑、api build緑、frontend build緑、`npm test` 94件緑。
+- 学び/罠: なし（複製は PLAYBOOK 既出。両ファイル同時更新）。
+- 残課題 / 次にやること: S2 `AvatarDisplay.tsx`（装備重ね描画）＋既存の絵文字直書き置換。ここはブラウザ確認あり。
+- prompt改善: なし。
+- コミット: （この周で記録）

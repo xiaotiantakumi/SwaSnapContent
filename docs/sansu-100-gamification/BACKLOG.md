@@ -43,9 +43,11 @@
         2回目=80/非perfect=50/retire据置/getUser一致。UI もブラウザで描画確認(home🪙240, result+70/内訳)。**第1弾コイン経済 完了**
 
 ## 第2弾 ショップ＋着せ替え
-- [ ] S1 `app/sansu-100/lib/shop-catalog.ts`（`ShopItemDef`/`SHOP_CATALOG`/`ITEM_PRICES{normal:50,rare:200,epic:1000}`、
+- [x] S1 `app/sansu-100/lib/shop-catalog.ts`（`ShopItemDef`/`SHOP_CATALOG`/`ITEM_PRICES{normal:50,rare:200,epic:1000}`、
       帽子/背景/フレーム/エフェクト）＋ `api/src/shared/shopCatalog.ts`（価格/スロットのみ複製）＋ `shop-catalog.test.ts`
       受入: `npm test` 緑。price=ITEM_PRICES[rarity] 整合、id重複なし
+      → 完了(周8): 17アイテム(hat5/bg5/frame4/effect3)。render種別=emojiOverlay/bgClass/frameClass/effectClass。
+        Tailwindは完全文字列で記述しパージ回避。server shopCatalog.ts に価格/スロット複製。test6件、計94件緑
 - [ ] S2 `app/sansu-100/components/AvatarDisplay.tsx`（背景→フレーム→絵文字→帽子→エフェクトを重ね描画）。
       既存の絵文字直書き（`page.tsx`/`components/UserTile.tsx`/`result/page.tsx`）を置換
       受入: 未装備ユーザーは従来見た目、装備で重なる をブラウザ確認
