@@ -6,9 +6,10 @@
 ## 基盤（先に1回だけ）
 - [x] B0-1 作業ブランチ `feat/sansu-100-gamification` 作成、`docs/sansu-100-gamification/` 6ファイル作成
       受入: ブランチ上で6ファイルが存在し、`/loop` 起動文が通る
-- [ ] B0-2 `app/sansu-100/lib/minigame-core.ts`: rAFループ（固定タイムステップ/accumulator）・入力抽象
+- [x] B0-2 `app/sansu-100/lib/minigame-core.ts`: rAFループ（固定タイムステップ/accumulator）・入力抽象
       （キーボード＋オンスクリーン）・スコア管理・Canvas描画ヘルパ ＋ `__tests__/minigame-core.test.ts`
       受入: `npm test` 緑。タブ非アクティブで暴れない設計（rAF, setInterval不使用）
+      → 完了(周1): advance/nextDirection/tickIntervalForScore 等を純粋関数化しテスト11件緑。Canvas/rAFは薄いラッパ
 
 ## 第1弾 コイン経済（ゲーム参加費の前提）
 - [ ] C1 型拡張: `app/sansu-100/lib/types.ts` と `api/src/shared/sansuTypes.ts` に
