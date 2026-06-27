@@ -85,6 +85,13 @@
   確認すれば最低限OK（参加費が引かれるのは Chrome MCP js で `[aria-label^=コイン]` を読めば確認できる）。
   ゲームのロジックは純粋関数のユニットテストで担保する。
 
+## [SWA] 実環境のホスト判定は x-forwarded-host 単独に頼らない
+- 症状: ローカル swa-cli では `x-forwarded-host` でデバッグ判定が通るのに、実 SWA だと 403 になる。
+- 原因: 実 SWA の Functions が受け取る `x-forwarded-host` は内部ホスト等で期待値と違うことがある。`a ?? b` だと
+  a が非nullの内部ホストを返し b(host) に落ちない。
+- 対策: `host / x-forwarded-host / x-original-host / referer` を候補にして `.some(isDebugHost)` で判定する。
+  ドメイン依存の分岐は**実 SWA で必ず確認**（ローカル swa-cli と挙動が違う）。本番は -<番号>.azurestaticapps に一致せず 403 のまま。
+
 ## [検証] ゲームは1回の確認では足りない
 - 症状: たまにしか出ない不具合（食べ物が壁に出る/再開でスコアが残る等）を見逃す。
 - 原因: 1回プレイだと再現しない。

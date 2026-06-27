@@ -240,3 +240,10 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: 追加ゲーム（よけよけランナー他）は後続ループで。debug 機能はステージングPRで実機確認可。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 19b — debug-grant のSWAホスト判定修正  (loop-version: v4)
+- やったこと: 実 Azure staging で debug-grant が 403 になった（`x-forwarded-host ?? host` が内部ホストで短絡）。
+  host/x-forwarded-host/x-original-host/referer を `.some(isDebugHost)` で判定するよう修正。診断出力は除去。
+- 検証: staging 実環境で付与 200（coins=3000）・本番ホストパターンは 403 を維持。snake/shop/home も staging 200。
+- 学び/罠: ドメイン依存の分岐は実 SWA で要確認（ローカル swa-cli と x-forwarded-host の挙動が違う）→ PLAYBOOK 追記。
+- コミット: （この周で記録）
