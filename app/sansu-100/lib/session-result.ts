@@ -1,4 +1,5 @@
 import { calculatePoints, calculateStreakDays, evaluateBadges } from './badges';
+import { calculateCoins, type CoinBreakdownEntry } from './coins';
 import type { AnsweredProblem, LevelId, Operation, SansuSession, SansuUserPublic } from './types';
 
 export type FinishSessionInput = {
@@ -18,6 +19,9 @@ export type FinishSessionResult = {
   updatedUser: SansuUserPublic;
   newBadges: string[];
   pointsEarned: number;
+  // クライアント楽観表示用のコイン獲得（確定値はサーバー応答 user で上書きする）
+  coinsEarned: number;
+  coinBreakdown: CoinBreakdownEntry[];
 };
 
 export function finishSession(input: FinishSessionInput): FinishSessionResult {
@@ -72,10 +76,9 @@ export function finishSession(input: FinishSessionInput): FinishSessionResult {
   const bestKey = `lv${level}:${operation}`;
   const prevBest = user.bestTimesByLevel[bestKey];
   const isPerfect = correctCount === problems.length;
-  const newBest =
-    isCountable && isPerfect && (!prevBest || durationMs < prevBest)
-      ? durationMs
-      : prevBest;
+  const isNewBest =
+    isCountable && isPerfect && (prevBest === undefined || durationMs < prevBest);
+  const newBest = isNewBest ? durationMs : prevBest;
 
   const intermediateUser: SansuUserPublic = {
     ...user,
@@ -100,11 +103,34 @@ export function finishSession(input: FinishSessionInput): FinishSessionResult {
 
   session.newBadges = newBadges;
 
+  const todayKey = intermediateUser.lastPlayedDate; // = completedAt の YYYY-MM-DD
+  const coin = calculateCoins({
+    dailyCoinDate: user.dailyCoinDate ?? '',
+    dailyCoinsEarned: user.dailyCoinsEarned ?? 0,
+    dailySessionCount: user.dailySessionCount ?? 0,
+    todayKey,
+    isNewBest,
+    streakDays: streak,
+    prevStreakDays: user.currentStreakDays,
+    isCountable,
+  });
+
   const updatedUser: SansuUserPublic = {
     ...intermediateUser,
     earnedBadges: [...intermediateUser.earnedBadges, ...newBadges],
     totalPoints: intermediateUser.totalPoints + pointsEarned,
+    coins: (user.coins ?? 0) + coin.coinsEarned,
+    dailyCoinDate: coin.nextDailyCoinDate,
+    dailyCoinsEarned: coin.nextDailyCoinsEarned,
+    dailySessionCount: coin.nextDailySessionCount,
   };
 
-  return { session, updatedUser, newBadges, pointsEarned };
+  return {
+    session,
+    updatedUser,
+    newBadges,
+    pointsEarned,
+    coinsEarned: coin.coinsEarned,
+    coinBreakdown: coin.breakdown,
+  };
 }

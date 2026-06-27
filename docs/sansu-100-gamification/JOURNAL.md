@@ -57,4 +57,14 @@ LOOP_PROMPT を改善した周は次も残す:
 - 学び/罠: なし（複製ドリフトは PLAYBOOK 既出。両ファイル同時更新を徹底）。
 - 残課題 / 次にやること: C3 `finishSession` に統合（isNewBest 判定・coinsEarned/breakdown・daily系更新）。
 - prompt改善: なし。
+- コミット: f73719e
+
+## 周 4 — C3 finishSession にコイン統合  (loop-version: v1)
+- やったこと: `session-result.ts` で `isNewBest` を明示算出し `calculateCoins` を呼ぶよう統合。
+  `FinishSessionResult` に `coinsEarned`/`coinBreakdown` を追加、`updatedUser` に coins加算＋daily系3フィールド反映。
+  `session-result.test.ts` にコイン3ケース追加（獲得/既存加算/リタイヤ0）。
+- 検証: session-result.test 7件緑、`npm test` 88件緑、`npm run build` 緑。
+- 学び/罠: なし。
+- 残課題 / 次にやること: C4 サーバー `sansuSessions.ts`（サーバーcalculateCoins統合＋冪等修正＋応答user）。
+- prompt改善: なし。
 - コミット: （この周で記録）

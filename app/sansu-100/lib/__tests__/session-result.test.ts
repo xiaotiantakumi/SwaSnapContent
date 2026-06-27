@@ -93,3 +93,35 @@ describe('finishSession - リタイヤ(isRetired) は集計に加えない', () 
     expect(r.updatedUser.lastPlayedAt).toBe(25_000);
   });
 });
+
+describe('finishSession - コイン', () => {
+  it('完走でコインを獲得し updatedUser.coins と当日カウンタを更新する', () => {
+    const user = mkUser();
+    const r = finishSession({ ...base, user, problems: mkProblems(100) });
+    expect(r.coinsEarned).toBeGreaterThan(0);
+    expect(r.updatedUser.coins).toBe(r.coinsEarned);
+    expect(r.coinBreakdown.length).toBeGreaterThan(0);
+    // 当日1回目なので +50 を含む（ベスト更新等が上乗せされる場合あり）
+    expect(r.coinsEarned).toBeGreaterThanOrEqual(50);
+    expect(r.updatedUser.dailyCoinDate).toBe(r.updatedUser.lastPlayedDate);
+    expect(r.updatedUser.dailySessionCount).toBe(1);
+  });
+
+  it('既存コインに加算される', () => {
+    const user = mkUser({ coins: 200 });
+    const r = finishSession({ ...base, user, problems: mkProblems(100) });
+    expect(r.updatedUser.coins).toBe(200 + r.coinsEarned);
+  });
+
+  it('リタイヤはコインを増やさない', () => {
+    const user = mkUser({ coins: 200 });
+    const r = finishSession({
+      ...base,
+      user,
+      isRetired: true,
+      problems: mkProblems(3),
+    });
+    expect(r.coinsEarned).toBe(0);
+    expect(r.updatedUser.coins).toBe(200);
+  });
+});

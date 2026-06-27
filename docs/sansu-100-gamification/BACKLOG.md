@@ -22,9 +22,10 @@
       ＋ `app/sansu-100/lib/__tests__/coins.test.ts`
       受入: `npm test` 緑。上限・日付跨ぎ・リタイヤ0・常に>=0 を網羅
       → 完了(周3): client/server同一ロジック複製。テスト9件（上限・日付跨ぎ・ストリーク到達日・リタイヤ・>=0）緑。test計85件
-- [ ] C3 `app/sansu-100/lib/session-result.ts` の `finishSession` に `calculateCoins` 統合。
+- [x] C3 `app/sansu-100/lib/session-result.ts` の `finishSession` に `calculateCoins` 統合。
       `FinishSessionResult` に `coinsEarned` と `coinBreakdown`（表示用）を追加。daily系3フィールドを更新
       受入: 既存 `session-result.test.ts` 緑 ＋ コイン反映の新テスト
+      → 完了(周4): isNewBest を明示算出、coin統合。coinsEarned/coinBreakdown返却、coins/daily系をupdatedUserに反映。test88件緑
 - [ ] C4 `api/src/functions/sansuSessions.ts`: サーバー `calculateCoins` 統合で `coins` 加算、
       **冪等バグ修正**（`createEntity` 成功時のみ集計・コイン加算。409 は skip）、レスポンスを `{ ok, user: toPublic(...) }` に
       受入: `cd api && npm run build` 緑。同一セッション再送で二重加算しない（手動確認 or ロジックレビュー）
