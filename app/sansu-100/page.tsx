@@ -15,6 +15,7 @@ import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
 import { sansuApi } from './lib/api-client';
+import { isDebugEnv } from './lib/debug-env';
 import { hashPin } from './lib/pin-hash';
 import type { SansuUserPublic } from './lib/types';
 
@@ -33,6 +34,7 @@ export default function SansuHome(): React.JSX.Element {
   const [pinError, setPinError] = useState<string | null>(null);
   const [verifyingPin, setVerifyingPin] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [debugBusy, setDebugBusy] = useState(false);
 
   // Auto-seed test users in dev mode on first mount
   useEffect(() => {
@@ -158,6 +160,30 @@ export default function SansuHome(): React.JSX.Element {
             >
               👋 おわる
             </button>
+            {isDebugEnv() ? (
+              <div className="space-y-2 rounded-xl border border-dashed border-orange-400 p-3">
+                <p className="text-xs font-bold text-orange-600 dark:text-orange-300">
+                  🐛 デバッグ（本番では表示されません）
+                </p>
+                <button
+                  type="button"
+                  disabled={debugBusy}
+                  onClick={async () => {
+                    setDebugBusy(true);
+                    try {
+                      const res = await sansuApi.debugGrant(currentUser.id, 1000);
+                      if (res.ok && res.user) saveUser(res.user);
+                    } finally {
+                      setDebugBusy(false);
+                    }
+                  }}
+                  className="w-full rounded-lg bg-orange-500 px-4 py-2 font-bold text-white hover:bg-orange-600 disabled:opacity-60"
+                  data-testid="debug-grant-coins"
+                >
+                  🪙 コイン +1000
+                </button>
+              </div>
+            ) : null}
           </section>
         ) : (
           <section className="space-y-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">

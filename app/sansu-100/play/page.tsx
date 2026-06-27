@@ -15,6 +15,7 @@ import { useSansuSession } from '../hooks/useSansuSession';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
 import { dailyLevel } from '../lib/daily';
+import { isDebugEnv } from '../lib/debug-env';
 import { finishSession } from '../lib/session-result';
 import { storage } from '../lib/storage';
 import type { LevelId, Operation } from '../lib/types';
@@ -23,8 +24,8 @@ function PlayInner(): React.JSX.Element {
   const router = useRouter();
   const params = useSearchParams();
   const isDaily = params.get('daily') === '1';
-  const debugMode =
-    params.get('debug') === '1' || process.env.NODE_ENV !== 'production';
+  // 正規ドメイン以外（localhost / SWAプレビュー / ?debug=1）でデバッグ機能を有効化
+  const debugMode = isDebugEnv();
   const { currentUser, updateUser, saveUser, loaded } = useSansuUser();
   const [pick, setPick] = useState<{
     level: LevelId;

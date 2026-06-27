@@ -96,6 +96,11 @@
 ### （以降ループで追加）もぐらたたき / ブロック崩し / おちものよけ / 神経衰弱 / めいろ
 - [ ] 各ゲーム: GAMES.md に1エントリ追記 → ここに周A〜Dの4タスクを積む（定型）
 
+## 追加（運用）
+- [x] DBG 正規ドメイン以外のデバッグ機能 → 完了(周19): `lib/debug-env.ts`(isDebugEnv: localhost/SWAプレビュー/?debug=1)、
+      サーバー `/sansu/debug-grant`（コイン付与、本番hostは403）、ホームに🐛コイン+1000ボタン、play の instant-finish を isDebugEnv 化。
+      ライブ検証: 付与0→1000→2000、本番(独自/番号なしazurestaticapps)403・staging(-53)200、実機(computer-use)でパネル表示＋付与1000確認
+
 ## 仕上げ
 - [x] Z1 全体回帰 → 完了(周17): lint exit0(warningのみ)・frontend build・api build・test104件 全緑。
       導線（完走→コイン増→ショップ購入→着せ替え→スネーク）は各弾で実機/Playwright/curl 検証済み

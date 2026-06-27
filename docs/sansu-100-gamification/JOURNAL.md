@@ -229,3 +229,14 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: 正規ドメイン以外のデバッグ機能（コイン取得・一気にクリア）。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 19 — 正規ドメイン以外のデバッグ機能  (loop-version: v4)
+- やったこと: `lib/debug-env.ts`(isDebugEnv=localhost/SWAプレビュー`-<番号>.`/`?debug=1`)、`api/src/shared/debugEnv.ts`(isDebugHost)、
+  `api/src/functions/sansuDebugGrant.ts`(コイン付与、x-forwarded-host が本番なら403)、index登録、api-client.debugGrant。
+  ホーム currentUser に🐛デバッグパネル（コイン+1000、isDebugEnvのみ）。play/page の debugMode を `isDebugEnv()` 化（staging でも一気にクリア可）。
+- 検証: api build緑/test104緑。ライブ(curl): localhost付与0→1000→2000、本番host(独自/番号なしSWA)403、staging(-53)200。
+  **computer-use実機**: ホームに🐛パネル＋コイン+1000ボタン表示、付与後 🪙1000 反映を確認。
+- 学び/罠: 本番判定は host の `-<番号>.azurestaticapps` 有無で分岐（独自ドメイン/番号なしは本番＝debug無効）。サーバーは x-forwarded-host で二重ガード。
+- 残課題 / 次にやること: 追加ゲーム（よけよけランナー他）は後続ループで。debug 機能はステージングPRで実機確認可。
+- prompt改善: なし。
+- コミット: （この周で記録）

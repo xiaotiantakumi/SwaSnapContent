@@ -134,6 +134,23 @@ export const sansuApi = {
       throw e;
     }
   },
+  // デバッグ用: コイン付与（本番ドメインはサーバーが403）。非本番のテスト専用。
+  async debugGrant(
+    userId: string,
+    amount = 1000
+  ): Promise<{ ok: boolean; user?: SansuUserPublic; error?: string }> {
+    try {
+      return await jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
+        `${BASE}/debug-grant`,
+        { method: 'POST', body: JSON.stringify({ userId, amount }) }
+      );
+    } catch (e) {
+      if (e instanceof Error && /HTTP 403/.test(e.message)) {
+        return { ok: false, error: 'disabled' };
+      }
+      throw e;
+    }
+  },
   // ミニゲーム報酬バッジの付与＋最高スコア更新（コイン経済に影響なし）。
   async awardBadge(
     userId: string,
