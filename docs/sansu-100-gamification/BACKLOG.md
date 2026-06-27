@@ -31,9 +31,11 @@
       受入: `cd api && npm run build` 緑。同一セッション再送で二重加算しない（手動確認 or ロジックレビュー）
       → 完了(周5): created フラグで集計を新規時のみ実行（冪等修正）。実用厳密=base/best/上限はサーバー再計算、streakは
         body.streakDays/prevStreakDays 申告許容。再送は無変更でuser返却。応答 {ok,user}。api build緑。e2e検証はZ1へ
-- [ ] C5 `app/sansu-100/lib/api-client.ts`: `submitSession` 戻り値を `{ ok; user? }` 化、`getUser` で残高再同期。
+- [x] C5 `app/sansu-100/lib/api-client.ts`: `submitSession` 戻り値を `{ ok; user? }` 化、`getUser` で残高再同期。
       `app/sansu-100/play/page.tsx`: 送信応答の `user` で `saveUser`（残高をサーバー値に確定）
       受入: build緑。完走後ローカル残高がサーバー値に一致
+      → 完了(周6): submitSession に streak文脈付き・戻り値{ok,user}。play/page で完走/リタイヤ両方 onServerSync(saveUser)で確定同期。
+        getUser は既存。build/test88緑。視覚確認はC6（残高表示）でまとめて実施
 - [ ] C6 `app/sansu-100/components/CoinBalance.tsx`（🪙＋数値、増加アニメ）。`result/page.tsx` に獲得breakdown、
       `page.tsx`（ホーム）に残高表示
       受入: 完走でコイン増/上限150で頭打ち/リロードでサーバー値一致/リタイヤで増えない をブラウザ確認

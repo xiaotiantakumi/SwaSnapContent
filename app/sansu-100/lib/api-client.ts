@@ -83,10 +83,14 @@ export const sansuApi = {
       }
     );
   },
-  async submitSession(session: SansuSession): Promise<{ ok: true }> {
-    return jsonFetch<{ ok: true }>(`${BASE}/sessions`, {
+  async submitSession(
+    session: SansuSession,
+    // ストリークボーナスのコイン計算にサーバーが使う文脈（任意）
+    ctx?: { streakDays?: number; prevStreakDays?: number }
+  ): Promise<{ ok: true; user?: SansuUserPublic }> {
+    return jsonFetch<{ ok: true; user?: SansuUserPublic }>(`${BASE}/sessions`, {
       method: 'POST',
-      body: JSON.stringify(session),
+      body: JSON.stringify({ ...session, ...(ctx ?? {}) }),
     });
   },
   async getSessions(userId: string): Promise<SansuSession[]> {

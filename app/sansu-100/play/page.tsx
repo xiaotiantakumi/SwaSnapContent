@@ -25,7 +25,7 @@ function PlayInner(): React.JSX.Element {
   const isDaily = params.get('daily') === '1';
   const debugMode =
     params.get('debug') === '1' || process.env.NODE_ENV !== 'production';
-  const { currentUser, updateUser, loaded } = useSansuUser();
+  const { currentUser, updateUser, saveUser, loaded } = useSansuUser();
   const [pick, setPick] = useState<{
     level: LevelId;
     operation: Operation;
@@ -73,6 +73,7 @@ function PlayInner(): React.JSX.Element {
       pick={pick}
       isDaily={isDaily}
       onFinishUpdate={updateUser}
+      onServerSync={saveUser}
       debugMode={debugMode}
     />
   );
@@ -92,6 +93,8 @@ interface PlaySessionProps {
   onFinishUpdate: (
     updater: (u: NonNullable<ReturnType<typeof useSansuUser>['currentUser']>) => NonNullable<ReturnType<typeof useSansuUser>['currentUser']>
   ) => void;
+  // サーバー応答の権威ユーザー（コイン残高確定値）でローカルを上書き同期する
+  onServerSync: (user: NonNullable<ReturnType<typeof useSansuUser>['currentUser']>) => void;
   debugMode?: boolean;
 }
 
@@ -100,6 +103,7 @@ function PlaySession({
   pick,
   isDaily,
   onFinishUpdate,
+  onServerSync,
   debugMode,
 }: PlaySessionProps): React.JSX.Element {
   const router = useRouter();
@@ -173,8 +177,15 @@ function PlaySession({
     onFinishUpdate(() => result.updatedUser);
 
     sansuApi
-      .submitSession(result.session)
-      .then(() => storage.clearPending([result.session.id]))
+      .submitSession(result.session, {
+        streakDays: result.updatedUser.currentStreakDays,
+        prevStreakDays: user.currentStreakDays,
+      })
+      .then((res) => {
+        storage.clearPending([result.session.id]);
+        // サーバー権威のコイン残高でローカルを上書き同期
+        if (res.user) onServerSync(res.user);
+      })
       .catch(() => {
         // remain in pending queue for later sync
       });
@@ -201,6 +212,7 @@ function PlaySession({
     session.completedAt,
     session.answered,
     onFinishUpdate,
+    onServerSync,
     router,
   ]);
 
@@ -269,8 +281,14 @@ function PlaySession({
                       storage.pushPending(result.session);
                       onFinishUpdate(() => result.updatedUser);
                       sansuApi
-                        .submitSession(result.session)
-                        .then(() => storage.clearPending([result.session.id]))
+                        .submitSession(result.session, {
+                          streakDays: result.updatedUser.currentStreakDays,
+                          prevStreakDays: user.currentStreakDays,
+                        })
+                        .then((res) => {
+                          storage.clearPending([result.session.id]);
+                          if (res.user) onServerSync(res.user);
+                        })
                         .catch(() => {});
                     }
                     router.replace('/sansu-100');

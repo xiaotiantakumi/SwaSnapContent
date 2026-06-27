@@ -79,4 +79,15 @@ LOOP_PROMPT を改善した周は次も残す:
 - 学び/罠: サーバーの SansuSession 型には isRetired が無い→SubmitSessionBody 側で受ける必要があった。
 - 残課題 / 次にやること: C5 `api-client.ts`（submitSession 戻り値 {ok,user}＋streak送信＋getUser）、play/page で saveUser。
 - prompt改善: なし。
+- コミット: f2ee036
+
+## 周 6 — C5 api-client 戻り値とサーバー残高同期  (loop-version: v1)
+- やったこと: `api-client.submitSession` を `(session, ctx?)` 化し streakDays/prevStreakDays を送信、戻り値を
+  `{ ok; user? }` に。`play/page.tsx` に `onServerSync`(=saveUser) プロップを追加し、完走/リタイヤ両方で
+  サーバー応答 user によりローカル残高を確定上書き同期。getUser は既存利用。
+- 検証: `npm run build` 緑、`npm test` 88件緑。lint: 新規 warning 1件（promise/always-return、fire-and-forget の
+  then。build は通る＝既存ファイルも warning 多数のため許容）。視覚確認は C6（残高表示）でまとめて実施予定。
+- 学び/罠: 第1弾のコイン獲得→サーバー権威同期の配線が完了。残るは C6 の残高UI。
+- 残課題 / 次にやること: C6 `CoinBalance.tsx` ＋ result/home 表示。ここで dev サーバー起動しブラウザ確認（完走でコイン増/上限/リロード一致/リタイヤ増えない）。
+- prompt改善: なし。
 - コミット: （この周で記録）
