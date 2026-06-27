@@ -75,6 +75,16 @@
 - 罠: `open` は別タブを作り stale React state を表示することがある→更新後は `?v=N` のキャッシュバスターURLで開き直すと
   最新 localStorage を読んだ新タブが前面に出る。MCPタブと open タブは別グループになりうる点に注意。
 
+## [検証] ゲーム(rAF)は background タブで止まる→実機の「動く」確認の分担
+- 症状: Canvas ゲームを MCP タブで start しても score が進まず playing のまま。computer-use で前面化しても
+  別タブ/別ウィンドウが出て動かない。
+- 原因: Chrome は **非表示タブの requestAnimationFrame を停止/間引き**する。MCP タブはたいてい背面なので rAF が止まる。
+  加えて MCP タブと `open` の前面タブは別で、ゲームの "playing" 状態はメモリ（localStorage 非永続）なので前面タブに映らない。
+- 対策（分担）: (1) ゲームの**描画・動き・スコア・コイン消費**は **host Playwright** で確認（自前ブラウザ＝前面扱いで rAF が動く。
+  start→キー操作→canvas screenshot→console error 0）。(2) computer-use では**実機でゲームUI（イントロ/ハブ）が描画される**ことを
+  確認すれば最低限OK（参加費が引かれるのは Chrome MCP js で `[aria-label^=コイン]` を読めば確認できる）。
+  ゲームのロジックは純粋関数のユニットテストで担保する。
+
 ## [検証] ゲームは1回の確認では足りない
 - 症状: たまにしか出ない不具合（食べ物が壁に出る/再開でスコアが残る等）を見逃す。
 - 原因: 1回プレイだと再現しない。

@@ -187,3 +187,15 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: GS-B/C スネークの Canvas コンポーネント＋ゲームルート＋コイン参加費/報酬連携。実機(computer-use)で描画・操作・コイン確認。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 15 — GS-B/C スネーク Canvas＋ゲームルート＋コイン連携  (loop-version: v4)
+- やったこと: `games/SnakeGame.tsx`（Canvas2D + minigame-core rAF固定ステップ、useRef状態、表示scoreのみstate、
+  キーボード＋オンスクリーン十字、難易度漸増）。`minigame/snake/page.tsx`（intro→spend('play')参加費→playing→
+  game over→evaluateMinigameBadges→awardBadge→BadgeUnlockOverlay、もういちど）。minigame-list で snake を available。
+- 検証: 全104緑、lint(import/order等→lint-staged自動修正、disableコメントに説明追記)、snake route dev200。
+  実機/ブラウザ: computer-use でイントロ描画(🪙60, start)確認。Chrome MCP で start→参加費 60→50・canvas描画・playing確認。
+  host Playwright で fee 100→90・snake/apple 描画・survive・console error 0 をスクショ確認。
+- 学び/罠: rAF は background タブで停止→ゲームの「動く」確認は host Playwright が確実、computer-use は実機UI描画の確認に使う（PLAYBOOK追記）。
+- 残課題 / 次にやること: GS-D 仕上げ（効果音 eat/crash、難易度、再確認）。
+- prompt改善: なし（v4手順に沿って分担を PLAYBOOK 明文化）。
+- コミット: （この周で記録）

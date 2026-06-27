@@ -15,7 +15,7 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     name: 'スネーク',
     emoji: '🐍',
     desc: 'りんごを たべて のびよう',
-    available: false,
+    available: true,
   },
   {
     id: 'runner',
