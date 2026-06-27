@@ -16,16 +16,28 @@ import { sound } from '../lib/sound-presets';
 import { storage } from '../lib/storage';
 
 const GRID = 15;
-const SIZE = 330; // 論理ピクセル（正方）
-const CELL = SIZE / GRID;
 
-function draw(ctx: CanvasRenderingContext2D, s: SnakeState): void {
-  clearCanvas(ctx, SIZE, '#0f172a');
+// 画面に収まる正方サイズを決める。横幅と「縦の余白（ヘッダ/操作ボタン分）」の小さい方。
+// これで iPhone でも操作ボタンが画面内に収まる。
+function computeSize(): number {
+  if (typeof window === 'undefined') return 300;
+  const w = window.innerWidth - 40; // 左右マージン
+  const h = window.innerHeight - 300; // スコア＋十字ボタン＋余白の予約
+  return Math.max(200, Math.min(330, w, h));
+}
+
+function draw(
+  ctx: CanvasRenderingContext2D,
+  s: SnakeState,
+  size: number,
+  cell: number
+): void {
+  clearCanvas(ctx, size, '#0f172a');
   // food（りんご）
-  drawCell(ctx, s.food.x, s.food.y, CELL, '#ef4444');
+  drawCell(ctx, s.food.x, s.food.y, cell, '#ef4444');
   // snake（頭は濃い緑）
   s.snake.forEach((c, i) =>
-    drawCell(ctx, c.x, c.y, CELL, i === 0 ? '#16a34a' : '#4ade80')
+    drawCell(ctx, c.x, c.y, cell, i === 0 ? '#16a34a' : '#4ade80')
   );
 }
 
@@ -50,7 +62,9 @@ export default function SnakeGame({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = setupCanvas(canvas, SIZE);
+    const size = computeSize();
+    const cell = size / GRID;
+    const ctx = setupCanvas(canvas, size);
     if (!ctx) return;
     stateRef.current = createSnake(GRID, Math.random);
     dirRef.current = 'right';
@@ -80,7 +94,7 @@ export default function SnakeGame({
           onGameOver(next.score);
         }
       },
-      onRender: () => draw(ctx, stateRef.current),
+      onRender: () => draw(ctx, stateRef.current, size, cell),
     });
 
     const onKey = (e: KeyboardEvent) => {
@@ -109,7 +123,7 @@ export default function SnakeGame({
       <canvas
         ref={canvasRef}
         className="rounded-xl shadow-md"
-        style={{ width: SIZE, height: SIZE, touchAction: 'none' }}
+        style={{ touchAction: 'none' }}
       />
       {/* タブレット用 十字コントロール */}
       <div className="grid grid-cols-3 gap-2" aria-label="そうさボタン">

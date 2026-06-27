@@ -86,21 +86,33 @@ export default function SnakePage(): React.JSX.Element {
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <div className="container mx-auto max-w-md space-y-5 px-4 py-8">
-        <Header
-          title="🐍 スネーク"
-          description="りんごを たべて のびよう！かべと じぶんに きをつけて"
-          showBackButton
-          backHref="/sansu-100/minigame"
-          backLabel="ゲームせんたくにもどる"
-        />
-
-        <section className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            さいこう: <b className="text-gray-900 dark:text-gray-100">{highScore}</b>
-          </span>
-          <CoinBalance coins={coins} />
-        </section>
+      <div className="container mx-auto max-w-md space-y-4 p-4">
+        {/* プレイ中はヘッダ/残高カードを隠してコンパクトにし、操作ボタンを画面内に収める */}
+        {phase === 'playing' ? (
+          <Link
+            href="/sansu-100/minigame"
+            className="inline-block text-sm font-semibold text-blue-600 dark:text-blue-300"
+          >
+            ← やめる
+          </Link>
+        ) : (
+          <>
+            <Header
+              title="🐍 スネーク"
+              description="りんごを たべて のびよう！かべと じぶんに きをつけて"
+              showBackButton
+              backHref="/sansu-100/minigame"
+              backLabel="ゲームせんたくにもどる"
+            />
+            <section className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                さいこう:{' '}
+                <b className="text-gray-900 dark:text-gray-100">{highScore}</b>
+              </span>
+              <CoinBalance coins={coins} />
+            </section>
+          </>
+        )}
 
         {message ? (
           <div className="rounded-xl bg-yellow-100 px-4 py-3 text-center font-bold text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
