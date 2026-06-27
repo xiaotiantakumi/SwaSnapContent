@@ -10,6 +10,8 @@ import './functions/collectLinks';
 import './functions/sansuUsers';
 import './functions/sansuSessions';
 import './functions/sansuPurchase';
+import './functions/sansuSpend';
+import './functions/sansuAwardBadge';
 import './functions/sansuAdminUsers';
 import './functions/sansuAdminPinReset';
 import './functions/sansuAdminSummary';

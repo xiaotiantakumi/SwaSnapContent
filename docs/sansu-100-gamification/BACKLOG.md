@@ -64,9 +64,11 @@
         host Playwright end-to-end: 70→buy=20/avatarに帽子反映/つけてる✓/不足アイテムdisabled。console error0。**第2弾完了**
 
 ## 第3弾 ミニゲーム基盤＋報酬
-- [ ] G0 `api/src/functions/sansuSpend.ts`（参加費/コンティニュー=残高検証+減算）＋
+- [x] G0 `api/src/functions/sansuSpend.ts`（参加費/コンティニュー=残高検証+減算）＋
       `api/src/functions/sansuAwardBadge.ts`（earnedBadges追加のみ・経済影響ゼロ）＋ `index.ts` 登録 ＋ `api-client.ts` に `spend`/`awardBadge`
       受入: `cd api && npm run build` 緑。残高不足で開始不可（409）
+      → 完了(周12): spend(play10/continue15、コストはサーバーSPEND_COSTS正)＋award-badge(バッジ＋最高スコア、コイン不変)。
+        ライブ検証=play70→60/continue→45/不正reason400/award後coins不変・high更新/lowスコアは据置/枯渇で409。api build/test94緑
 - [ ] G0b `app/sansu-100/lib/minigame-rewards.ts`（スコア→限定バッジ判定）＋ `badge-catalog.ts` に `category:'minigame'` 称号追加 ＋
       `app/sansu-100/minigame/page.tsx`（ハブ: ゲーム選択・参加費表示・結果演出は `BadgeUnlockOverlay` 再利用）
       受入: build緑。ハブからゲームに入れる、報酬演出が出る

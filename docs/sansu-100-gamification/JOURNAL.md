@@ -157,3 +157,13 @@ LOOP_PROMPT を改善した周は次も残す:
 - prompt改善: **v3→v4**: 「各タスク末に computer-use 実機確認」をユーザー恒久指示として LOOP_PROMPT step4 に明記。
 - 残課題 / 次にやること: 第3弾 G0（参加費/報酬API）。以降ゲームも実機スクショで描画・動作を目視確認する。
 - コミット: （この周で記録）
+
+## 周 12 — G0 参加費/報酬API  (loop-version: v4)
+- やったこと: `api/src/shared/minigame.ts`（SPEND_COSTS: play10/continue15）、`sansuSpend.ts`（残高検証+減算、コストはサーバー正）、
+  `sansuAwardBadge.ts`（earnedBadges追加＋minigameHighScore更新、コイン不変）、index.ts登録、api-client に spend()/awardBadge()。
+- 検証: api build緑、lint clean、test94緑。ライブ(azurite,curl): play70→60/continue→45/不正reason400/award後coins不変・high=30/
+  低スコアは据置/枯渇で409 insufficient。UIなしのため computer-use 確認は次の G0b/ゲームで実施。
+- 学び/罠: なし。
+- 残課題 / 次にやること: G0b `minigame-rewards.ts`＋badge-catalog に minigame称号＋`minigame/page.tsx`(ハブ)。UIなので computer-use 確認あり。
+- prompt改善: なし。
+- コミット: （この周で記録）

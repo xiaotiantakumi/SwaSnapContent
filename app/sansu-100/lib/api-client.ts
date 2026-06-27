@@ -117,6 +117,37 @@ export const sansuApi = {
       throw e;
     }
   },
+  // ミニゲームの参加費/コンティニュー。残高不足は409→error返し。
+  async spend(
+    userId: string,
+    reason: 'play' | 'continue'
+  ): Promise<{ ok: boolean; user?: SansuUserPublic; error?: string }> {
+    try {
+      return await jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
+        `${BASE}/spend`,
+        { method: 'POST', body: JSON.stringify({ userId, reason }) }
+      );
+    } catch (e) {
+      if (e instanceof Error && /HTTP 409/.test(e.message)) {
+        return { ok: false, error: 'insufficient' };
+      }
+      throw e;
+    }
+  },
+  // ミニゲーム報酬バッジの付与＋最高スコア更新（コイン経済に影響なし）。
+  async awardBadge(
+    userId: string,
+    badgeIds: string[],
+    minigameScore?: number
+  ): Promise<{ ok: boolean; user?: SansuUserPublic }> {
+    return jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
+      `${BASE}/award-badge`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ userId, badgeIds, minigameScore }),
+      }
+    );
+  },
 };
 
 export type AdminUserSummary = SansuUserPublic & {
