@@ -135,3 +135,14 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: S4 `shop/page.tsx`＋`closet/page.tsx`(タブ統合可)＋ホーム導線。host Playwrightで購入→装備反映を確認。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 11 — S4 ショップ画面＋着せ替え＋導線  (loop-version: v3)
+- やったこと: `app/sansu-100/shop/page.tsx`（残高・アバタープレビュー・スロット別アイテム一覧・購入/装備/解除ボタン・
+  メッセージ。closet は別ページにせず統合）。ホーム `page.tsx` に「🛍️ おみせ」導線。
+- 検証: lint clean、test94緑、shop ページ dev コンパイル200。**host Playwright end-to-end**: ユーザー作成→セッションで70コイン→
+  shop で キャップ(50)購入→残高20→avatar プレビューに🧢反映→つけてる✓。不足アイテム(リボン50/おうかん200)は20コインで
+  disabled=true を assert。console error 0。スクショ3枚取得（open/bought/equipped）。
+- 学び/罠: なし（v3手順がそのまま機能）。
+- 残課題 / 次にやること: **第2弾(ショップ)完了**。次は第3弾 G0 `sansuSpend.ts`＋`sansuAwardBadge.ts`（参加費/報酬API）。
+- prompt改善: なし。
+- コミット: （この周で記録）

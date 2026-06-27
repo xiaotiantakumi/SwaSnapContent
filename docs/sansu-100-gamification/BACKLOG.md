@@ -58,8 +58,10 @@
       受入: `cd api && npm run build` 緑。残高不足で409、価格はサーバーが引く
       → 完了(周10): buy/equip/unequip を1エンドポイントに。価格はSHOP_PRICES(サーバー正)。ライブ検証(azurite)=
         buy減算/不足409/equip装備/未所持equip409/再購入は二重課金なし/unequip解除。api build/test94緑
-- [ ] S4 `app/sansu-100/shop/page.tsx` ＋ `closet/page.tsx`（タブ統合可）＋ ホーム導線
+- [x] S4 `app/sansu-100/shop/page.tsx` ＋ `closet/page.tsx`（タブ統合可）＋ ホーム導線
       受入: 購入で残高減・所持追加・装備反映、不足で買えない、リロード維持 をブラウザ確認
+      → 完了(周11): shop に購入＋着せ替えを統合（closet別ページは作らずタブ統合）。ホームに🛍️おみせ導線。
+        host Playwright end-to-end: 70→buy=20/avatarに帽子反映/つけてる✓/不足アイテムdisabled。console error0。**第2弾完了**
 
 ## 第3弾 ミニゲーム基盤＋報酬
 - [ ] G0 `api/src/functions/sansuSpend.ts`（参加費/コンティニュー=残高検証+減算）＋
