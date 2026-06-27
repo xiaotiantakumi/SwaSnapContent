@@ -12,10 +12,11 @@
       → 完了(周1): advance/nextDirection/tickIntervalForScore 等を純粋関数化しテスト11件緑。Canvas/rAFは薄いラッパ
 
 ## 第1弾 コイン経済（ゲーム参加費の前提）
-- [ ] C1 型拡張: `app/sansu-100/lib/types.ts` と `api/src/shared/sansuTypes.ts` に
+- [x] C1 型拡張: `app/sansu-100/lib/types.ts` と `api/src/shared/sansuTypes.ts` に
       `coins/ownedItems/equippedItems/dailyCoinDate/dailyCoinsEarned/dailySessionCount/minigameHighScore`（全optional）、
       `ItemSlot`/`EquippedItems` 型、`toPublic` にデフォルト付与（`coins: e.coins ?? 0` 等）
       受入: build緑、既存ユーザー（新カラム無し）が壊れない
+      → 完了(周2): 両型に追加、Entityは ownedItemsJson/equippedItemsJson のJSON列。toPublicでデフォルト。frontend/api build緑、test76件緑
 - [ ] C2 `app/sansu-100/lib/coins.ts` ＋ `api/src/shared/coins.ts`（同一ロジック複製）:
       `calculateCoins(ctx)` = 1日1回目+50/以降+10/ベスト更新+20/ストリーク到達3日+10・7日+30/**1日上限150**/減点没収なし/日付跨ぎでリセット。
       ＋ `app/sansu-100/lib/__tests__/coins.test.ts`

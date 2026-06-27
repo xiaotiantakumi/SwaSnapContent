@@ -36,4 +36,14 @@ LOOP_PROMPT を改善した周は次も残す:
 - 学び/罠: 単体テストは `npx vitest run <path>` が速い（`npm test` は全件走る）→ PLAYBOOK に追記。
 - 残課題 / 次にやること: C1 型拡張（types.ts / sansuTypes.ts に coins 等を追加、toPublicデフォルト）。
 - prompt改善: なし（v1のまま。摩擦は軽微）。
+- コミット: 29f43d9
+
+## 周 2 — C1 型拡張（coins/owned/equipped/daily系）  (loop-version: v1)
+- やったこと: `app/sansu-100/lib/types.ts` と `api/src/shared/sansuTypes.ts` に coins/ownedItems/equippedItems/
+  daily系/minigameHighScore（全optional）と `ItemSlot`/`EquippedItems` を追加。Entity は ownedItemsJson/
+  equippedItemsJson のJSON文字列カラム。`toPublic` でデフォルト（`?? 0`/`[]`/`{}`）付与し後方互換を確保。
+- 検証: `npm run build`（frontend）緑、`cd api && npm run build` 緑、`npm test` 76件緑。挙動変更なしの純粋な型拡張。
+- 学び/罠: なし。
+- 残課題 / 次にやること: C2 `coins.ts`＋`api/src/shared/coins.ts`（calculateCoins）＋テスト。
+- prompt改善: なし。
 - コミット: （この周で記録）
