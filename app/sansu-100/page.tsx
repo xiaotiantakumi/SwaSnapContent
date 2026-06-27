@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Header from '../components/header';
 import ThemeToggle from '../components/theme-toggle';
 
+import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
 import PinPad from './components/PinPad';
 import UserTile from './components/UserTile';
@@ -105,7 +106,7 @@ export default function SansuHome(): React.JSX.Element {
         {currentUser ? (
           <section className="space-y-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
             <div className="flex items-center gap-4">
-              <span className="text-6xl">{currentUser.avatar}</span>
+              <AvatarDisplay user={currentUser} size="lg" />
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   こんにちは

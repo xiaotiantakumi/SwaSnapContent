@@ -50,6 +50,22 @@
     JSON.parse が失敗して null になる）、`sansu-100:users` は配列JSON、結果画面は `sessionStorage['sansu-100:last-result']`。
     `sansu-100:dev-seeded`='1' で API シードをスキップ。注入後リロードして snapshot/screenshot。
 
+## [検証] dev サーバー稼働中に `npm run build` すると 500 になる
+- 症状: `npm run sansu:dev`(next dev) 稼働中に `npm run build` を実行したら、以後 `/sansu-100` が 500
+  （`Error: Cannot find module './586.js'` / MODULE_NOT_FOUND、`.next/server/...`）。
+- 原因: production build が dev の `.next` チャンクキャッシュを上書き破壊する（dev と export 設定の競合）。
+- 対策: **ブラウザ検証の順序を固定する** = 先に `lint→build→test` を全部済ませてから `sansu:dev` を起動し、
+  dev 稼働中は production `build` を流さない。コード修正で再検証が要るときは dev のホットリロードに任せる
+  （型確認だけしたいなら一旦 `sansu:stop` してから build）。壊れたら `sansu:stop && sansu:dev` で復旧。
+
+## [検証] UI 検証は host Playwright が最も安定（Docker MCP より優先）
+- 症状: Docker の Playwright MCP は接続が `EOF` で落ちることがあり、また host.docker.internal は非セキュアで
+  Web Crypto 無効（ユーザー作成不可）。
+- 対策: repo に入っている `@playwright/test` を **host で**使う。スクリプトを**プロジェクト直下**に置き
+  （ESM は NODE_PATH 無効＝node_modules 解決のため直下必須）、`import { chromium } from '@playwright/test'`、
+  `localStorage` 注入→reload→`page.screenshot()`。実行後スクリプトは削除（repo を汚さない）。`localhost:4280` は
+  セキュアコンテキストなので crypto も使える。`page.on('console'|'pageerror')` でエラー0件を確認すること。
+
 ## [検証] ゲームは1回の確認では足りない
 - 症状: たまにしか出ない不具合（食べ物が壁に出る/再開でスコアが残る等）を見逃す。
 - 原因: 1回プレイだと再現しない。

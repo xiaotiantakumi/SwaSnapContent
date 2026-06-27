@@ -113,3 +113,15 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: S2 `AvatarDisplay.tsx`（装備重ね描画）＋既存の絵文字直書き置換。ここはブラウザ確認あり。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 9 — S2 AvatarDisplay 着せ替え描画  (loop-version: v2→v3)
+- やったこと: `components/AvatarDisplay.tsx`（背景→フレーム(ring)→絵文字(＋effectClass)→帽子overlay を重ね描画、
+  未装備はテーマ色フォールバック）。`UserTile.tsx` とホーム `page.tsx` の絵文字直書きを AvatarDisplay に置換
+  （result はアバター非表示のため対象外）。
+- 検証: build/test94緑。**host Playwright で検証**: 未装備(🐼)=従来の見た目、フル装備(🦊+👑冠+宇宙背景+金枠+pulse)が
+  正しく重なる をスクショ確認。console error 0件。
+- 学び/罠: (1) dev 稼働中に `npm run build` すると dev .next 破壊→500（順序固定で回避）。(2) Docker MCP browser が
+  EOF で落ちる→host Playwright(プロジェクト直下スクリプト, localhost セキュア)が安定。両方 PLAYBOOK 追記。
+- prompt改善: **v2→v3**: UI検証の既定を host Playwright に変更、ビルドは dev 起動前に済ます旨を明記。
+- 残課題 / 次にやること: S3 `sansuPurchase.ts`（購入=残高検証+減算+owned追加 / equip）＋index登録＋api-client。
+- コミット: （この周で記録）

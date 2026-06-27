@@ -1,4 +1,4 @@
-<!-- loop-version: 2 -->
+<!-- loop-version: 3 -->
 # LOOP_PROMPT — 100マス計算 ゲーミフィケーション 自走ループ
 
 あなたは 100マス計算アプリに「コイン経済 ＋ アバターショップ ＋ 複数アーケードゲーム」を、
@@ -47,11 +47,13 @@
   200 になるまで待つ。終了は `npm run sansu:stop`。
 - **サーバーロジック（コイン/購入/参加費）は curl で直接 API を叩いて検証**するのが最も確実
   （例: `/api/sansu/sessions` に POST→応答 `user.coins` を確認、同一 id 再送で二重加算しないこと）。
-- **UI は Playwright MCP で確認**。ただし MCP ブラウザは Docker 内なので URL は `host.docker.internal:4280`。
-  この origin は**非セキュアで Web Crypto が使えず、ユーザー作成/PIN がブラウザ経由では失敗する**。
-  → ユーザーは `curl` で作るか、`localStorage` に直接注入する（**id 系キーは `JSON.stringify` して入れること**。
-  `sansu-100:current-user` は `JSON.stringify('id')`、`sansu-100:users` は配列JSON、結果画面は
-  `sessionStorage['sansu-100:last-result']` を注入）。注入後リロードして snapshot/screenshot で確認。
+- **UI は host 側 Playwright スクリプトで確認するのが既定**（Docker の Playwright MCP は接続が落ちやすく、
+  かつ `host.docker.internal` は非セキュア origin で Web Crypto 無効）。host Playwright は `localhost:4280`
+  ＝セキュアコンテキストで安定。手順: スクリプトを**プロジェクト直下に置いて**(node_modules 解決のため)
+  `import { chromium } from '@playwright/test'` で起動 → `localStorage` 注入 → reload → `screenshot` → 後で削除。
+  ユーザー注入は **id 系キーを `JSON.stringify`**（`sansu-100:current-user`=`JSON.stringify('id')`、`sansu-100:users`=配列JSON、
+  結果画面は `sessionStorage['sansu-100:last-result']`、`sansu-100:dev-seeded`='1' でAPIシード抑止）。
+  `page.on('console'/'pageerror')` でエラーを集計し0件を確認。**ビルド/テストは dev 起動の前に済ませる**（PLAYBOOK 参照）。
 
 ### 5. 記録（JOURNAL）
 - `JOURNAL.md` に追記（テンプ레は同ファイル末尾参照）: 周番号・タスクID・やったこと・検証結果要約・残課題。

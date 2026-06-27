@@ -48,9 +48,11 @@
       受入: `npm test` 緑。price=ITEM_PRICES[rarity] 整合、id重複なし
       → 完了(周8): 17アイテム(hat5/bg5/frame4/effect3)。render種別=emojiOverlay/bgClass/frameClass/effectClass。
         Tailwindは完全文字列で記述しパージ回避。server shopCatalog.ts に価格/スロット複製。test6件、計94件緑
-- [ ] S2 `app/sansu-100/components/AvatarDisplay.tsx`（背景→フレーム→絵文字→帽子→エフェクトを重ね描画）。
+- [x] S2 `app/sansu-100/components/AvatarDisplay.tsx`（背景→フレーム→絵文字→帽子→エフェクトを重ね描画）。
       既存の絵文字直書き（`page.tsx`/`components/UserTile.tsx`/`result/page.tsx`）を置換
       受入: 未装備ユーザーは従来見た目、装備で重なる をブラウザ確認
+      → 完了(周9): AvatarDisplay 実装、UserTile/ホームを置換(resultは絵文字非表示なので対象外)。host Playwrightで検証=
+        未装備は従来通り/装備(冠+宇宙背景+金枠)が重なる をスクショ確認、console error 0。build/test94緑
 - [ ] S3 `api/src/functions/sansuPurchase.ts`（購入=残高検証+減算+ownedItems追加 / equip=装備変更）＋
       `api/src/index.ts` 登録 ＋ `api-client.ts` に `purchase`/`equip`
       受入: `cd api && npm run build` 緑。残高不足で409、価格はサーバーが引く
