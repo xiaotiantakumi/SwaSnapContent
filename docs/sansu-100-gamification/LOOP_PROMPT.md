@@ -1,4 +1,4 @@
-<!-- loop-version: 3 -->
+<!-- loop-version: 4 -->
 # LOOP_PROMPT — 100マス計算 ゲーミフィケーション 自走ループ
 
 あなたは 100マス計算アプリに「コイン経済 ＋ アバターショップ ＋ 複数アーケードゲーム」を、
@@ -54,6 +54,12 @@
   ユーザー注入は **id 系キーを `JSON.stringify`**（`sansu-100:current-user`=`JSON.stringify('id')`、`sansu-100:users`=配列JSON、
   結果画面は `sessionStorage['sansu-100:last-result']`、`sansu-100:dev-seeded`='1' でAPIシード抑止）。
   `page.on('console'/'pageerror')` でエラーを集計し0件を確認。**ビルド/テストは dev 起動の前に済ませる**（PLAYBOOK 参照）。
+- **【ユーザー必須】各タスクの最後に computer-use で実機画面の最低限の動作確認をする**（ユーザーの恒久指示）。
+  手順: Claude-in-Chrome MCP で `localhost:4280` を開き javascript_tool で funded user を localStorage に注入
+  （`@playwright/test` と同じ注入。localhost はセキュアなので API でユーザー作成も可）→ `open -a "Google Chrome" URL`
+  で前面化（重複タブで stale になったら `?v=N` のキャッシュバスターURLで開き直す）→ `mcp__computer-use__screenshot` で
+  実機画面を確認。Chrome は read tier なのでクリックは javascript_tool で実DOMボタンを `.click()`（実ハンドラを通る）。
+  ゲームは実機スクショで「描画される・動く」ことを必ず目視確認する。
 
 ### 5. 記録（JOURNAL）
 - `JOURNAL.md` に追記（テンプ레は同ファイル末尾参照）: 周番号・タスクID・やったこと・検証結果要約・残課題。

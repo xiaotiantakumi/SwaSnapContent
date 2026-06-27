@@ -146,3 +146,14 @@ LOOP_PROMPT を改善した周は次も残す:
 - 残課題 / 次にやること: **第2弾(ショップ)完了**。次は第3弾 G0 `sansuSpend.ts`＋`sansuAwardBadge.ts`（参加費/報酬API）。
 - prompt改善: なし。
 - コミット: （この周で記録）
+
+## 周 11.5 — computer-use 実機動作確認（第1・2弾）  (loop-version: v3→v4)
+- やったこと: ユーザー指示で computer-use により実機ブラウザで第2弾ショップを確認。Chrome MCP で localhost を開き
+  funded user(けんちゃん, 110コイン)を注入→`open`で前面化→computer-use screenshot。さらに実DOMの買うボタンを
+  javascript_tool で `.click()`→キャップ購入で 110→60、装備でアバターに🧢反映、つけてる✓ を実機スクショで確認。
+- 検証: 実機表示OK。コード変更なし（既コミット分の動作確認）。
+- 学び/罠: Chrome は computer-use read tier。drive=Chrome MCP / verify=computer-use に分担。`open`が別タブで stale 化→
+  `?v=N`で開き直す。両方 PLAYBOOK 追記。
+- prompt改善: **v3→v4**: 「各タスク末に computer-use 実機確認」をユーザー恒久指示として LOOP_PROMPT step4 に明記。
+- 残課題 / 次にやること: 第3弾 G0（参加費/報酬API）。以降ゲームも実機スクショで描画・動作を目視確認する。
+- コミット: （この周で記録）

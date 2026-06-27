@@ -66,6 +66,15 @@
   `localStorage` 注入→reload→`page.screenshot()`。実行後スクリプトは削除（repo を汚さない）。`localhost:4280` は
   セキュアコンテキストなので crypto も使える。`page.on('console'|'pageerror')` でエラー0件を確認すること。
 
+## [検証] computer-use 実機確認（ユーザー恒久指示）
+- 要点: ユーザーは「各タスクを computer-use で実機の最低限動作確認」を求めている。Chrome は computer-use では
+  read tier（クリック/入力不可）なので、driveは Claude-in-Chrome MCP、verifyは computer-use screenshot に分担する。
+- 手順: (1) Chrome MCP `navigate` で localhost:4280 → `javascript_tool` で funded user を localStorage 注入（API でユーザー作成＋
+  セッションでコイン付与→getUser→localStorage、id は JSON.stringify）。(2) `open -a "Google Chrome" URL` で前面化。
+  (3) `mcp__computer-use__screenshot` で確認。(4) ボタン操作は javascript_tool で実DOMの `.click()`（act() 実ハンドラを通る）。
+- 罠: `open` は別タブを作り stale React state を表示することがある→更新後は `?v=N` のキャッシュバスターURLで開き直すと
+  最新 localStorage を読んだ新タブが前面に出る。MCPタブと open タブは別グループになりうる点に注意。
+
 ## [検証] ゲームは1回の確認では足りない
 - 症状: たまにしか出ない不具合（食べ物が壁に出る/再開でスコアが残る等）を見逃す。
 - 原因: 1回プレイだと再現しない。
