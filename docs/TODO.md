@@ -5,9 +5,9 @@
 
 ## よけよけランナー（runner）2本目
 - [x] GR-A runner.ts ＋テスト7件（ジャンプ物理/二段ジャンプ不可/距離スコア/衝突/飛び越え/加速）
-- [ ] GR-B `games/RunnerGame.tsx`（Canvas＋ジャンプ操作＋モバイル対応）
-- [ ] GR-C `minigame/runner/page.tsx`（参加費/報酬連携）＋ registry available
-- [ ] GR-D 仕上げ（効果音・難易度・実機/Playwrightプレイテスト）
+- [x] GR-B RunnerGame.tsx（Canvas＋タップ/スペースでジャンプ＋ジャンプボタン＋responsive）
+- [x] GR-C runner ルート＋参加費/報酬連携＋registry available
+- [x] GR-D 効果音(ジャンプ/crash)・難易度漸増・モバイル対応済。iPhone Playwrightで距離429・衝突over・console0 確認
 
 ## もぐらたたき（whack）3本目
 - [ ] GW-A `lib/games/whack.ts`（出現・タップ判定・制限時間・NG的）＋テスト

@@ -22,6 +22,6 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     name: 'よけよけランナー',
     emoji: '🏃',
     desc: 'ジャンプで よけよう',
-    available: false,
+    available: true,
   },
 ];
