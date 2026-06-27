@@ -17,10 +17,11 @@
       `ItemSlot`/`EquippedItems` 型、`toPublic` にデフォルト付与（`coins: e.coins ?? 0` 等）
       受入: build緑、既存ユーザー（新カラム無し）が壊れない
       → 完了(周2): 両型に追加、Entityは ownedItemsJson/equippedItemsJson のJSON列。toPublicでデフォルト。frontend/api build緑、test76件緑
-- [ ] C2 `app/sansu-100/lib/coins.ts` ＋ `api/src/shared/coins.ts`（同一ロジック複製）:
+- [x] C2 `app/sansu-100/lib/coins.ts` ＋ `api/src/shared/coins.ts`（同一ロジック複製）:
       `calculateCoins(ctx)` = 1日1回目+50/以降+10/ベスト更新+20/ストリーク到達3日+10・7日+30/**1日上限150**/減点没収なし/日付跨ぎでリセット。
       ＋ `app/sansu-100/lib/__tests__/coins.test.ts`
       受入: `npm test` 緑。上限・日付跨ぎ・リタイヤ0・常に>=0 を網羅
+      → 完了(周3): client/server同一ロジック複製。テスト9件（上限・日付跨ぎ・ストリーク到達日・リタイヤ・>=0）緑。test計85件
 - [ ] C3 `app/sansu-100/lib/session-result.ts` の `finishSession` に `calculateCoins` 統合。
       `FinishSessionResult` に `coinsEarned` と `coinBreakdown`（表示用）を追加。daily系3フィールドを更新
       受入: 既存 `session-result.test.ts` 緑 ＋ コイン反映の新テスト

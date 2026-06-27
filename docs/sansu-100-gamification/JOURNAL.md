@@ -46,4 +46,15 @@ LOOP_PROMPT を改善した周は次も残す:
 - 学び/罠: なし。
 - 残課題 / 次にやること: C2 `coins.ts`＋`api/src/shared/coins.ts`（calculateCoins）＋テスト。
 - prompt改善: なし。
+- コミット: bae4487
+
+## 周 3 — C2 calculateCoins（コイン計算の核）  (loop-version: v1)
+- やったこと: `app/sansu-100/lib/coins.ts` と `api/src/shared/coins.ts` を同一ロジックで作成。
+  COIN_RULES（1回目50/以降10/ベスト20/3日10/7日30/上限150）、`calculateCoins(ctx)` は当日カウンタの
+  日付跨ぎリセット・上限クリップ（減点なし＝常に>=0）・breakdown表示・反映後の当日カウンタを返す。
+  `__tests__/coins.test.ts` で9ケース網羅。
+- 検証: coins.test 9件緑、`cd api && npm run build` 緑、`npm run build`(frontend)緑、`npm test` 85件緑、lint指摘なし。
+- 学び/罠: なし（複製ドリフトは PLAYBOOK 既出。両ファイル同時更新を徹底）。
+- 残課題 / 次にやること: C3 `finishSession` に統合（isNewBest 判定・coinsEarned/breakdown・daily系更新）。
+- prompt改善: なし。
 - コミット: （この周で記録）
