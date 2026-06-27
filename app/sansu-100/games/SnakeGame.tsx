@@ -115,6 +115,22 @@ export default function SnakeGame({
   const padBtn =
     'flex h-12 w-12 items-center justify-center rounded-xl bg-gray-200 text-xl font-bold text-gray-700 active:bg-gray-300 dark:bg-gray-700 dark:text-gray-200';
 
+  // スワイプ（フリック）で方向転換。指で画面が隠れにくく、子どもに直感的。
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const onCanvasDown = (e: React.PointerEvent) => {
+    touchStart.current = { x: e.clientX, y: e.clientY };
+  };
+  const onCanvasUp = (e: React.PointerEvent) => {
+    const s0 = touchStart.current;
+    touchStart.current = null;
+    if (!s0) return;
+    const dx = e.clientX - s0.x;
+    const dy = e.clientY - s0.y;
+    if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return; // タップは無視
+    if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 'right' : 'left');
+    else setDir(dy > 0 ? 'down' : 'up');
+  };
+
   return (
     <div className="flex flex-col items-center gap-3">
       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
@@ -122,10 +138,15 @@ export default function SnakeGame({
       </p>
       <canvas
         ref={canvasRef}
+        onPointerDown={onCanvasDown}
+        onPointerUp={onCanvasUp}
         className="rounded-xl shadow-md"
         style={{ touchAction: 'none' }}
       />
-      {/* タブレット用 十字コントロール */}
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        ゆびで すいっとスワイプ、ボタンでもOK
+      </p>
+      {/* 十字コントロール（逆T字＝上 / 左右 / 下） */}
       <div className="grid grid-cols-3 gap-2" aria-label="そうさボタン">
         <span />
         <button type="button" className={padBtn} onClick={() => setDir('up')} aria-label="うえ">
@@ -135,12 +156,15 @@ export default function SnakeGame({
         <button type="button" className={padBtn} onClick={() => setDir('left')} aria-label="ひだり">
           ◀
         </button>
-        <button type="button" className={padBtn} onClick={() => setDir('down')} aria-label="した">
-          ▼
-        </button>
+        <span />
         <button type="button" className={padBtn} onClick={() => setDir('right')} aria-label="みぎ">
           ▶
         </button>
+        <span />
+        <button type="button" className={padBtn} onClick={() => setDir('down')} aria-label="した">
+          ▼
+        </button>
+        <span />
       </div>
     </div>
   );

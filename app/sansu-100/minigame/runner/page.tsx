@@ -128,7 +128,11 @@ export default function RunnerPage(): React.JSX.Element {
 
         {phase === 'playing' ? (
           <section className="rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
-            <RunnerGame key={round} onGameOver={handleGameOver} />
+            <RunnerGame
+              key={round}
+              onGameOver={handleGameOver}
+              avatar={currentUser.avatar}
+            />
           </section>
         ) : null}
 

@@ -19,11 +19,25 @@ function computeWidth(): number {
   return Math.max(240, Math.min(360, window.innerWidth - 40));
 }
 
+function emoji(
+  ctx: CanvasRenderingContext2D,
+  ch: string,
+  cx: number,
+  cy: number,
+  size: number
+): void {
+  ctx.font = `${size}px "Apple Color Emoji","Segoe UI Emoji",serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(ch, cx, cy);
+}
+
 function draw(
   ctx: CanvasRenderingContext2D,
   s: RunnerState,
   w: number,
-  scale: number
+  scale: number,
+  avatar: string
 ): void {
   const h = WORLD_H * scale;
   // 空
@@ -33,31 +47,29 @@ function draw(
   // 地面
   ctx.fillStyle = '#65a30d';
   ctx.fillRect(0, yGround, w, h - yGround);
-  // 障害物
-  ctx.fillStyle = '#7c2d12';
+  // 障害物（サボテン）
   for (const o of s.obstacles) {
-    ctx.fillRect(o.x * scale, yGround - o.h * scale, o.w * scale, o.h * scale);
+    emoji(
+      ctx,
+      '🌵',
+      (o.x + o.w / 2) * scale,
+      yGround - (o.h / 2) * scale,
+      o.h * scale * 1.4
+    );
   }
-  // プレイヤー
-  const px = RUNNER.playerX * scale;
-  const ptop = yGround - (s.py + RUNNER.playerH) * scale;
-  ctx.fillStyle = '#2563eb';
-  ctx.fillRect(px, ptop, RUNNER.playerW * scale, RUNNER.playerH * scale);
-  // 目（かわいく）
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(
-    px + RUNNER.playerW * scale * 0.55,
-    ptop + RUNNER.playerH * scale * 0.2,
-    Math.max(2, 3 * scale),
-    Math.max(2, 3 * scale)
-  );
+  // プレイヤー（アバター）
+  const cx = (RUNNER.playerX + RUNNER.playerW / 2) * scale;
+  const cy = yGround - (s.py + RUNNER.playerH / 2) * scale;
+  emoji(ctx, avatar, cx, cy, RUNNER.playerH * scale * 1.5);
 }
 
 // よけよけランナー本体。タップ/スペース/↑ でジャンプ。world はロジック、描画はスケール。
 export default function RunnerGame({
   onGameOver,
+  avatar = '🐰',
 }: {
   onGameOver: (score: number) => void;
+  avatar?: string;
 }): React.JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<RunnerState>(createRunner(Math.random));
@@ -109,7 +121,7 @@ export default function RunnerGame({
           onGameOver(next.distance);
         }
       },
-      onRender: () => draw(ctx, stateRef.current, cw, scale),
+      onRender: () => draw(ctx, stateRef.current, cw, scale, avatar),
     });
 
     const onKey = (e: KeyboardEvent) => {

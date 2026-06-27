@@ -25,3 +25,11 @@
 - [ ] 各ゲームの称号バッジを minigame-rewards/badge-catalog に追加
 - [ ] agy UI レビューの指摘を消化
 - [ ] 全体回帰（lint/build/test）＋ push で staging 更新
+
+## agy UI レビュー消化（周-review）
+- [x] RunnerGame: プレイヤー/障害物を絵文字化（アバターが走る🦊＋🌵サボテン）※高
+- [x] SnakeGame: 十字を逆T字に整理＋スワイプ操作対応（指で隠れにくい）※高
+- [x] WhackGame: のこり時間バーを太く＋残り25%で赤 ※中
+- [x] closet: アイテム名フォント拡大(text-xs)＋装備中ローディング表示 ※低/高
+- [ ] （BACKLOG）ハブ/イントロのコイン消費は誤タップ防止の確認を将来検討 ※中（現状もイントロで明示タップ必要）
+- [ ] （BACKLOG）WhackGame: もぐら命中/爆弾ペナルティの画面エフェクト強化 ※小

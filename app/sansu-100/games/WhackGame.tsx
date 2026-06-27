@@ -75,10 +75,12 @@ export default function WhackGame({
       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
         スコア: <span className="tabular-nums">{state.score}</span>
       </p>
-      {/* のこり時間バー */}
-      <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+      {/* のこり時間バー（残り少なくなると赤） */}
+      <div className="h-4 w-full max-w-xs overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
         <div
-          className="h-full bg-green-500 transition-[width] duration-100"
+          className={`h-full transition-[width] duration-100 ${
+            timePct <= 25 ? 'bg-red-500' : 'bg-green-500'
+          }`}
           style={{ width: `${timePct}%` }}
         />
       </div>

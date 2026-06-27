@@ -136,7 +136,9 @@ export default function ClosetPage(): React.JSX.Element {
                         type="button"
                         disabled={busy === item.id || busy !== null}
                         onClick={() => toggle(item)}
-                        className={`flex size-16 flex-col items-center justify-center rounded-xl border-2 text-[10px] font-bold transition-transform active:scale-95 ${
+                        className={`flex size-16 flex-col items-center justify-center rounded-xl border-2 text-xs font-bold transition-transform active:scale-95 ${
+                          busy === item.id ? 'animate-pulse opacity-60' : ''
+                        } ${
                           isOn
                             ? 'border-green-400 bg-green-50 text-green-700 ring-2 ring-green-300 dark:bg-green-900/20 dark:text-green-200'
                             : 'border-transparent bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
