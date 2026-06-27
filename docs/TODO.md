@@ -33,3 +33,9 @@
 - [x] closet: アイテム名フォント拡大(text-xs)＋装備中ローディング表示 ※低/高
 - [ ] （BACKLOG）ハブ/イントロのコイン消費は誤タップ防止の確認を将来検討 ※中（現状もイントロで明示タップ必要）
 - [ ] （BACKLOG）WhackGame: もぐら命中/爆弾ペナルティの画面エフェクト強化 ※小
+
+## おちものよけ（falling）5本目
+- [x] GF-A falling.ts ＋テスト7件（spawn/落下/生存スコア/円矩形衝突/離れ無衝突/クランプ）
+- [x] GF-B FallingGame.tsx（アバターが よける・🪨落下・ドラッグ/ボタン・responsive）
+- [x] GF-C falling ルート＋コイン連携＋registry＋falling称号2種
+- [x] GF-D iPhone Playwrightで score63・🐧+🪨描画・console0 確認

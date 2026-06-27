@@ -38,4 +38,11 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     desc: 'パドルで ボールを はねかえそう',
     available: true,
   },
+  {
+    id: 'falling',
+    name: 'おちものよけ',
+    emoji: '🪨',
+    desc: '🪨を よけよう',
+    available: true,
+  },
 ];
