@@ -23,7 +23,7 @@ export default function BreakoutPage(): React.JSX.Element {
   const { currentUser, saveUser, loaded } = useSansuUser();
   const [phase, setPhase] = useState<Phase>('intro');
   const [lastScore, setLastScore] = useState(0);
-  const [won, setWon] = useState(false);
+  const [lastLevel, setLastLevel] = useState(1);
   const [round, setRound] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -54,9 +54,9 @@ export default function BreakoutPage(): React.JSX.Element {
   }, [currentUser, saveUser]);
 
   const handleGameOver = useCallback(
-    async (score: number, didWin: boolean) => {
+    async (score: number, level: number) => {
       setLastScore(score);
-      setWon(didWin);
+      setLastLevel(level);
       setPhase('over');
       if (!currentUser) return;
       const newBadges = evaluateMinigameBadges(
@@ -141,7 +141,7 @@ export default function BreakoutPage(): React.JSX.Element {
         {phase === 'over' ? (
           <section className="space-y-4 rounded-2xl bg-white p-6 text-center shadow-md dark:bg-gray-800">
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {won ? '🎉 ぜんぶ こわした！' : 'おわり！'}
+              レベル {lastLevel} まで！
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-200">
               スコア: <b>{lastScore}</b>

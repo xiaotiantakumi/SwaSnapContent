@@ -5,7 +5,9 @@ export const BREAKOUT = {
   w: 200,
   h: 260,
   ballR: 4,
-  speed: 3.6,
+  speed: 3.4,
+  speedUp: 1.14, // レベルごとに速くなる倍率
+  maxSpeed: 6.5,
   paddleW: 48,
   paddleH: 8,
   paddleY: 246, // パドル上端
@@ -25,21 +27,27 @@ export type BreakoutState = {
   paddleX: number; // パドル左端
   bricks: boolean[]; // rows*cols, true=のこってる
   score: number;
+  level: number; // クリアするたびに+1（だんだん速くなる）
+  speed: number; // 今のボール速さ
   over: boolean;
-  won: boolean;
 };
+
+function freshBricks(): boolean[] {
+  return Array.from({ length: BREAKOUT.rows * BREAKOUT.cols }, () => true);
+}
 
 export function createBreakout(): BreakoutState {
   return {
     bx: BREAKOUT.w / 2,
-    by: BREAKOUT.paddleY - 12,
+    by: BREAKOUT.paddleY - 14,
     vx: BREAKOUT.speed * 0.6,
-    vy: -BREAKOUT.speed,
+    vy: -BREAKOUT.speed * 0.8,
     paddleX: (BREAKOUT.w - BREAKOUT.paddleW) / 2,
-    bricks: Array.from({ length: BREAKOUT.rows * BREAKOUT.cols }, () => true),
+    bricks: freshBricks(),
     score: 0,
+    level: 1,
+    speed: BREAKOUT.speed,
     over: false,
-    won: false,
   };
 }
 
@@ -85,7 +93,7 @@ export function stepBreakout(
     vy = -Math.abs(vy);
     // 当たった位置で左右に角度をつける（-1..1）
     const hit = (bx - (paddle + BREAKOUT.paddleW / 2)) / (BREAKOUT.paddleW / 2);
-    vx = BREAKOUT.speed * hit;
+    vx = s.speed * hit;
   }
 
   // ブロック（ボール半径を考慮した帯判定＋行列をクランプ）
@@ -110,7 +118,19 @@ export function stepBreakout(
     }
   }
 
-  const won = bricks.every((b) => !b);
+  let level = s.level;
+  let speed = s.speed;
+  // すべて消したら「終わり」ではなく、次のレベル（速くなって再スタート）
+  if (bricks.every((b) => !b)) {
+    level += 1;
+    speed = Math.min(BREAKOUT.maxSpeed, speed * BREAKOUT.speedUp);
+    bricks = freshBricks();
+    bx = BREAKOUT.w / 2;
+    by = BREAKOUT.paddleY - 14;
+    vx = speed * 0.6;
+    vy = -speed * 0.8;
+  }
+
   const fell = by - r > BREAKOUT.h;
 
   return {
@@ -121,7 +141,8 @@ export function stepBreakout(
     paddleX: paddle,
     bricks,
     score,
-    over: won || fell,
-    won,
+    level,
+    speed,
+    over: fell,
   };
 }

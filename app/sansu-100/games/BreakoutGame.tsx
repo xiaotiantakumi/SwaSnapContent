@@ -63,7 +63,7 @@ function draw(
 export default function BreakoutGame({
   onGameOver,
 }: {
-  onGameOver: (score: number, won: boolean) => void;
+  onGameOver: (score: number, level: number) => void;
 }): React.JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<BreakoutState>(createBreakout());
@@ -71,6 +71,7 @@ export default function BreakoutGame({
   const moveRef = useRef(0); // -1 / 0 / 1（ボタン・キー用）
   const scaleRef = useRef(1);
   const overRef = useRef(false);
+  const [level, setLevel] = useState(1);
   const soundRef = useRef(true);
   const [score, setScore] = useState(0);
 
@@ -97,6 +98,7 @@ export default function BreakoutGame({
     overRef.current = false;
     soundRef.current = storage.getSettings().soundOn;
     setScore(0);
+    setLevel(1);
 
     const handle = startGameLoop({
       stepMs: () => 16,
@@ -105,6 +107,7 @@ export default function BreakoutGame({
         // ボタン/キー移動
         paddleXRef.current += moveRef.current * 5;
         const prevScore = stateRef.current.score;
+        const prevLevel = stateRef.current.level;
         const next = stepBreakout(stateRef.current, paddleXRef.current);
         paddleXRef.current = next.paddleX;
         stateRef.current = next;
@@ -112,11 +115,15 @@ export default function BreakoutGame({
           setScore(next.score);
           if (soundRef.current) sound.eat();
         }
+        if (next.level > prevLevel) {
+          setLevel(next.level);
+          if (soundRef.current) sound.correct();
+        }
         if (next.over) {
           overRef.current = true;
           handle.stop();
           if (soundRef.current) sound.crash();
-          onGameOver(next.score, next.won);
+          onGameOver(next.score, next.level);
         }
       },
       onRender: () => draw(ctx, stateRef.current, scaleRef.current),
@@ -152,7 +159,8 @@ export default function BreakoutGame({
   return (
     <div className="flex flex-col items-center gap-3">
       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-        スコア: <span className="tabular-nums">{score}</span>
+        レベル {level} ・ スコア{' '}
+        <span className="tabular-nums">{score}</span>
       </p>
       <canvas
         ref={canvasRef}

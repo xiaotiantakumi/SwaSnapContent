@@ -6,12 +6,12 @@ import {
 } from '../games/breakout';
 
 describe('breakout', () => {
-  it('初期状態はブロック全部のこり・未over', () => {
+  it('初期状態はブロック全部のこり・レベル1・未over', () => {
     const s = createBreakout();
     expect(s.bricks).toHaveLength(BREAKOUT.rows * BREAKOUT.cols);
     expect(s.bricks.every(Boolean)).toBe(true);
     expect(s.over).toBe(false);
-    expect(s.won).toBe(false);
+    expect(s.level).toBe(1);
   });
 
   it('左の壁で vx が反転する', () => {
@@ -57,10 +57,9 @@ describe('breakout', () => {
     s = { ...s, bx: 100, by: BREAKOUT.h + 20, vx: 0, vy: 3 };
     const n = stepBreakout(s, s.paddleX);
     expect(n.over).toBe(true);
-    expect(n.won).toBe(false);
   });
 
-  it('全ブロック消すと won・over', () => {
+  it('全ブロック消すとレベルアップ（over せず・ブロック復活・速くなる）', () => {
     let s = createBreakout();
     // 残り1個だけ、その上にボール
     const bricks = s.bricks.map(() => false);
@@ -74,8 +73,10 @@ describe('breakout', () => {
       vy: -3,
     };
     const n = stepBreakout(s, s.paddleX);
-    expect(n.won).toBe(true);
-    expect(n.over).toBe(true);
+    expect(n.over).toBe(false); // 終わらない
+    expect(n.level).toBe(2); // レベルアップ
+    expect(n.bricks.every(Boolean)).toBe(true); // ブロック復活
+    expect(n.speed).toBeGreaterThan(s.speed); // 速くなる
   });
 
   it('パドルは画面外に出ない', () => {
