@@ -67,16 +67,21 @@ export function useSansuSession(opts: UseSansuSessionOptions) {
     : null;
 
   const submitAnswer = useCallback(
-    (userAnswer: number) => {
+    (userAnswer: number, userRemainder?: number) => {
       if (!currentProblem) return;
       const now = Date.now();
       const timeMs = now - lastAdvanceRef.current;
       lastAdvanceRef.current = now;
 
+      // あまりあり割り算は商とあまりの両方が一致して正解。
+      const remainderOk =
+        currentProblem.remainder === undefined ||
+        userRemainder === currentProblem.remainder;
       const ans: AnsweredProblem = {
         ...currentProblem,
         userAnswer,
-        isCorrect: userAnswer === currentProblem.answer,
+        ...(currentProblem.remainder !== undefined ? { userRemainder } : {}),
+        isCorrect: userAnswer === currentProblem.answer && remainderOk,
         timeMs,
       };
       setAnswered((prev) => {
