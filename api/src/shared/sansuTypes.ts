@@ -2,6 +2,9 @@
 export type ItemSlot = 'hat' | 'background' | 'frame' | 'effect';
 export type EquippedItems = Partial<Record<ItemSlot, string>>;
 
+export type { AvatarConfig } from './avatarOptions';
+import type { AvatarConfig } from './avatarOptions';
+
 export type SansuUserPublic = {
   id: string;
   name: string;
@@ -26,6 +29,7 @@ export type SansuUserPublic = {
   dailySessionCount?: number;
   minigameHighScore?: number;
   minigameScores?: Record<string, number>;
+  avatarConfig?: AvatarConfig;
 };
 
 export type SansuUserEntity = {
@@ -55,6 +59,7 @@ export type SansuUserEntity = {
   dailySessionCount?: number;
   minigameHighScore?: number;
   minigameScoresJson?: string;
+  avatarConfigJson?: string;
 };
 
 export function toPublic(e: SansuUserEntity): SansuUserPublic {
@@ -82,7 +87,18 @@ export function toPublic(e: SansuUserEntity): SansuUserPublic {
     dailySessionCount: e.dailySessionCount ?? 0,
     minigameHighScore: e.minigameHighScore ?? 0,
     minigameScores: safeParseObject(e.minigameScoresJson ?? '{}'),
+    avatarConfig: safeParseAvatarConfig(e.avatarConfigJson),
   };
+}
+
+function safeParseAvatarConfig(s: string | undefined): AvatarConfig | undefined {
+  if (!s) return undefined;
+  try {
+    const v = JSON.parse(s);
+    return typeof v === 'object' && v !== null ? (v as AvatarConfig) : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function safeParseEquipped(s: string): EquippedItems {

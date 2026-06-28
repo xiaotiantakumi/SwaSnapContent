@@ -1,4 +1,4 @@
-import type { SansuSession, SansuUserPublic } from './types';
+import type { AvatarConfig, SansuSession, SansuUserPublic } from './types';
 
 const BASE = '/api/sansu';
 
@@ -116,6 +116,16 @@ export const sansuApi = {
       }
       throw e;
     }
+  },
+  // パーツ組み立て式アバターの構成を保存。サーバーが許可値に丸めた user を返す。
+  async setAvatarConfig(
+    userId: string,
+    config: AvatarConfig
+  ): Promise<{ ok: boolean; user?: SansuUserPublic; error?: string }> {
+    return await jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
+      `${BASE}/avatar`,
+      { method: 'POST', body: JSON.stringify({ userId, config }) }
+    );
   },
   // ミニゲームの参加費/コンティニュー。残高不足は409→error返し。
   async spend(

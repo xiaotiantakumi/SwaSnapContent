@@ -4,6 +4,8 @@ import { getThemeClasses } from '../lib/avatar';
 import { getItemDef } from '../lib/shop-catalog';
 import type { SansuUserPublic } from '../lib/types';
 
+import DiceBearAvatar from './DiceBearAvatar';
+
 type Size = 'sm' | 'md' | 'lg' | 'xl';
 
 const SIZES: Record<Size, { box: string; emoji: string; overlay: string }> = {
@@ -52,9 +54,17 @@ export default function AvatarDisplay({
       className={`relative inline-flex shrink-0 items-center justify-center overflow-visible rounded-full ${s.box} ${bgClass} ${frameClass} ${className}`}
       aria-label={`${user.name}のアバター`}
     >
-      <span className={`${s.emoji} ${effectClass} leading-none`} aria-hidden>
-        {user.avatar}
-      </span>
+      {user.avatarConfig ? (
+        <div
+          className={`absolute inset-0 overflow-hidden rounded-full ${effectClass}`}
+        >
+          <DiceBearAvatar config={user.avatarConfig} title={`${user.name}のアバター`} />
+        </div>
+      ) : (
+        <span className={`${s.emoji} ${effectClass} leading-none`} aria-hidden>
+          {user.avatar}
+        </span>
+      )}
       {hat ? (
         <span
           className={`pointer-events-none absolute ${s.overlay} ${

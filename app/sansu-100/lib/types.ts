@@ -32,6 +32,16 @@ export type ItemSlot = 'hat' | 'background' | 'frame' | 'effect';
 // スロットごとに装備中のアイテムID。
 export type EquippedItems = Partial<Record<ItemSlot, string>>;
 
+// パーツ組み立て式アバター（DiceBear bigSmile）の構成。色は '#' なしの16進。
+export type AvatarConfig = {
+  hair: string;
+  hairColor: string;
+  eyes: string;
+  mouth: string;
+  skinColor: string;
+  accessory: string; // アクセサリID または 'none'
+};
+
 export type SansuUserPublic = {
   id: string;
   name: string;
@@ -56,6 +66,7 @@ export type SansuUserPublic = {
   dailySessionCount?: number; // 当日のクリア回数（1回目/2回目判定）
   minigameHighScore?: number; // ミニゲーム最高スコア（全体・後方互換）
   minigameScores?: Record<string, number>; // ゲームごとの最高スコア
+  avatarConfig?: AvatarConfig; // パーツ組み立て式アバター（未設定なら絵文字 avatar を使う）
 };
 
 export type SansuUserServer = SansuUserPublic & {

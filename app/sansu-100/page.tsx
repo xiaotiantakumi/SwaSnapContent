@@ -141,6 +141,12 @@ export default function SansuHome(): React.JSX.Element {
                 🛍️ おみせ
               </Link>
               <Link
+                href="/sansu-100/avatar"
+                className="rounded-lg bg-teal-200 px-3 py-2 text-center font-semibold text-teal-900 hover:bg-teal-300 dark:bg-teal-900/40 dark:text-teal-100 dark:hover:bg-teal-900/60"
+              >
+                🧑‍🎨 キャラづくり
+              </Link>
+              <Link
                 href="/sansu-100/closet"
                 className="rounded-lg bg-pink-200 px-3 py-2 text-center font-semibold text-pink-900 hover:bg-pink-300 dark:bg-pink-900/40 dark:text-pink-100 dark:hover:bg-pink-900/60"
               >
