@@ -91,8 +91,8 @@ export default function FallingPage(): React.JSX.Element {
           </Link>
         ) : (
           <Header
-            title="🪨 おちものよけ"
-            description="🪨を よけて ながく いきのびよう！"
+            title="👻 おちものよけ"
+            description="👻を よけて ながく いきのびよう！"
             showBackButton
             backHref="/sansu-100/minigame"
             backLabel="ゲームせんたくにもどる"
@@ -107,7 +107,7 @@ export default function FallingPage(): React.JSX.Element {
 
         {phase === 'intro' ? (
           <section className="space-y-4 rounded-2xl bg-white p-6 text-center shadow-md dark:bg-gray-800">
-            <p className="text-6xl">🪨</p>
+            <p className="text-6xl">👻</p>
             <p className="text-gray-700 dark:text-gray-200">
               コインを {SPEND_COSTS.play}まい つかって あそぶよ
             </p>

@@ -81,7 +81,7 @@ export default function MemoryGame({
               data-value={c.value}
               data-face={face ? 'up' : 'down'}
             >
-              {face ? CARD_EMOJI[c.value] : '❓'}
+              {face ? CARD_EMOJI[c.value] : '🎁'}
             </button>
           );
         })}

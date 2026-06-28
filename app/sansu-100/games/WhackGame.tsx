@@ -24,6 +24,9 @@ export default function WhackGame({
   const stateRef = useRef<WhackState>(state);
   const overRef = useRef(false);
   const soundRef = useRef(true);
+  // 叩いた手応えの一瞬の演出
+  const [flash, setFlash] = useState<{ i: number; bad: boolean } | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const fresh = createWhack();
@@ -59,11 +62,22 @@ export default function WhackGame({
     const next = hitHole(stateRef.current, i);
     stateRef.current = next;
     setState(next);
-    if (mole?.active && soundRef.current) {
-      if (mole.isBad) sound.wrong();
-      else sound.eat();
+    if (mole?.active) {
+      if (soundRef.current) {
+        if (mole.isBad) sound.wrong();
+        else sound.eat();
+      }
+      setFlash({ i, bad: mole.isBad });
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+      flashTimer.current = setTimeout(() => setFlash(null), 280);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+    };
+  }, []);
 
   const timePct = Math.max(
     0,
@@ -95,7 +109,15 @@ export default function WhackGame({
             data-testid={`whack-hole-${i}`}
             data-active={m.active ? (m.isBad ? 'bad' : 'mole') : 'none'}
           >
-            {m.active ? (m.isBad ? '💣' : '🐹') : '🕳️'}
+            {flash?.i === i
+              ? flash.bad
+                ? '💢'
+                : '💥'
+              : m.active
+                ? m.isBad
+                  ? '💣'
+                  : '🐹'
+                : '🕳️'}
           </button>
         ))}
       </div>

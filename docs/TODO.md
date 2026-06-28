@@ -51,3 +51,10 @@
 - [x] GZ-B MazeGame.tsx（recursive-backtracker迷路をCanvas描画・スワイプ/十字/矢印・responsive cell）
 - [x] GZ-C maze ルート＋コイン連携＋registry＋maze称号2種
 - [x] GZ-D iPhone Playwrightで 迷路描画・移動(壁ブロック)・console0 確認
+
+## agy UIレビュー2回目 消化（新ゲーム）
+- [x] Memory: カード裏を 🎁 に（ワクワク感）
+- [x] Falling: 障害物を 👻 に（あぶないものが直感的・かわいい）
+- [x] Maze: 芝生背景＋太く丸い緑の壁（プリント感を脱却）＋ボタン長押しで連続移動（幼児の操作性）
+- [x] Whack: 叩いた瞬間 💥（ばつは💢）で手応え
+- [ ] （BACKLOG）Breakout/Falling: ドラッグ時に指で隠れる問題→ボタン操作で代替済、必要なら追従オフセット検討

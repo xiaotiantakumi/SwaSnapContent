@@ -40,9 +40,9 @@ function draw(
   const H = FALLING.h * scale;
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(0, 0, W, H);
-  // 落ちもの（いわ）
+  // 落ちもの（おばけ）
   for (const it of s.items) {
-    emoji(ctx, '🪨', it.x * scale, it.y * scale, FALLING.itemR * 2.2 * scale);
+    emoji(ctx, '👻', it.x * scale, it.y * scale, FALLING.itemR * 2.4 * scale);
   }
   // プレイヤー（アバター）
   emoji(
@@ -153,7 +153,7 @@ export default function FallingGame({
         style={{ touchAction: 'none' }}
       />
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        ゆびで うごかして 🪨を よけよう
+        ゆびで うごかして 👻を よけよう
       </p>
       <div className="flex w-full max-w-xs gap-3">
         <button

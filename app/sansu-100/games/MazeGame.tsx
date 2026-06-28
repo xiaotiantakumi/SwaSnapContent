@@ -22,14 +22,15 @@ function draw(
 ): void {
   const W0 = s.cols * cell;
   const H0 = s.rows * cell;
-  ctx.fillStyle = '#f8fafc';
+  ctx.fillStyle = '#dcfce7'; // 明るい芝生っぽい背景
   ctx.fillRect(0, 0, W0, H0);
   // ゴール
   ctx.fillStyle = '#fde68a';
   ctx.fillRect(s.gx * cell, s.gy * cell, cell, cell);
-  // 壁
-  ctx.strokeStyle = '#334155';
-  ctx.lineWidth = 2;
+  // 壁（太く・丸い線）
+  ctx.strokeStyle = '#15803d';
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
   ctx.beginPath();
   for (let y = 0; y < s.rows; y++) {
     for (let x = 0; x < s.cols; x++) {
@@ -117,6 +118,21 @@ export default function MazeGame({
 
   const go = (d: Dir) => setState((s) => moveMaze(s, d));
 
+  // ボタン長押しで連続移動（幼児が1マスずつ押さなくてよい）
+  const repeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stopHold = () => {
+    if (repeatRef.current) {
+      clearInterval(repeatRef.current);
+      repeatRef.current = null;
+    }
+  };
+  const startHold = (d: Dir) => {
+    go(d);
+    stopHold();
+    repeatRef.current = setInterval(() => go(d), 150);
+  };
+  useEffect(() => stopHold, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const d = dirFromKey(e.key);
@@ -162,23 +178,53 @@ export default function MazeGame({
       />
       <div className="grid grid-cols-3 gap-2" aria-label="そうさボタン">
         <span />
-        <button type="button" className={padBtn} onClick={() => go('up')} aria-label="うえ">
+        <MazePad dir="up" label="うえ" cls={padBtn} onHold={startHold} onRelease={stopHold}>
           ▲
-        </button>
+        </MazePad>
         <span />
-        <button type="button" className={padBtn} onClick={() => go('left')} aria-label="ひだり">
+        <MazePad dir="left" label="ひだり" cls={padBtn} onHold={startHold} onRelease={stopHold}>
           ◀
-        </button>
+        </MazePad>
         <span />
-        <button type="button" className={padBtn} onClick={() => go('right')} aria-label="みぎ">
+        <MazePad dir="right" label="みぎ" cls={padBtn} onHold={startHold} onRelease={stopHold}>
           ▶
-        </button>
+        </MazePad>
         <span />
-        <button type="button" className={padBtn} onClick={() => go('down')} aria-label="した">
+        <MazePad dir="down" label="した" cls={padBtn} onHold={startHold} onRelease={stopHold}>
           ▼
-        </button>
+        </MazePad>
         <span />
       </div>
     </div>
+  );
+}
+
+function MazePad({
+  dir,
+  label,
+  cls,
+  onHold,
+  onRelease,
+  children,
+}: {
+  dir: Dir;
+  label: string;
+  cls: string;
+  onHold: (d: Dir) => void;
+  onRelease: () => void;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <button
+      type="button"
+      className={cls}
+      aria-label={label}
+      onPointerDown={() => onHold(dir)}
+      onPointerUp={onRelease}
+      onPointerLeave={onRelease}
+      onPointerCancel={onRelease}
+    >
+      {children}
+    </button>
   );
 }

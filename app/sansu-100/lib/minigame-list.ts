@@ -41,8 +41,8 @@ export const MINIGAMES: readonly MinigameMeta[] = [
   {
     id: 'falling',
     name: 'おちものよけ',
-    emoji: '🪨',
-    desc: '🪨を よけよう',
+    emoji: '👻',
+    desc: '👻を よけよう',
     available: true,
   },
   {
