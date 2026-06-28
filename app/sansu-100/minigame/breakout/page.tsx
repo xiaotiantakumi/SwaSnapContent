@@ -9,6 +9,7 @@ import Header from '../../../components/header';
 import ThemeToggle from '../../../components/theme-toggle';
 import BadgeUnlockOverlay from '../../components/BadgeUnlockOverlay';
 import CoinBalance from '../../components/CoinBalance';
+import NewRecordBanner from '../../components/NewRecordBanner';
 import BreakoutGame from '../../games/BreakoutGame';
 import { useSansuUser } from '../../hooks/useSansuUser';
 import { sansuApi } from '../../lib/api-client';
@@ -27,6 +28,7 @@ export default function BreakoutPage(): React.JSX.Element {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [overlayBadges, setOverlayBadges] = useState<string[]>([]);
+  const [newRecord, setNewRecord] = useState(false);
 
   const coins = currentUser?.coins ?? 0;
 
@@ -34,6 +36,7 @@ export default function BreakoutPage(): React.JSX.Element {
     if (!currentUser) return;
     setBusy(true);
     setMessage(null);
+    setNewRecord(false);
     try {
       const res = await sansuApi.spend(currentUser.id, 'play');
       if (res.ok && res.user) {
@@ -64,6 +67,7 @@ export default function BreakoutPage(): React.JSX.Element {
       try {
         const res = await sansuApi.awardBadge(currentUser.id, newBadges, score, 'breakout');
         if (res.user) saveUser(res.user);
+        if (res.newRecord) setNewRecord(true);
         if (newBadges.length > 0) setOverlayBadges(newBadges);
       } catch {
         // 報酬付与失敗は致命的でない
@@ -142,6 +146,7 @@ export default function BreakoutPage(): React.JSX.Element {
             <p className="text-lg text-gray-700 dark:text-gray-200">
               スコア: <b>{lastScore}</b>
             </p>
+            {newRecord ? <NewRecordBanner score={lastScore} /> : null}
             <button
               type="button"
               disabled={busy}

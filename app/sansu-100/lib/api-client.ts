@@ -157,14 +157,15 @@ export const sansuApi = {
     badgeIds: string[],
     minigameScore?: number,
     gameId?: string
-  ): Promise<{ ok: boolean; user?: SansuUserPublic }> {
-    return jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
-      `${BASE}/award-badge`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ userId, badgeIds, minigameScore, gameId }),
-      }
-    );
+  ): Promise<{ ok: boolean; user?: SansuUserPublic; newRecord?: boolean }> {
+    return jsonFetch<{
+      ok: boolean;
+      user?: SansuUserPublic;
+      newRecord?: boolean;
+    }>(`${BASE}/award-badge`, {
+      method: 'POST',
+      body: JSON.stringify({ userId, badgeIds, minigameScore, gameId }),
+    });
   },
 };
 

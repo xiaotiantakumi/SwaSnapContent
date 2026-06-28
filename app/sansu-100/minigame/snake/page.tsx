@@ -9,6 +9,7 @@ import Header from '../../../components/header';
 import ThemeToggle from '../../../components/theme-toggle';
 import BadgeUnlockOverlay from '../../components/BadgeUnlockOverlay';
 import CoinBalance from '../../components/CoinBalance';
+import NewRecordBanner from '../../components/NewRecordBanner';
 import SnakeGame from '../../games/SnakeGame';
 import { useSansuUser } from '../../hooks/useSansuUser';
 import { sansuApi } from '../../lib/api-client';
@@ -26,14 +27,16 @@ export default function SnakePage(): React.JSX.Element {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [overlayBadges, setOverlayBadges] = useState<string[]>([]);
+  const [newRecord, setNewRecord] = useState(false);
 
   const coins = currentUser?.coins ?? 0;
-  const highScore = currentUser?.minigameHighScore ?? 0;
+  const highScore = currentUser?.minigameScores?.snake ?? 0;
 
   const start = useCallback(async () => {
     if (!currentUser) return;
     setBusy(true);
     setMessage(null);
+    setNewRecord(false);
     try {
       const res = await sansuApi.spend(currentUser.id, 'play');
       if (res.ok && res.user) {
@@ -68,6 +71,7 @@ export default function SnakePage(): React.JSX.Element {
           'snake'
         );
         if (res.user) saveUser(res.user);
+        if (res.newRecord) setNewRecord(true);
         if (newBadges.length > 0) setOverlayBadges(newBadges);
       } catch {
         // 報酬付与に失敗しても致命的ではない（次回同期で拾える）
@@ -152,12 +156,8 @@ export default function SnakePage(): React.JSX.Element {
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-200">
               スコア: <b>{lastScore}</b>
-              {lastScore >= highScore ? (
-                <span className="ml-2 text-pink-600 dark:text-pink-300">
-                  🎉 さいこうきろく！
-                </span>
-              ) : null}
             </p>
+            {newRecord ? <NewRecordBanner score={lastScore} /> : null}
             <button
               type="button"
               disabled={busy}

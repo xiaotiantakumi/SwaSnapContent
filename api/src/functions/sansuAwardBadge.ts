@@ -47,17 +47,19 @@ app.http('sansuAwardBadgePost', {
           ? Math.max(prevHigh, body.minigameScore)
           : prevHigh;
 
-      // ゲームごとの最高スコア
+      // ゲームごとの最高スコア（更新したら newRecord=true）
       const scores =
         (JSON.parse(user.minigameScoresJson ?? '{}') as Record<
           string,
           number
         >) ?? {};
+      let newRecord = false;
       if (body.gameId && typeof body.minigameScore === 'number') {
-        scores[body.gameId] = Math.max(
-          scores[body.gameId] ?? 0,
-          body.minigameScore
-        );
+        const prev = scores[body.gameId] ?? 0;
+        if (body.minigameScore > prev) {
+          scores[body.gameId] = body.minigameScore;
+          newRecord = true;
+        }
       }
 
       const updated = {
@@ -72,7 +74,10 @@ app.http('sansuAwardBadgePost', {
         USERS_PARTITION,
         body.userId
       );
-      return { status: 200, jsonBody: { ok: true, user: toPublic(refreshed) } };
+      return {
+        status: 200,
+        jsonBody: { ok: true, user: toPublic(refreshed), newRecord },
+      };
     } catch (e) {
       context.error('sansuAwardBadgePost error', e);
       return { status: 500, jsonBody: { error: 'internal' } };

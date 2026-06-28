@@ -64,3 +64,9 @@
 - [x] award-badge に gameId を受け、minigameScores[gameId]=max を保存（overall も後方互換で維持）
 - [x] 各ゲームpage が gameId を送る、ハブの各カードに「🏆さいこう N」表示
 - [x] ライブ検証: snake25/falling800 が別々に保存・低スコアは更新せず
+
+## 自己ベスト更新のお祝い（全ゲーム）
+- [x] award-badge が newRecord（ゲーム別ベスト更新か）を返す
+- [x] NewRecordBanner（紙吹雪＋ファンファーレ＋「じこベスト こうしん！」）を7ゲームに配線
+- [x] snake の旧・全体highScore表示を per-game に修正
+- [x] iPhone Playwright: memory完走で record banner＋バッジ演出・console0
