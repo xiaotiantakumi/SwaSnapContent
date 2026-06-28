@@ -45,3 +45,9 @@
 - [x] GM-B MemoryGame.tsx（3x4カード・React駆動・不一致を見せて裏返す・効果音）
 - [x] GM-C memory ルート＋コイン連携＋registry＋memory称号2種
 - [x] GM-D iPhone Playwrightで 全6ペアそろえてクリア・score28・console0 確認
+
+## めいろ（maze）7本目
+- [x] GZ-A maze.ts ＋テスト5件（生成/全セル連結=完全迷路/壁で進めない/開いた方向に進む/ゴールでover）
+- [x] GZ-B MazeGame.tsx（recursive-backtracker迷路をCanvas描画・スワイプ/十字/矢印・responsive cell）
+- [x] GZ-C maze ルート＋コイン連携＋registry＋maze称号2種
+- [x] GZ-D iPhone Playwrightで 迷路描画・移動(壁ブロック)・console0 確認

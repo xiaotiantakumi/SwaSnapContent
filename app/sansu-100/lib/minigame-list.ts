@@ -52,4 +52,11 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     desc: 'おなじ えを さがそう',
     available: true,
   },
+  {
+    id: 'maze',
+    name: 'めいろ',
+    emoji: '🗺️',
+    desc: '🏁を めざそう',
+    available: true,
+  },
 ];

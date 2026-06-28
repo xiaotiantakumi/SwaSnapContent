@@ -7,7 +7,8 @@ export type MinigameId =
   | 'whack'
   | 'breakout'
   | 'falling'
-  | 'memory';
+  | 'memory'
+  | 'maze';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
 const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
@@ -34,6 +35,10 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   memory: [
     { score: 1, badgeId: 'memory_clear' },
     { score: 20, badgeId: 'memory_ace' },
+  ],
+  maze: [
+    { score: 1, badgeId: 'maze_explorer' },
+    { score: 80, badgeId: 'maze_master' },
   ],
 };
 
