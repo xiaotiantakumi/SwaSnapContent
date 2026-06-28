@@ -13,85 +13,67 @@ const base: CoinContext = {
 };
 
 describe('calculateCoins', () => {
-  it('1日1回目のクリアで +50', () => {
+  it('1日1回目のクリアで +30', () => {
     const r = calculateCoins(base);
-    expect(r.coinsEarned).toBe(50);
+    expect(r.coinsEarned).toBe(30);
     expect(r.nextDailySessionCount).toBe(1);
-    expect(r.nextDailyCoinsEarned).toBe(50);
+    expect(r.nextDailyCoinsEarned).toBe(30);
     expect(r.nextDailyCoinDate).toBe('2026-06-28');
   });
 
-  it('2回目以降のクリアで +10', () => {
+  it('回数が増えるほど基本コインが +20 ずつ増える（30→50→70…）', () => {
+    const second = calculateCoins({ ...base, dailySessionCount: 1, dailyCoinsEarned: 30 });
+    expect(second.coinsEarned).toBe(50);
+    expect(second.nextDailyCoinsEarned).toBe(80);
+    const third = calculateCoins({ ...base, dailySessionCount: 2, dailyCoinsEarned: 80 });
+    expect(third.coinsEarned).toBe(70);
+  });
+
+  it('1回あたりの基本コインは baseMax(150) で頭打ち', () => {
+    const sixth = calculateCoins({ ...base, dailySessionCount: 6, dailyCoinsEarned: 999 });
+    expect(sixth.coinsEarned).toBe(COIN_RULES.baseMax); // 30+6*20=150
+    const tenth = calculateCoins({ ...base, dailySessionCount: 10, dailyCoinsEarned: 999 });
+    expect(tenth.coinsEarned).toBe(COIN_RULES.baseMax);
+  });
+
+  it('1日合計の上限はない（150を超えても付与される）', () => {
     const r = calculateCoins({
       ...base,
-      dailyCoinsEarned: 50,
-      dailySessionCount: 1,
+      dailySessionCount: 5,
+      dailyCoinsEarned: 400, // すでに400稼いでいても…
     });
-    expect(r.coinsEarned).toBe(10);
-    expect(r.nextDailyCoinsEarned).toBe(60);
-    expect(r.nextDailySessionCount).toBe(2);
+    expect(r.coinsEarned).toBe(130); // 30+5*20=130
+    expect(r.nextDailyCoinsEarned).toBe(530);
   });
 
   it('自己ベスト更新で +20 上乗せ', () => {
     const r = calculateCoins({ ...base, isNewBest: true });
-    expect(r.coinsEarned).toBe(50 + 20);
+    expect(r.coinsEarned).toBe(30 + 20);
   });
 
   it('3日連続に到達した日だけ +10', () => {
-    const reached = calculateCoins({
-      ...base,
-      streakDays: 3,
-      prevStreakDays: 2,
-    });
-    expect(reached.coinsEarned).toBe(50 + 10);
-    // すでに3日を超えている日は付かない
-    const already = calculateCoins({
-      ...base,
-      streakDays: 4,
-      prevStreakDays: 3,
-    });
-    expect(already.coinsEarned).toBe(50);
+    const reached = calculateCoins({ ...base, streakDays: 3, prevStreakDays: 2 });
+    expect(reached.coinsEarned).toBe(30 + 10);
+    const already = calculateCoins({ ...base, streakDays: 4, prevStreakDays: 3 });
+    expect(already.coinsEarned).toBe(30);
   });
 
   it('7日連続に到達した日は +30（3日分は重複しない）', () => {
     const r = calculateCoins({ ...base, streakDays: 7, prevStreakDays: 6 });
-    expect(r.coinsEarned).toBe(50 + 30);
+    expect(r.coinsEarned).toBe(30 + 30);
   });
 
-  it('1日上限150を超えない（残り分だけ付与）', () => {
+  it('日付が変わったら当日カウンタをリセットして再び 1回目=30', () => {
     const r = calculateCoins({
       ...base,
-      dailyCoinsEarned: 145,
-      dailySessionCount: 5,
-      isNewBest: true, // raw=10+20=30 だが残り5しか付かない
-    });
-    expect(r.coinsEarned).toBe(5);
-    expect(r.nextDailyCoinsEarned).toBe(COIN_RULES.dailyCap);
-    // 上限到達の説明エントリが入る
-    expect(r.breakdown.some((e) => e.label === '1日上限')).toBe(true);
-  });
-
-  it('上限に達していると0（マイナスにはならない）', () => {
-    const r = calculateCoins({
-      ...base,
-      dailyCoinsEarned: 150,
-      dailySessionCount: 6,
-    });
-    expect(r.coinsEarned).toBe(0);
-    expect(r.coinsEarned).toBeGreaterThanOrEqual(0);
-  });
-
-  it('日付が変わったら当日カウンタをリセットして再び +50', () => {
-    const r = calculateCoins({
-      ...base,
-      dailyCoinDate: '2026-06-27', // 前日
-      dailyCoinsEarned: 150,
+      dailyCoinDate: '2026-06-27',
+      dailyCoinsEarned: 500,
       dailySessionCount: 8,
       todayKey: '2026-06-28',
     });
-    expect(r.coinsEarned).toBe(50);
+    expect(r.coinsEarned).toBe(30);
     expect(r.nextDailyCoinDate).toBe('2026-06-28');
-    expect(r.nextDailyCoinsEarned).toBe(50);
+    expect(r.nextDailyCoinsEarned).toBe(30);
     expect(r.nextDailySessionCount).toBe(1);
   });
 
@@ -99,11 +81,11 @@ describe('calculateCoins', () => {
     const r = calculateCoins({
       ...base,
       isCountable: false,
-      dailyCoinsEarned: 60,
+      dailyCoinsEarned: 80,
       dailySessionCount: 2,
     });
     expect(r.coinsEarned).toBe(0);
-    expect(r.nextDailyCoinsEarned).toBe(60);
+    expect(r.nextDailyCoinsEarned).toBe(80);
     expect(r.nextDailySessionCount).toBe(2);
     expect(r.nextDailyCoinDate).toBe(base.dailyCoinDate);
   });
