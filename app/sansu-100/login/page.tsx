@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
+import AvatarDisplay from '../components/AvatarDisplay';
 import PinPad from '../components/PinPad';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
@@ -105,7 +106,7 @@ export default function LoginPage(): React.JSX.Element {
         ) : (
           <div className="space-y-4 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
             <div className="flex flex-col items-center gap-2">
-              <span className="text-6xl">{foundUser.avatar}</span>
+              <AvatarDisplay user={foundUser} size="lg" />
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 {foundUser.name}
               </h3>

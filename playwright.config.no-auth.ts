@@ -6,8 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  /* 認証エミュレーターテストを除外 */
-  testIgnore: '**/auth-emulator.spec.ts',
+  /* 認証エミュレーター・sansu-100専用テストを除外 */
+  testIgnore: ['**/auth-emulator.spec.ts', '**/sansu/**'],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
