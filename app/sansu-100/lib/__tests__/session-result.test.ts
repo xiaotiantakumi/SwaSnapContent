@@ -101,8 +101,9 @@ describe('finishSession - コイン', () => {
     expect(r.coinsEarned).toBeGreaterThan(0);
     expect(r.updatedUser.coins).toBe(r.coinsEarned);
     expect(r.coinBreakdown.length).toBeGreaterThan(0);
-    // 当日1回目なので +50 を含む（ベスト更新等が上乗せされる場合あり）
-    expect(r.coinsEarned).toBeGreaterThanOrEqual(50);
+    // add の基本(10)以上（ベスト更新等が上乗せ）。1回あたり上限100。
+    expect(r.coinsEarned).toBeGreaterThanOrEqual(10);
+    expect(r.coinsEarned).toBeLessThanOrEqual(100);
     expect(r.updatedUser.dailyCoinDate).toBe(r.updatedUser.lastPlayedDate);
     expect(r.updatedUser.dailySessionCount).toBe(1);
   });

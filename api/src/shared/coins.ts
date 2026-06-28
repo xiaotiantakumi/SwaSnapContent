@@ -2,19 +2,34 @@
 // 重要: app/sansu-100/lib/coins.ts と「同一ロジック」で複製している。
 //       片方を変えたら必ずもう片方も変えること。
 //       匿名APIのためクライアント申告は信用せず、ここで再計算した値を正とする。
+// 基本コインは演算の難しさで決まる（add<sub<mul<div）。1回あたり最大100。
+// ルーレット倍率は別枠で上限の対象外。
+
+type Operation = 'add' | 'sub' | 'mul' | 'div' | 'mixed';
 
 export const COIN_RULES = {
-  baseStart: 30, // その日1回目の基本コイン
-  baseStep: 20, // 1回ふえるごとに +20
-  baseMax: 150, // 1回あたりの基本コインの上限（1日合計の上限はなし）
+  byOperation: { add: 10, sub: 35, mul: 60, div: 90, mixed: 50 } as Record<
+    Operation,
+    number
+  >,
+  maxPerSession: 100,
   newBest: 20,
   streak3Bonus: 10,
   streak7Bonus: 30,
 } as const;
 
+const OP_LABEL: Record<Operation, string> = {
+  add: 'たしざん',
+  sub: 'ひきざん',
+  mul: 'かけざん',
+  div: 'わりざん',
+  mixed: 'ミックス',
+};
+
 export type CoinBreakdownEntry = { label: string; amount: number };
 
 export type CoinContext = {
+  operation: Operation;
   dailyCoinDate: string;
   dailyCoinsEarned: number;
   dailySessionCount: number;
@@ -50,11 +65,9 @@ export function calculateCoins(ctx: CoinContext): CoinResult {
 
   const breakdown: CoinBreakdownEntry[] = [];
 
-  const base = Math.min(
-    COIN_RULES.baseMax,
-    COIN_RULES.baseStart + sessionCountSoFar * COIN_RULES.baseStep
-  );
-  breakdown.push({ label: `きょう${sessionCountSoFar + 1}回目`, amount: base });
+  const base =
+    COIN_RULES.byOperation[ctx.operation] ?? COIN_RULES.byOperation.mixed;
+  breakdown.push({ label: OP_LABEL[ctx.operation] ?? 'クリア', amount: base });
 
   if (ctx.isNewBest) {
     breakdown.push({ label: 'ベストこうしん', amount: COIN_RULES.newBest });
@@ -66,8 +79,11 @@ export function calculateCoins(ctx: CoinContext): CoinResult {
     breakdown.push({ label: '3日れんぞく', amount: COIN_RULES.streak3Bonus });
   }
 
-  // 1日の上限はなし（やるほど増える）。
-  const coinsEarned = breakdown.reduce((sum, e) => sum + e.amount, 0);
+  const raw = breakdown.reduce((sum, e) => sum + e.amount, 0);
+  const coinsEarned = Math.min(COIN_RULES.maxPerSession, raw);
+  if (coinsEarned < raw) {
+    breakdown.push({ label: '1回の上限', amount: coinsEarned - raw });
+  }
 
   return {
     coinsEarned,
