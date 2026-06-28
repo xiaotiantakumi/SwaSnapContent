@@ -7,6 +7,18 @@ const FEVER_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
 export const FEVER_MULTIPLIERS = [2, 3];
 
+// 同じ15分枠でルーレットを回せる回数
+export const FEVER_MAX_PER_WINDOW = 3;
+
+/** その枠ですでに使った回数（user の枠カウントから計算）。 */
+export function feverUsesInWindow(
+  interval: number,
+  windowInterval: number | undefined,
+  windowUses: number | undefined
+): number {
+  return windowInterval === interval ? (windowUses ?? 0) : 0;
+}
+
 export function feverIntervalIndex(now: number): number {
   return Math.floor(now / FEVER_INTERVAL_MS);
 }

@@ -5,7 +5,11 @@ import {
   InvocationContext,
 } from '@azure/functions';
 
-import { FEVER_MULTIPLIERS } from '../shared/fever';
+import {
+  FEVER_MAX_PER_WINDOW,
+  FEVER_MULTIPLIERS,
+  feverUsesInWindow,
+} from '../shared/fever';
 import { type SansuUserEntity, toPublic } from '../shared/sansuTypes';
 import { USERS_PARTITION, usersTable } from '../shared/tableClient';
 
@@ -44,11 +48,13 @@ app.http('sansuClaimFever', {
 
       const pendingInterval = user.pendingFeverInterval ?? -1;
       const pendingBase = user.pendingFeverBase ?? 0;
-      // 未claimのフィーバー枠が無い / すでにその枠でclaim済み → 何もしない（冪等）
-      if (
-        pendingInterval < 0 ||
-        (user.lastFeverInterval ?? -2) === pendingInterval
-      ) {
+      const used = feverUsesInWindow(
+        pendingInterval,
+        user.feverWindowInterval,
+        user.feverWindowUses
+      );
+      // 未claimのフィーバー枠が無い / その枠の回数を使い切った → 何もしない
+      if (pendingInterval < 0 || used >= FEVER_MAX_PER_WINDOW) {
         return {
           status: 409,
           jsonBody: { error: 'no pending fever', user: toPublic(user) },
@@ -61,7 +67,8 @@ app.http('sansuClaimFever', {
           partitionKey: USERS_PARTITION,
           rowKey: body.userId,
           coins: (user.coins ?? 0) + bonus,
-          lastFeverInterval: pendingInterval,
+          feverWindowInterval: pendingInterval,
+          feverWindowUses: used + 1,
           pendingFeverInterval: -1,
           pendingFeverBase: 0,
         },

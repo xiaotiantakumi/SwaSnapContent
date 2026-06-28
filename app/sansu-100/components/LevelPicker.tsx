@@ -2,12 +2,20 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { feverLevel, feverSecondsRemaining } from '../lib/fever';
+import {
+  feverIntervalIndex,
+  feverLevel,
+  feverSecondsRemaining,
+  feverUsesLeft,
+} from '../lib/fever';
 import { LEVELS } from '../lib/levels';
 import type { LevelId, Operation } from '../lib/types';
 
 interface LevelPickerProps {
   onPick: (level: LevelId, operation: Operation) => void;
+  // フィーバー枠の使用状況（残りルーレット回数の計算に使う）
+  feverWindowInterval?: number;
+  feverWindowUses?: number;
 }
 
 const OP_COLORS: Record<string, string> = {
@@ -19,6 +27,8 @@ const OP_COLORS: Record<string, string> = {
 
 export default function LevelPicker({
   onPick,
+  feverWindowInterval,
+  feverWindowUses,
 }: LevelPickerProps): React.JSX.Element {
   // フィーバー(おすすめ)レベルと残り時間。15分ごとに入れ替わる。
   // SSRと食い違わないよう now は 0 で開始し、マウント後に実時刻で更新。
@@ -31,28 +41,33 @@ export default function LevelPicker({
   const feverLv = now > 0 ? feverLevel(now) : null;
   const remain = now > 0 ? feverSecondsRemaining(now) : 0;
   const mmss = `${Math.floor(remain / 60)}:${String(remain % 60).padStart(2, '0')}`;
+  // この枠で残っているルーレット回数（使い切ったらバッジを出さない）
+  const usesLeft =
+    now > 0
+      ? feverUsesLeft(feverIntervalIndex(now), feverWindowInterval, feverWindowUses)
+      : 0;
 
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
         {LEVELS.map((lv) => {
-          const isFever = feverLv === lv.id;
+          const isFever = feverLv === lv.id && usesLeft > 0;
           return (
             <button
               key={lv.id}
               type="button"
               onClick={() => onPick(lv.id, lv.operation)}
-              className={`group relative rounded-2xl bg-gradient-to-br ${OP_COLORS[lv.operation]} p-5 text-left text-white shadow-md transition-transform hover:scale-[1.02] ${
+              className={`group rounded-2xl bg-gradient-to-br ${OP_COLORS[lv.operation]} p-5 text-left text-white shadow-md transition-transform hover:scale-[1.02] ${
                 isFever ? 'ring-4 ring-orange-400 ring-offset-2 dark:ring-offset-gray-900' : ''
               }`}
               data-testid={`level-pick-${lv.id}`}
             >
               {isFever ? (
                 <span
-                  className="absolute -right-2 -top-2 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-bold text-white shadow"
+                  className="mb-1 inline-block whitespace-nowrap rounded-full bg-orange-500 px-2 py-0.5 text-xs font-bold text-white shadow"
                   data-testid="fever-badge"
                 >
-                  🔥 ボーナス中 のこり {mmss}
+                  🔥 ボーナス あと{usesLeft}回 ・ のこり{mmss}
                 </span>
               ) : null}
               <div className="flex items-baseline justify-between">
