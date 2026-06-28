@@ -114,11 +114,15 @@ describe('problem-generator', () => {
     }
   });
 
-  it('Level 11: 2-digit ÷ 1-digit with remainder allowed', () => {
+  it('Level 11: 2-digit ÷ 1-digit with remainder (always non-zero)', () => {
     const set = generateSetSeeded(11, 200, 11);
     for (const p of set) {
       expect(p.op).toBe('div');
       expect(p.answer).toBe(Math.floor(p.a / p.b));
+      // あまりあり: remainder が設定され、必ず 1 以上（割り切れる問題は出さない）
+      expect(p.remainder).toBe(p.a % p.b);
+      expect(p.remainder ?? 0).toBeGreaterThan(0);
+      expect(p.a).toBe(p.answer * p.b + (p.remainder ?? 0));
     }
   });
 

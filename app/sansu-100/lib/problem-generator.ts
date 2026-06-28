@@ -70,9 +70,12 @@ export function generateOne(level: LevelDef, rng: Rng): Problem {
         if (dividend < rangeA[0] || dividend > rangeA[1]) continue;
         return { a: dividend, b: divisor, op: 'div', answer: q };
       }
-      // with remainder: answer is the integer quotient
+      // あまりあり: 商(answer)とあまり(remainder)の両方を答える。
+      // 「あまりあり」レベルなので、割り切れる問題は除外して必ずあまりを出す。
       if (b === 0) continue;
-      return { a, b, op: 'div', answer: Math.floor(a / b) };
+      const remainder = a % b;
+      if (remainder === 0) continue;
+      return { a, b, op: 'div', answer: Math.floor(a / b), remainder };
     }
   }
 

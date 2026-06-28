@@ -116,6 +116,11 @@ function PlaySession({
     isDaily,
   });
   const [input, setInput] = useState('');
+  // あまりあり割り算用: あまりの入力と、入力中のマス
+  const [remInput, setRemInput] = useState('');
+  const [activeField, setActiveField] = useState<'quotient' | 'remainder'>(
+    'quotient'
+  );
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [showRetire, setShowRetire] = useState(false);
   const [retiring, setRetiring] = useState(false);
@@ -123,18 +128,31 @@ function PlaySession({
   // state より先に効く ref で1回だけ確定させる。
   const finalizingRef = useRef(false);
 
+  const isRemainderMode = session.currentProblem?.remainder !== undefined;
+
   const judge = useCallback(
-    (value: string, isSkip = false) => {
-      if (!session.currentProblem) return;
-      const n = Number.parseInt(value, 10);
-      if (Number.isNaN(n) && !isSkip) return;
-      const answer = session.currentProblem.answer;
-      const isCorrect = !isSkip && n === answer;
+    (q: string, rem: string, isSkip = false) => {
+      const p = session.currentProblem;
+      if (!p) return;
+      const remMode = p.remainder !== undefined;
+      const n = Number.parseInt(q, 10);
+      const r = Number.parseInt(rem, 10);
+      if (!isSkip) {
+        if (Number.isNaN(n)) return;
+        if (remMode && Number.isNaN(r)) return;
+      }
+      const isCorrect =
+        !isSkip && n === p.answer && (!remMode || r === p.remainder);
       setFeedback(isCorrect ? 'correct' : 'wrong');
       setTimeout(
         () => {
-          session.submitAnswer(isSkip ? -1 : n);
+          session.submitAnswer(
+            isSkip ? -1 : n,
+            !isSkip && remMode ? r : undefined
+          );
           setInput('');
+          setRemInput('');
+          setActiveField('quotient');
           setFeedback(null);
         },
         isCorrect ? 200 : 500
@@ -143,23 +161,37 @@ function PlaySession({
     [session]
   );
 
-  // Auto-judge when input matches the answer
+  // キーパッド入力: いま入力中のマスに反映し、答えがそろったら自動で正解判定する。
   const handleInputChange = useCallback(
     (v: string) => {
+      const p = session.currentProblem;
+      if (!p || feedback) return;
+      const remMode = p.remainder !== undefined;
+      if (remMode && activeField === 'remainder') {
+        setRemInput(v);
+        const r = Number.parseInt(v, 10);
+        if (r === p.remainder && Number.parseInt(input, 10) === p.answer) {
+          judge(input, v, false);
+        }
+        return;
+      }
+      // 商（または通常の答え）のマス
       setInput(v);
-      if (!session.currentProblem || feedback) return;
       const n = Number.parseInt(v, 10);
-      if (!Number.isNaN(n) && n === session.currentProblem.answer) {
-        judge(v, false);
+      if (remMode) {
+        // 商が合ったら自動であまりのマスへ進む
+        if (n === p.answer) setActiveField('remainder');
+      } else if (n === p.answer) {
+        judge(v, '', false);
       }
     },
-    [session.currentProblem, feedback, judge]
+    [session.currentProblem, feedback, activeField, input, judge]
   );
 
   const handleSkip = useCallback(() => {
     if (feedback) return;
-    judge(input, true);
-  }, [feedback, input, judge]);
+    judge(input, remInput, true);
+  }, [feedback, input, remInput, judge]);
 
   useEffect(() => {
     if (!session.isComplete || finalizingRef.current || !user) return;
@@ -334,14 +366,26 @@ function PlaySession({
           {session.currentProblem ? <ProblemDisplay
               problem={session.currentProblem}
               userInput={input}
+              remainderInput={remInput}
+              activeField={activeField}
+              onFocusField={isRemainderMode ? setActiveField : undefined}
               feedback={feedback}
             /> : null}
         </div>
 
+        {isRemainderMode ? (
+          <p className="text-center text-sm font-semibold text-blue-600 dark:text-blue-300">
+            商（こたえ）と あまり の りょうほうを いれてね
+          </p>
+        ) : null}
+
         <NumberKeypad
-          value={input}
+          value={
+            isRemainderMode && activeField === 'remainder' ? remInput : input
+          }
           onChange={handleInputChange}
           onSkip={handleSkip}
+          maxLen={isRemainderMode ? (activeField === 'remainder' ? 1 : 2) : 4}
           disabled={feedback !== null || session.isComplete}
         />
 

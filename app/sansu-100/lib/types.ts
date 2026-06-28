@@ -19,10 +19,14 @@ export type Problem = {
   b: number;
   op: Exclude<Operation, 'mixed'>;
   answer: number;
+  // あまりあり割り算のときだけ設定（商=answer・あまり=remainder の両方を答える）。
+  remainder?: number;
 };
 
 export type AnsweredProblem = Problem & {
   userAnswer: number;
+  // あまりあり割り算で子どもが入力したあまり（answer は商の入力）。
+  userRemainder?: number;
   isCorrect: boolean;
   timeMs: number;
 };
