@@ -2,6 +2,11 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 
 import { calculateCoins } from '../shared/coins';
 import {
+  feverIntervalIndex,
+  feverLevelForIndex,
+  isStartedAtRecent,
+} from '../shared/fever';
+import {
   type SansuSession,
   type SansuSessionEntity,
   type SansuUserEntity,
@@ -66,6 +71,7 @@ app.http('sansuSessionsPost', {
       // ユーザー集計＋コイン。残高/集計はサーバーを権威とする。
       const uTable = await usersTable();
       let publicUser: ReturnType<typeof toPublic> | undefined;
+      let feverEligible = false; // 今回がフィーバー達成＝ルーレット権利あり
       try {
         const user = await uTable.getEntity<SansuUserEntity>(
           USERS_PARTITION,
@@ -104,6 +110,16 @@ app.http('sansuSessionsPost', {
             isCountable: !body.isRetired,
           });
 
+          // フィーバー判定: 開始時刻の15分枠の推奨レベルと一致＆その枠で未claim。
+          const interval = feverIntervalIndex(body.startedAt);
+          feverEligible =
+            !body.isRetired &&
+            coin.coinsEarned > 0 &&
+            typeof body.level === 'number' &&
+            body.level === feverLevelForIndex(interval) &&
+            (user.lastFeverInterval ?? -1) !== interval &&
+            isStartedAtRecent(body.startedAt, Date.now());
+
           const updated: Partial<SansuUserEntity> & {
             partitionKey: string;
             rowKey: string;
@@ -120,6 +136,13 @@ app.http('sansuSessionsPost', {
             dailyCoinDate: coin.nextDailyCoinDate,
             dailyCoinsEarned: coin.nextDailyCoinsEarned,
             dailySessionCount: coin.nextDailySessionCount,
+            // フィーバー達成なら倍率の対象(基本コイン)を保留。ルーレットでclaim。
+            ...(feverEligible
+              ? {
+                  pendingFeverInterval: interval,
+                  pendingFeverBase: coin.coinsEarned,
+                }
+              : {}),
           };
           await uTable.updateEntity(updated, 'Merge');
           const refreshed = await uTable.getEntity<SansuUserEntity>(
@@ -132,7 +155,10 @@ app.http('sansuSessionsPost', {
         context.warn('User aggregate update failed', e);
       }
 
-      return { status: 201, jsonBody: { ok: true, user: publicUser } };
+      return {
+        status: 201,
+        jsonBody: { ok: true, user: publicUser, feverEligible },
+      };
     } catch (e) {
       context.error('sansuSessionsPost error', e);
       return { status: 500, jsonBody: { error: 'internal' } };

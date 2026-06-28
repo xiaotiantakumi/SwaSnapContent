@@ -87,10 +87,30 @@ export const sansuApi = {
     session: SansuSession,
     // ストリークボーナスのコイン計算にサーバーが使う文脈（任意）
     ctx?: { streakDays?: number; prevStreakDays?: number }
-  ): Promise<{ ok: true; user?: SansuUserPublic }> {
-    return jsonFetch<{ ok: true; user?: SansuUserPublic }>(`${BASE}/sessions`, {
+  ): Promise<{ ok: true; user?: SansuUserPublic; feverEligible?: boolean }> {
+    return jsonFetch<{
+      ok: true;
+      user?: SansuUserPublic;
+      feverEligible?: boolean;
+    }>(`${BASE}/sessions`, {
       method: 'POST',
       body: JSON.stringify({ ...session, ...(ctx ?? {}) }),
+    });
+  },
+  // フィーバー達成後のルーレット倍率を適用（サーバーが pending を消費）。
+  async claimFever(
+    userId: string,
+    multiplier: number
+  ): Promise<{
+    ok?: boolean;
+    user?: SansuUserPublic;
+    multiplier?: number;
+    bonus?: number;
+    error?: string;
+  }> {
+    return jsonFetch(`${BASE}/fever/claim`, {
+      method: 'POST',
+      body: JSON.stringify({ userId, multiplier }),
     });
   },
   async getSessions(userId: string): Promise<SansuSession[]> {

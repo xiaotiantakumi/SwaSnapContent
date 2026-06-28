@@ -9,12 +9,15 @@ import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
 import BadgeUnlockOverlay from '../components/BadgeUnlockOverlay';
 import CoinBalance from '../components/CoinBalance';
+import FeverRoulette from '../components/FeverRoulette';
 import { formatDuration } from '../components/SessionTimer';
 import { useSansuUser } from '../hooks/useSansuUser';
+import { sansuApi } from '../lib/api-client';
 import type { CoinBreakdownEntry } from '../lib/coins';
 import type { SansuSession } from '../lib/types';
 
 type LastResult = {
+  userId?: string;
   session: SansuSession;
   newBadges: string[];
   pointsEarned: number;
@@ -23,13 +26,18 @@ type LastResult = {
   coinsAfter?: number;
   bestKey: string;
   previousBest: number | null;
+  feverEligible?: boolean;
 };
 
 export default function ResultPage(): React.JSX.Element {
   const router = useRouter();
-  const { currentUser } = useSansuUser();
+  const { currentUser, saveUser } = useSansuUser();
   const [result, setResult] = useState<LastResult | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [feverClaimed, setFeverClaimed] = useState(false);
+  const [feverBonus, setFeverBonus] = useState(0);
+  const [feverMult, setFeverMult] = useState(0);
+  const [claimedCoins, setClaimedCoins] = useState<number | null>(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem('sansu-100:last-result');
@@ -54,6 +62,26 @@ export default function ResultPage(): React.JSX.Element {
   const coinsEarned = result.coinsEarned ?? 0;
   const coinBreakdown = (result.coinBreakdown ?? []).filter((e) => e.amount !== 0);
   const coinsAfter = result.coinsAfter ?? currentUser.coins ?? 0;
+  const displayCoins = claimedCoins ?? coinsAfter;
+
+  // ルーレットで止めた倍率をサーバーに適用（pending を消費）
+  const onRoulette = async (mult: number) => {
+    const uid = result.userId;
+    if (uid) {
+      try {
+        const res = await sansuApi.claimFever(uid, mult);
+        if (res.ok && res.user) {
+          saveUser(res.user);
+          setFeverBonus(res.bonus ?? 0);
+          setFeverMult(res.multiplier ?? mult);
+          setClaimedCoins(res.user.coins ?? coinsAfter);
+        }
+      } catch {
+        // 通信不可は無視（ボーナスなしで結果のみ）
+      }
+    }
+    setFeverClaimed(true);
+  };
   const accuracy = Math.round(
     (session.correctCount / session.totalProblems) * 100
   );
@@ -96,9 +124,19 @@ export default function ResultPage(): React.JSX.Element {
 
           <CoinEarnedCard
             coinsEarned={coinsEarned}
-            coinsAfter={coinsAfter}
+            coinsAfter={displayCoins}
             breakdown={coinBreakdown}
           />
+
+          {result.feverEligible && !feverClaimed ? (
+            <FeverRoulette onResult={onRoulette} />
+          ) : null}
+
+          {feverClaimed && feverBonus > 0 ? (
+            <div className="rounded-xl bg-gradient-to-r from-orange-400 to-pink-500 px-4 py-3 text-center font-extrabold text-white shadow">
+              🔥 フィーバー ×{feverMult}！ +{feverBonus} コイン ボーナス！
+            </div>
+          ) : null}
 
           {newBadges.length > 0 ? (
             <div className="rounded-xl bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 p-1">
