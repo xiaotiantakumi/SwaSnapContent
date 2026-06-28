@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
+import { calculateCoins } from '../shared/coins';
 import {
   type SansuSession,
   type SansuSessionEntity,
@@ -13,6 +14,14 @@ import {
   usersTable,
 } from '../shared/tableClient';
 
+// 送信ペイロード = セッション + クライアントが算出したストリーク文脈
+// （ストリークボーナスのみクライアント申告を許容。基本報酬/ベスト/上限はサーバーが再計算）。
+type SubmitSessionBody = SansuSession & {
+  isRetired?: boolean;
+  streakDays?: number;
+  prevStreakDays?: number;
+};
+
 app.http('sansuSessionsPost', {
   methods: ['POST'],
   authLevel: 'anonymous',
@@ -22,7 +31,7 @@ app.http('sansuSessionsPost', {
     context: InvocationContext
   ): Promise<HttpResponseInit> => {
     try {
-      const body = (await req.json()) as SansuSession;
+      const body = (await req.json()) as SubmitSessionBody;
       if (!body.id || !body.userId) {
         return { status: 400, jsonBody: { error: 'missing fields' } };
       }
@@ -43,52 +52,87 @@ app.http('sansuSessionsPost', {
         pointsEarned: body.pointsEarned,
         newBadgesJson: JSON.stringify(body.newBadges ?? []),
       };
+      // 新規作成できたかを記録。409（再送）の場合は集計・コイン加算をスキップして二重加算を防ぐ。
+      let created = false;
       try {
         await sTable.createEntity(entity);
+        created = true;
       } catch (e) {
         if ((e as { statusCode?: number }).statusCode !== 409) {
           throw e;
         }
       }
 
-      // Update user aggregates
+      // ユーザー集計＋コイン。残高/集計はサーバーを権威とする。
       const uTable = await usersTable();
+      let publicUser: ReturnType<typeof toPublic> | undefined;
       try {
         const user = await uTable.getEntity<SansuUserEntity>(
           USERS_PARTITION,
           body.userId
         );
-        const badges = new Set<string>([
-          ...JSON.parse(user.earnedBadgesJson) as string[],
-          ...(body.newBadges ?? []),
-        ]);
-        const best = JSON.parse(user.bestTimesJson) as Record<string, number>;
-        const key = `lv${body.level}:${body.operation}`;
-        const isPerfect = body.correctCount === body.totalProblems;
-        if (isPerfect && (!best[key] || body.durationMs < best[key])) {
-          best[key] = body.durationMs;
-        }
-        const updated: Partial<SansuUserEntity> & {
-          partitionKey: string;
-          rowKey: string;
-        } = {
-          partitionKey: USERS_PARTITION,
-          rowKey: body.userId,
-          totalPoints: user.totalPoints + body.pointsEarned,
-          totalSessions: user.totalSessions + 1,
-          earnedBadgesJson: JSON.stringify(Array.from(badges)),
-          bestTimesJson: JSON.stringify(best),
-          lastPlayedAt: body.completedAt,
-          lastPlayedDate: new Date(body.completedAt)
+        if (!created) {
+          // 再送: 何も変更せず、現在の権威値を返してクライアントを同期させる。
+          publicUser = toPublic(user);
+        } else {
+          const badges = new Set<string>([
+            ...(JSON.parse(user.earnedBadgesJson) as string[]),
+            ...(body.newBadges ?? []),
+          ]);
+          const best = JSON.parse(user.bestTimesJson) as Record<string, number>;
+          const key = `lv${body.level}:${body.operation}`;
+          const isPerfect = body.correctCount === body.totalProblems;
+          const isNewBest =
+            isPerfect && (!best[key] || body.durationMs < best[key]);
+          if (isNewBest) {
+            best[key] = body.durationMs;
+          }
+
+          // コイン（サーバー再計算）。リタイヤは加算しない。
+          const todayKey = new Date(body.completedAt)
             .toISOString()
-            .slice(0, 10),
-        };
-        await uTable.updateEntity(updated, 'Merge');
+            .slice(0, 10);
+          const coin = calculateCoins({
+            dailyCoinDate: user.dailyCoinDate ?? '',
+            dailyCoinsEarned: user.dailyCoinsEarned ?? 0,
+            dailySessionCount: user.dailySessionCount ?? 0,
+            todayKey,
+            isNewBest,
+            // ストリークはクライアント申告を許容（上限150が歯止め）。
+            streakDays: body.streakDays ?? 0,
+            prevStreakDays: body.prevStreakDays ?? 0,
+            isCountable: !body.isRetired,
+          });
+
+          const updated: Partial<SansuUserEntity> & {
+            partitionKey: string;
+            rowKey: string;
+          } = {
+            partitionKey: USERS_PARTITION,
+            rowKey: body.userId,
+            totalPoints: user.totalPoints + body.pointsEarned,
+            totalSessions: user.totalSessions + 1,
+            earnedBadgesJson: JSON.stringify(Array.from(badges)),
+            bestTimesJson: JSON.stringify(best),
+            lastPlayedAt: body.completedAt,
+            lastPlayedDate: todayKey,
+            coins: (user.coins ?? 0) + coin.coinsEarned,
+            dailyCoinDate: coin.nextDailyCoinDate,
+            dailyCoinsEarned: coin.nextDailyCoinsEarned,
+            dailySessionCount: coin.nextDailySessionCount,
+          };
+          await uTable.updateEntity(updated, 'Merge');
+          const refreshed = await uTable.getEntity<SansuUserEntity>(
+            USERS_PARTITION,
+            body.userId
+          );
+          publicUser = toPublic(refreshed);
+        }
       } catch (e) {
         context.warn('User aggregate update failed', e);
       }
 
-      return { status: 201, jsonBody: { ok: true } };
+      return { status: 201, jsonBody: { ok: true, user: publicUser } };
     } catch (e) {
       context.error('sansuSessionsPost error', e);
       return { status: 500, jsonBody: { error: 'internal' } };

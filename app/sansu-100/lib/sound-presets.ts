@@ -51,4 +51,13 @@ export const sound = {
       [1046.5, 360],
     ].forEach(([f, d]) => playTone(f, 250, d, 'triangle', 0.18));
   },
+  // ミニゲーム: food を食べた音
+  eat() {
+    playTone(660, 90, 0, 'square', 0.14);
+  },
+  // ミニゲーム: ゲームオーバー（衝突）の音
+  crash() {
+    playTone(160, 300, 0, 'sawtooth', 0.18);
+    playTone(110, 320, 70, 'sawtooth', 0.16);
+  },
 };

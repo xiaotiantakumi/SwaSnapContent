@@ -8,6 +8,7 @@ export type BadgeCategory =
   | 'master'
   | 'timing'
   | 'special'
+  | 'minigame'
   | 'meta';
 
 export type BadgeDef = {
@@ -77,6 +78,26 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'birthday_play', category: 'special', name: 'たんじょうび練習', description: '誕生日に練習', icon: '🎂', tier: 'gold', rarity: 'epic' },
   { id: 'new_year_play', category: 'special', name: '元日チャレンジ', description: '元日に練習', icon: '🎍', tier: 'gold', rarity: 'epic' },
   { id: 'late_night', category: 'special', name: 'ナイトオウル', description: '深夜0-3時に練習', icon: '🦉', tier: 'silver', rarity: 'rare' },
+
+  // ミニゲーム称号（コイン経済に影響しない名誉バッジ）
+  { id: 'snake_charmer', category: 'minigame', name: 'ヘビつかい', description: 'スネークで10てん', icon: '🐍', tier: 'bronze', rarity: 'common' },
+  { id: 'snake_king', category: 'minigame', name: 'ヘビの王さま', description: 'スネークで30てん', icon: '👑', tier: 'gold', rarity: 'epic' },
+  { id: 'runner_ace', category: 'minigame', name: 'かけっこ名人', description: 'ランナーで500すすんだ', icon: '🏃', tier: 'silver', rarity: 'rare' },
+  { id: 'runner_wind', category: 'minigame', name: '風のランナー', description: 'ランナーで1500すすんだ', icon: '🌪️', tier: 'gold', rarity: 'epic' },
+  { id: 'whack_master', category: 'minigame', name: 'もぐらマスター', description: 'もぐらたたきで15てん', icon: '🔨', tier: 'silver', rarity: 'rare' },
+  { id: 'whack_legend', category: 'minigame', name: 'もぐら名人', description: 'もぐらたたきで30てん', icon: '🏆', tier: 'gold', rarity: 'epic' },
+  { id: 'breakout_pro', category: 'minigame', name: 'ブロックくずし職人', description: 'ブロックを15こ こわした', icon: '🧱', tier: 'silver', rarity: 'rare' },
+  { id: 'breakout_master', category: 'minigame', name: 'ブロックマスター', description: 'ブロックを ぜんぶ こわした', icon: '🏅', tier: 'gold', rarity: 'epic' },
+  { id: 'falling_pro', category: 'minigame', name: 'よけ名人', description: 'おちものよけで500てん', icon: '💨', tier: 'silver', rarity: 'rare' },
+  { id: 'falling_master', category: 'minigame', name: 'よけの達人', description: 'おちものよけで1200てん', icon: '🌀', tier: 'gold', rarity: 'epic' },
+  { id: 'memory_clear', category: 'minigame', name: 'きおくの達人', description: '神経衰弱をクリア', icon: '🧠', tier: 'silver', rarity: 'rare' },
+  { id: 'memory_ace', category: 'minigame', name: 'きおくの天才', description: 'ボードを 4つ クリア', icon: '✨', tier: 'gold', rarity: 'epic' },
+  { id: 'maze_explorer', category: 'minigame', name: 'めいろ探検家', description: 'めいろをクリア', icon: '🗺️', tier: 'silver', rarity: 'rare' },
+  { id: 'maze_master', category: 'minigame', name: 'めいろ名人', description: 'めいろを 5つ クリア', icon: '🧭', tier: 'gold', rarity: 'epic' },
+  { id: 'flappy_pro', category: 'minigame', name: 'ぱたぱた名人', description: 'ぱたぱたで10てん', icon: '🐤', tier: 'silver', rarity: 'rare' },
+  { id: 'flappy_master', category: 'minigame', name: 'ぱたぱた王', description: 'ぱたぱたで30てん', icon: '👑', tier: 'gold', rarity: 'epic' },
+  { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
+  { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 
   // メタバッジ
   { id: 'badge_collector_25', category: 'meta', name: 'バッジハンター', description: 'バッジを25個集めた', icon: '🎖️', tier: 'gold', rarity: 'epic' },

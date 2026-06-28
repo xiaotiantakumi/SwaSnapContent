@@ -6,13 +6,17 @@ import { useRouter } from 'next/navigation';
 
 import { sansuApi } from '../lib/api-client';
 import { AVATARS, THEME_COLORS } from '../lib/avatar';
+import { DEFAULT_AVATAR_CONFIG } from '../lib/avatar-options';
 import { hashPin } from '../lib/pin-hash';
 import { storage } from '../lib/storage';
 import type { SansuUserPublic } from '../lib/types';
 
-import AvatarPicker from './AvatarPicker';
-import ColorPicker from './ColorPicker';
+import DiceBearAvatar from './DiceBearAvatar';
 import PinPad from './PinPad';
+
+// 登録時はアバターを選ばせず、みんな同じ「さいしょのキャラ」でスタートする。
+// 見た目は あとで「キャラづくり」で じゆうに変えられる（その案内を画面に出す）。
+const DEFAULT_EMOJI = AVATARS[2];
 
 function newUserId(): string {
   if (
@@ -26,10 +30,12 @@ function newUserId(): string {
 
 export default function RegistrationForm(): React.JSX.Element {
   const router = useRouter();
-  const [step, setStep] = useState<'name' | 'avatar' | 'color' | 'pin'>('name');
+  const [step, setStep] = useState<'name' | 'pin'>('name');
   const [name, setName] = useState('');
-  const [avatar, setAvatar] = useState(AVATARS[2]);
-  const [color, setColor] = useState<string>(THEME_COLORS[1]);
+  // テーマ色はアバターの円・ログインのタイルの色分けに使う。登録では選ばせず自動で割り当てる。
+  const [color] = useState<string>(
+    () => THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)]
+  );
   const [pin, setPin] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +52,7 @@ export default function RegistrationForm(): React.JSX.Element {
       const user: SansuUserPublic = {
         id,
         name: name.trim(),
-        avatar,
+        avatar: DEFAULT_EMOJI,
         themeColor: color,
         createdAt: now,
         totalPoints: 0,
@@ -56,6 +62,8 @@ export default function RegistrationForm(): React.JSX.Element {
         lastPlayedDate: '',
         lastPlayedAt: 0,
         totalSessions: 0,
+        // みんな同じ「さいしょのキャラ」でスタート（あとで変えられる）
+        avatarConfig: DEFAULT_AVATAR_CONFIG,
       };
       try {
         await sansuApi.createUser({
@@ -65,6 +73,8 @@ export default function RegistrationForm(): React.JSX.Element {
           pinHash,
           pinSalt: salt,
         });
+        // さいしょのキャラ構成をサーバーにも保存（別端末でも同じ見た目に）
+        await sansuApi.setAvatarConfig(id, DEFAULT_AVATAR_CONFIG);
       } catch (e) {
         // backend not reachable — proceed with local-only registration
         // (sync will retry later)
@@ -84,6 +94,18 @@ export default function RegistrationForm(): React.JSX.Element {
     <div className="mx-auto w-full max-w-md space-y-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
       {step === 'name' && (
         <div className="space-y-4">
+          {/* さいしょのキャラ（あとで変えられる案内つき） */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="size-28 overflow-hidden rounded-full bg-blue-100 ring-4 ring-blue-300 dark:bg-blue-900/30">
+              <DiceBearAvatar config={DEFAULT_AVATAR_CONFIG} title="さいしょのキャラ" />
+            </div>
+            <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+              これが さいしょの キャラだよ。
+              <br />
+              とうろくの あとで「🧑‍🎨キャラづくり」で じゆうに かえられるよ ✨
+            </p>
+          </div>
+
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             なまえを いれてね
           </h2>
@@ -102,63 +124,12 @@ export default function RegistrationForm(): React.JSX.Element {
           <button
             type="button"
             disabled={!name.trim()}
-            onClick={() => setStep('avatar')}
+            onClick={() => setStep('pin')}
             className="w-full rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700 disabled:bg-gray-400"
             data-testid="register-name-next"
           >
             つぎへ →
           </button>
-        </div>
-      )}
-
-      {step === 'avatar' && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            アバターを えらんでね
-          </h2>
-          <div className="text-center text-6xl">{avatar}</div>
-          <AvatarPicker value={avatar} onChange={setAvatar} />
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setStep('name')}
-              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              ← もどる
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep('color')}
-              className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
-            >
-              つぎへ →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {step === 'color' && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            すきな いろは？
-          </h2>
-          <ColorPicker value={color} onChange={setColor} />
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setStep('avatar')}
-              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              ← もどる
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep('pin')}
-              className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
-            >
-              つぎへ →
-            </button>
-          </div>
         </div>
       )}
 
@@ -180,7 +151,7 @@ export default function RegistrationForm(): React.JSX.Element {
           />
           <button
             type="button"
-            onClick={() => setStep('color')}
+            onClick={() => setStep('name')}
             className="w-full rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
           >
             ← もどる

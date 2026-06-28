@@ -8,11 +8,14 @@ import { useRouter } from 'next/navigation';
 import Header from '../components/header';
 import ThemeToggle from '../components/theme-toggle';
 
+import AvatarDisplay from './components/AvatarDisplay';
+import CoinBalance from './components/CoinBalance';
 import PinPad from './components/PinPad';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
 import { sansuApi } from './lib/api-client';
+import { isDebugEnv } from './lib/debug-env';
 import { hashPin } from './lib/pin-hash';
 import type { SansuUserPublic } from './lib/types';
 
@@ -31,6 +34,7 @@ export default function SansuHome(): React.JSX.Element {
   const [pinError, setPinError] = useState<string | null>(null);
   const [verifyingPin, setVerifyingPin] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [debugBusy, setDebugBusy] = useState(false);
 
   // Auto-seed test users in dev mode on first mount
   useEffect(() => {
@@ -104,7 +108,7 @@ export default function SansuHome(): React.JSX.Element {
         {currentUser ? (
           <section className="space-y-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
             <div className="flex items-center gap-4">
-              <span className="text-6xl">{currentUser.avatar}</span>
+              <AvatarDisplay user={currentUser} size="lg" />
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   こんにちは
@@ -117,6 +121,9 @@ export default function SansuHome(): React.JSX.Element {
                   {currentUser.earnedBadges.length}
                 </p>
               </div>
+              <div className="ml-auto" data-testid="coin-balance">
+                <CoinBalance coins={currentUser.coins} size="lg" />
+              </div>
             </div>
             <button
               type="button"
@@ -126,21 +133,69 @@ export default function SansuHome(): React.JSX.Element {
             >
               ▶︎ れんしゅう スタート！
             </button>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href="/sansu-100/shop"
+                className="rounded-lg bg-yellow-200 px-3 py-2 text-center font-semibold text-yellow-900 hover:bg-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-100 dark:hover:bg-yellow-900/60"
+              >
+                🛍️ おみせ
+              </Link>
+              <Link
+                href="/sansu-100/avatar"
+                className="rounded-lg bg-teal-200 px-3 py-2 text-center font-semibold text-teal-900 hover:bg-teal-300 dark:bg-teal-900/40 dark:text-teal-100 dark:hover:bg-teal-900/60"
+              >
+                🧑‍🎨 キャラづくり
+              </Link>
+              <Link
+                href="/sansu-100/closet"
+                className="rounded-lg bg-pink-200 px-3 py-2 text-center font-semibold text-pink-900 hover:bg-pink-300 dark:bg-pink-900/40 dark:text-pink-100 dark:hover:bg-pink-900/60"
+              >
+                🎨 きせかえ
+              </Link>
+              <Link
+                href="/sansu-100/minigame"
+                className="rounded-lg bg-purple-200 px-3 py-2 text-center font-semibold text-purple-900 hover:bg-purple-300 dark:bg-purple-900/40 dark:text-purple-100 dark:hover:bg-purple-900/60"
+              >
+                🎮 ゲーム
+              </Link>
               <Link
                 href="/sansu-100/history"
-                className="flex-1 rounded-lg bg-gray-200 px-4 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                className="rounded-lg bg-gray-200 px-3 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               >
-                📈 きろくをみる
+                📈 きろく
               </Link>
-              <button
-                type="button"
-                onClick={() => selectUser(null)}
-                className="rounded-lg bg-gray-200 px-4 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-              >
-                👋 おわる
-              </button>
             </div>
+            <button
+              type="button"
+              onClick={() => selectUser(null)}
+              className="w-full rounded-lg bg-gray-200 px-4 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            >
+              👋 おわる
+            </button>
+            {isDebugEnv() ? (
+              <div className="space-y-2 rounded-xl border border-dashed border-orange-400 p-3">
+                <p className="text-xs font-bold text-orange-600 dark:text-orange-300">
+                  🐛 デバッグ（本番では表示されません）
+                </p>
+                <button
+                  type="button"
+                  disabled={debugBusy}
+                  onClick={async () => {
+                    setDebugBusy(true);
+                    try {
+                      const res = await sansuApi.debugGrant(currentUser.id, 1000);
+                      if (res.ok && res.user) saveUser(res.user);
+                    } finally {
+                      setDebugBusy(false);
+                    }
+                  }}
+                  className="w-full rounded-lg bg-orange-500 px-4 py-2 font-bold text-white hover:bg-orange-600 disabled:opacity-60"
+                  data-testid="debug-grant-coins"
+                >
+                  🪙 コイン +1000
+                </button>
+              </div>
+            ) : null}
           </section>
         ) : (
           <section className="space-y-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">

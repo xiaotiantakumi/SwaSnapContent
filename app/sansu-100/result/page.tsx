@@ -8,14 +8,19 @@ import { useRouter } from 'next/navigation';
 import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
 import BadgeUnlockOverlay from '../components/BadgeUnlockOverlay';
+import CoinBalance from '../components/CoinBalance';
 import { formatDuration } from '../components/SessionTimer';
 import { useSansuUser } from '../hooks/useSansuUser';
+import type { CoinBreakdownEntry } from '../lib/coins';
 import type { SansuSession } from '../lib/types';
 
 type LastResult = {
   session: SansuSession;
   newBadges: string[];
   pointsEarned: number;
+  coinsEarned?: number;
+  coinBreakdown?: CoinBreakdownEntry[];
+  coinsAfter?: number;
   bestKey: string;
   previousBest: number | null;
 };
@@ -46,6 +51,9 @@ export default function ResultPage(): React.JSX.Element {
   if (!result || !currentUser) return <main className="p-8" />;
 
   const { session, newBadges, pointsEarned, previousBest } = result;
+  const coinsEarned = result.coinsEarned ?? 0;
+  const coinBreakdown = (result.coinBreakdown ?? []).filter((e) => e.amount !== 0);
+  const coinsAfter = result.coinsAfter ?? currentUser.coins ?? 0;
   const accuracy = Math.round(
     (session.correctCount / session.totalProblems) * 100
   );
@@ -85,6 +93,12 @@ export default function ResultPage(): React.JSX.Element {
               )}
             </div>
           ) : null}
+
+          <CoinEarnedCard
+            coinsEarned={coinsEarned}
+            coinsAfter={coinsAfter}
+            breakdown={coinBreakdown}
+          />
 
           {newBadges.length > 0 ? (
             <div className="rounded-xl bg-gradient-to-r from-pink-500 via-yellow-400 to-purple-500 p-1">
@@ -134,6 +148,42 @@ export default function ResultPage(): React.JSX.Element {
         />
       ) : null}
     </main>
+  );
+}
+
+function CoinEarnedCard({
+  coinsEarned,
+  coinsAfter,
+  breakdown,
+}: {
+  coinsEarned: number;
+  coinsAfter: number;
+  breakdown: CoinBreakdownEntry[];
+}): React.JSX.Element | null {
+  if (coinsEarned <= 0) return null;
+  return (
+    <div className="rounded-xl bg-yellow-50 px-4 py-3 dark:bg-yellow-900/20">
+      <div className="flex items-center justify-between">
+        <p className="font-bold text-yellow-800 dark:text-yellow-200">
+          🪙 コインを +{coinsEarned} ゲット！
+        </p>
+        <span className="text-sm text-yellow-700 dark:text-yellow-300">
+          もっている: <CoinBalance coins={coinsAfter} size="sm" />
+        </span>
+      </div>
+      {breakdown.length > 1 ? (
+        <ul className="mt-2 space-y-0.5 text-sm text-yellow-700 dark:text-yellow-300">
+          {breakdown.map((e, i) => (
+            <li key={i} className="flex justify-between">
+              <span>{e.label}</span>
+              <span className="tabular-nums">
+                {e.amount >= 0 ? `+${e.amount}` : e.amount}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 

@@ -1,3 +1,10 @@
+// アバター装備スロット（クライアント lib/types.ts と同期）。
+export type ItemSlot = 'hat' | 'background' | 'frame' | 'effect';
+export type EquippedItems = Partial<Record<ItemSlot, string>>;
+
+export type { AvatarConfig } from './avatarOptions';
+import type { AvatarConfig } from './avatarOptions';
+
 export type SansuUserPublic = {
   id: string;
   name: string;
@@ -13,6 +20,16 @@ export type SansuUserPublic = {
   totalSessions: number;
   pinResetAt?: number;
   pinResetBy?: string;
+  // --- ゲーミフィケーション（全て optional・後方互換） ---
+  coins?: number;
+  ownedItems?: string[];
+  equippedItems?: EquippedItems;
+  dailyCoinDate?: string;
+  dailyCoinsEarned?: number;
+  dailySessionCount?: number;
+  minigameHighScore?: number;
+  minigameScores?: Record<string, number>;
+  avatarConfig?: AvatarConfig;
 };
 
 export type SansuUserEntity = {
@@ -33,6 +50,16 @@ export type SansuUserEntity = {
   pinSalt: string;
   pinResetAt?: number;
   pinResetBy?: string;
+  // --- ゲーミフィケーション。配列/objは JSON文字列カラムで保持（既存 *Json と同方式） ---
+  coins?: number;
+  ownedItemsJson?: string;
+  equippedItemsJson?: string;
+  dailyCoinDate?: string;
+  dailyCoinsEarned?: number;
+  dailySessionCount?: number;
+  minigameHighScore?: number;
+  minigameScoresJson?: string;
+  avatarConfigJson?: string;
 };
 
 export function toPublic(e: SansuUserEntity): SansuUserPublic {
@@ -51,7 +78,36 @@ export function toPublic(e: SansuUserEntity): SansuUserPublic {
     totalSessions: e.totalSessions,
     pinResetAt: e.pinResetAt,
     pinResetBy: e.pinResetBy,
+    // ゲーミフィケーション（未設定の既存ユーザーは 0 / [] / {} にフォールバック）
+    coins: e.coins ?? 0,
+    ownedItems: safeParseArray(e.ownedItemsJson ?? '[]'),
+    equippedItems: safeParseEquipped(e.equippedItemsJson ?? '{}'),
+    dailyCoinDate: e.dailyCoinDate ?? '',
+    dailyCoinsEarned: e.dailyCoinsEarned ?? 0,
+    dailySessionCount: e.dailySessionCount ?? 0,
+    minigameHighScore: e.minigameHighScore ?? 0,
+    minigameScores: safeParseObject(e.minigameScoresJson ?? '{}'),
+    avatarConfig: safeParseAvatarConfig(e.avatarConfigJson),
   };
+}
+
+function safeParseAvatarConfig(s: string | undefined): AvatarConfig | undefined {
+  if (!s) return undefined;
+  try {
+    const v = JSON.parse(s);
+    return typeof v === 'object' && v !== null ? (v as AvatarConfig) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function safeParseEquipped(s: string): EquippedItems {
+  try {
+    const v = JSON.parse(s);
+    return typeof v === 'object' && v !== null ? (v as EquippedItems) : {};
+  } catch {
+    return {};
+  }
 }
 
 function safeParseArray(s: string): string[] {

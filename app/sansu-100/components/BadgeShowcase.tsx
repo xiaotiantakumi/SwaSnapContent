@@ -16,6 +16,7 @@ const CATEGORY_LABELS: Record<BadgeDef['category'], string> = {
   master: '🎓 演算マスター',
   timing: '🕐 じかんたい',
   special: '✨ とくべつ',
+  minigame: '🎮 ミニゲーム',
   meta: '🏆 メタ',
 };
 

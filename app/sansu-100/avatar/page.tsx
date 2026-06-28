@@ -1,0 +1,232 @@
+'use client';
+
+import React, { useMemo, useState } from 'react';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import Header from '../../components/header';
+import ThemeToggle from '../../components/theme-toggle';
+import AvatarDisplay from '../components/AvatarDisplay';
+import DiceBearAvatar from '../components/DiceBearAvatar';
+import { useSansuUser } from '../hooks/useSansuUser';
+import { sansuApi } from '../lib/api-client';
+import {
+  AVATAR_CLOTHES_COLOR,
+  AVATAR_EYEBROWS,
+  AVATAR_EYES,
+  AVATAR_HAIR,
+  AVATAR_HAIR_COLOR,
+  AVATAR_MOUTH,
+  AVATAR_SKIN,
+} from '../lib/avatar-options';
+import {
+  type AvatarItemCategory,
+  ownedValuesOf,
+} from '../lib/avatar-shop';
+import { normalizeAvatarConfig } from '../lib/avatar-svg';
+import { sound } from '../lib/sound-presets';
+import { storage } from '../lib/storage';
+import type { AvatarConfig } from '../lib/types';
+
+type Cat = {
+  key: keyof AvatarConfig;
+  label: string;
+  kind: 'parts' | 'color';
+  free: readonly string[];
+  paid?: AvatarItemCategory; // 所持していれば足す有料カテゴリ
+};
+
+const CATEGORIES: Cat[] = [
+  { key: 'top', label: 'かみ・ぼうし', kind: 'parts', free: AVATAR_HAIR, paid: 'hat' },
+  { key: 'hairColor', label: 'かみのいろ', kind: 'color', free: AVATAR_HAIR_COLOR },
+  { key: 'eyes', label: 'め', kind: 'parts', free: AVATAR_EYES },
+  { key: 'eyebrows', label: 'まゆげ', kind: 'parts', free: AVATAR_EYEBROWS },
+  { key: 'mouth', label: 'くち', kind: 'parts', free: AVATAR_MOUTH },
+  { key: 'accessory', label: 'メガネ', kind: 'parts', free: ['none'], paid: 'glasses' },
+  { key: 'facialHair', label: 'ひげ', kind: 'parts', free: ['none'], paid: 'beard' },
+  { key: 'clothing', label: 'ふく', kind: 'parts', free: ['shirtCrewNeck'], paid: 'clothing' },
+  { key: 'skinColor', label: 'はだのいろ', kind: 'color', free: AVATAR_SKIN },
+  { key: 'clothesColor', label: 'ふくのいろ', kind: 'color', free: AVATAR_CLOTHES_COLOR },
+];
+
+function randomFrom(opts: string[]): string {
+  return opts[Math.floor(Math.random() * opts.length)];
+}
+
+// パーツ組み立て式アバター作成画面（DiceBear avataaars）。
+// 土台は無料、ぼうし/メガネ/ふく/ひげ は「もっている」ものだけ選べる（ショップで購入）。
+export default function AvatarBuilderPage(): React.JSX.Element {
+  const router = useRouter();
+  const { currentUser, saveUser, loaded } = useSansuUser();
+  const [draft, setDraft] = useState<AvatarConfig | null>(null);
+  const [activeKey, setActiveKey] = useState<keyof AvatarConfig>('top');
+  const [busy, setBusy] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const config: AvatarConfig =
+    draft ?? normalizeAvatarConfig(currentUser?.avatarConfig);
+
+  const owned = useMemo(() => currentUser?.ownedItems ?? [], [currentUser]);
+
+  const previewUser = useMemo(
+    () => (currentUser ? { ...currentUser, avatarConfig: config } : null),
+    [currentUser, config]
+  );
+
+  // カテゴリごとの選べる値（無料＋所持している有料）
+  const optionsFor = (cat: Cat): string[] => {
+    if (cat.kind === 'color' || !cat.paid) return [...cat.free];
+    return [...cat.free, ...ownedValuesOf(cat.paid, owned)];
+  };
+
+  if (loaded && !currentUser) {
+    if (typeof window !== 'undefined') router.replace('/sansu-100');
+    return <main className="p-8" />;
+  }
+  if (!currentUser || !previewUser) return <main className="p-8" />;
+
+  const setPart = (key: keyof AvatarConfig, value: string) => {
+    setSaved(false);
+    setDraft({ ...config, [key]: value });
+  };
+
+  const randomize = () => {
+    setSaved(false);
+    const next: AvatarConfig = { ...config };
+    for (const cat of CATEGORIES) {
+      next[cat.key] = randomFrom(optionsFor(cat));
+    }
+    setDraft(next);
+    if (storage.getSettings().soundOn) sound.correct();
+  };
+
+  const save = async () => {
+    setBusy(true);
+    try {
+      const res = await sansuApi.setAvatarConfig(currentUser.id, config);
+      if (res.ok && res.user) {
+        saveUser(res.user);
+        setSaved(true);
+        if (storage.getSettings().soundOn) sound.fanfare();
+      }
+    } catch {
+      // 通信不可時は黙って失敗（あとで再保存できる）
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const activeCat = CATEGORIES.find((c) => c.key === activeKey) ?? CATEGORIES[0];
+  const activeOptions = optionsFor(activeCat);
+
+  return (
+    <main className="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-gray-900">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
+      <div className="container mx-auto max-w-md space-y-4 p-4">
+        <Header
+          title="🧑‍🎨 キャラをつくる"
+          description="かお・かみ・ふくを えらんで じぶんだけの キャラに！"
+          showBackButton
+          backHref="/sansu-100"
+          backLabel="ホームにもどる"
+        />
+
+        <section className="flex flex-col items-center gap-2 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
+          <AvatarDisplay user={previewUser} size="xl" />
+          <button
+            type="button"
+            onClick={randomize}
+            className="mt-1 rounded-full bg-purple-100 px-4 py-1.5 text-sm font-bold text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-200"
+          >
+            🎲 おまかせ
+          </button>
+        </section>
+
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.key}
+              type="button"
+              onClick={() => setActiveKey(cat.key)}
+              className={`rounded-full px-3 py-1.5 text-sm font-bold transition-colors ${
+                cat.key === activeKey
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+              }`}
+              data-testid={`tab-${cat.key}`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        <section className="space-y-3 rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
+          {activeCat.kind === 'color' ? (
+            <div className="grid grid-cols-5 gap-3">
+              {activeOptions.map((opt) => {
+                const on = config[activeCat.key] === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    aria-label={`いろ ${opt}`}
+                    onClick={() => setPart(activeCat.key, opt)}
+                    className={`size-12 rounded-full border-4 transition-transform active:scale-90 ${
+                      on
+                        ? 'border-blue-500 ring-2 ring-blue-300'
+                        : 'border-white shadow dark:border-gray-600'
+                    }`}
+                    style={{ backgroundColor: `#${opt}` }}
+                    data-testid={`opt-${activeCat.key}-${opt}`}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-3">
+              {activeOptions.map((opt) => {
+                const on = config[activeCat.key] === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    aria-label={`${activeCat.label} ${opt}`}
+                    onClick={() => setPart(activeCat.key, opt)}
+                    className={`aspect-square overflow-hidden rounded-xl border-4 bg-gray-50 transition-transform active:scale-90 dark:bg-gray-700 ${
+                      on ? 'border-blue-500 ring-2 ring-blue-300' : 'border-transparent'
+                    }`}
+                    data-testid={`opt-${activeCat.key}-${opt}`}
+                  >
+                    <DiceBearAvatar config={{ ...config, [activeCat.key]: opt }} />
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {activeCat.paid ? (
+            <Link
+              href="/sansu-100/shop"
+              className="block rounded-xl bg-yellow-100 py-2.5 text-center text-sm font-bold text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200"
+            >
+              🛍️ ショップで {activeCat.label} を かう
+            </Link>
+          ) : null}
+        </section>
+
+        <button
+          type="button"
+          disabled={busy}
+          onClick={save}
+          className="w-full rounded-xl bg-green-600 py-4 text-lg font-bold text-white hover:bg-green-700 disabled:opacity-60"
+          data-testid="avatar-save"
+        >
+          {busy ? 'ほぞんちゅう…' : saved ? '✅ ほぞんしたよ！' : '💾 このキャラにする'}
+        </button>
+      </div>
+    </main>
+  );
+}
