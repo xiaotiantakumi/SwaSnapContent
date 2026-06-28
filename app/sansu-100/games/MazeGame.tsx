@@ -8,10 +8,10 @@ import { sound } from '../lib/sound-presets';
 import { storage } from '../lib/storage';
 
 function computeCell(cols: number, rows: number): number {
-  if (typeof window === 'undefined') return 36;
+  if (typeof window === 'undefined') return 30;
   const byW = (window.innerWidth - 48) / cols;
-  const byH = (window.innerHeight - 300) / rows;
-  return Math.max(22, Math.min(44, byW, byH));
+  const byH = (window.innerHeight - 320) / rows;
+  return Math.max(16, Math.min(44, byW, byH));
 }
 
 function draw(
@@ -22,12 +22,10 @@ function draw(
 ): void {
   const W0 = s.cols * cell;
   const H0 = s.rows * cell;
-  ctx.fillStyle = '#dcfce7'; // 明るい芝生っぽい背景
+  ctx.fillStyle = '#dcfce7';
   ctx.fillRect(0, 0, W0, H0);
-  // ゴール
   ctx.fillStyle = '#fde68a';
   ctx.fillRect(s.gx * cell, s.gy * cell, cell, cell);
-  // 壁（太く・丸い線）
   ctx.strokeStyle = '#15803d';
   ctx.lineWidth = 3.5;
   ctx.lineCap = 'round';
@@ -56,42 +54,37 @@ function draw(
     }
   }
   ctx.stroke();
-  // ゴール旗
   ctx.font = `${cell * 0.7}px "Apple Color Emoji","Segoe UI Emoji",serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('🏁', s.gx * cell + cell / 2, s.gy * cell + cell / 2);
-  // プレイヤー
   ctx.font = `${cell * 0.8}px "Apple Color Emoji","Segoe UI Emoji",serif`;
   ctx.fillText(avatar, s.px * cell + cell / 2, s.py * cell + cell / 2);
 }
 
-// めいろ。スワイプ／十字／矢印で1マスずつ進み、🏁を目指す。
+// めいろ。ゴールに着くたびに もっと大きい迷路に（レベルアップ）。
+// 終わりは「やめる」で、それまでにクリアした数がスコア。
 export default function MazeGame({
-  onGameOver,
+  onScore,
   avatar = '🐰',
 }: {
-  onGameOver: (score: number) => void;
+  onScore: (cleared: number) => void;
   avatar?: string;
 }): React.JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [state, setState] = useState<MazeState>(() => createMaze(Math.random));
-  const cellRef = useRef(36);
-  const overFired = useRef(false);
+  const [state, setState] = useState<MazeState>(() => createMaze(Math.random, 1));
+  const [level, setLevel] = useState(1);
+  const cellRef = useRef(30);
+  const levelRef = useRef(1);
   const soundRef = useRef(true);
 
-  // 初期化（セルサイズ・キャンバス）
-  useEffect(() => {
-    soundRef.current = storage.getSettings().soundOn;
-    const fresh = createMaze(Math.random);
-    setState(fresh);
-    overFired.current = false;
-    const cell = computeCell(fresh.cols, fresh.rows);
+  const configureCanvas = (s: MazeState) => {
+    const cell = computeCell(s.cols, s.rows);
     cellRef.current = cell;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const cw = fresh.cols * cell;
-    const ch = fresh.rows * cell;
+    const cw = s.cols * cell;
+    const ch = s.rows * cell;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = Math.round(cw * dpr);
     canvas.height = Math.round(ch * dpr);
@@ -99,6 +92,17 @@ export default function MazeGame({
     canvas.style.height = `${ch}px`;
     const ctx = canvas.getContext('2d');
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  useEffect(() => {
+    soundRef.current = storage.getSettings().soundOn;
+    levelRef.current = 1;
+    setLevel(1);
+    const fresh = createMaze(Math.random, 1);
+    setState(fresh);
+    configureCanvas(fresh);
+    onScore(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- マウント時に1回
   }, []);
 
   // 状態が変わるたびに描画
@@ -107,18 +111,22 @@ export default function MazeGame({
     if (ctx) draw(ctx, state, cellRef.current, avatar);
   }, [state, avatar]);
 
-  // クリア
+  // ゴール到達 → 次のレベル（大きい迷路）
   useEffect(() => {
-    if (state.over && !overFired.current) {
-      overFired.current = true;
-      if (soundRef.current) sound.fanfare();
-      onGameOver(Math.max(1, 150 - state.moves));
-    }
-  }, [state.over, state.moves, onGameOver]);
+    if (!state.over) return;
+    const nextLevel = levelRef.current + 1;
+    levelRef.current = nextLevel;
+    setLevel(nextLevel);
+    if (soundRef.current) sound.fanfare();
+    onScore(nextLevel - 1); // クリアした迷路の数
+    const fresh = createMaze(Math.random, nextLevel);
+    setState(fresh);
+    configureCanvas(fresh);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- state.over をトリガに進める
+  }, [state.over]);
 
   const go = (d: Dir) => setState((s) => moveMaze(s, d));
 
-  // ボタン長押しで連続移動（幼児が1マスずつ押さなくてよい）
   const repeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stopHold = () => {
     if (repeatRef.current) {
@@ -145,7 +153,6 @@ export default function MazeGame({
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // スワイプ
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onDown = (e: React.PointerEvent) => {
     touchStart.current = { x: e.clientX, y: e.clientY };
@@ -167,7 +174,7 @@ export default function MazeGame({
   return (
     <div className="flex flex-col items-center gap-3">
       <p className="text-sm font-bold text-gray-700 dark:text-gray-200">
-        🏁を めざそう！ あるいた かず: {state.moves}
+        レベル {level} ・ 🏁を めざそう！
       </p>
       <canvas
         ref={canvasRef}

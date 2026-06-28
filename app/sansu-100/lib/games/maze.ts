@@ -3,7 +3,15 @@
 
 import type { Dir } from '../minigame-core';
 
-export const MAZE = { cols: 7, rows: 10 } as const;
+export const MAZE = { cols: 7, rows: 10, maxRows: 18 } as const;
+
+// レベルに応じて迷路を大きく（縦長に）して難しくする。横幅は固定。
+export function mazeSize(level: number): { cols: number; rows: number } {
+  return {
+    cols: MAZE.cols,
+    rows: Math.min(MAZE.maxRows, MAZE.rows + (level - 1) * 2),
+  };
+}
 
 // 開いている辺のビットマスク
 export const N = 1;
@@ -30,8 +38,8 @@ const STEPS = [
   { dx: -1, dy: 0, bit: W, opp: E },
 ];
 
-export function createMaze(rand: () => number): MazeState {
-  const { cols, rows } = MAZE;
+export function createMaze(rand: () => number, level = 1): MazeState {
+  const { cols, rows } = mazeSize(level);
   const cells = new Array<number>(cols * rows).fill(0);
   const visited = new Array<boolean>(cols * rows).fill(false);
   const stack: number[] = [0];

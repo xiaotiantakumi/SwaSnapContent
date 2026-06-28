@@ -39,7 +39,7 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   ],
   maze: [
     { score: 1, badgeId: 'maze_explorer' },
-    { score: 80, badgeId: 'maze_master' },
+    { score: 5, badgeId: 'maze_master' },
   ],
   flappy: [
     { score: 10, badgeId: 'flappy_pro' },
