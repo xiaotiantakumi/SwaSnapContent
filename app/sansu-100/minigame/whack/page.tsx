@@ -9,11 +9,13 @@ import Header from '../../../components/header';
 import ThemeToggle from '../../../components/theme-toggle';
 import BadgeUnlockOverlay from '../../components/BadgeUnlockOverlay';
 import CoinBalance from '../../components/CoinBalance';
+import HowToPlay from '../../components/HowToPlay';
 import NewRecordBanner from '../../components/NewRecordBanner';
 import WhackGame from '../../games/WhackGame';
 import { useSansuUser } from '../../hooks/useSansuUser';
 import { sansuApi } from '../../lib/api-client';
 import { SPEND_COSTS } from '../../lib/minigame-economy';
+import { minigameHowTo } from '../../lib/minigame-list';
 import { evaluateMinigameBadges } from '../../lib/minigame-rewards';
 
 type Phase = 'intro' | 'playing' | 'over';
@@ -112,6 +114,7 @@ export default function WhackPage(): React.JSX.Element {
         {phase === 'intro' ? (
           <section className="space-y-4 rounded-2xl bg-white p-6 text-center shadow-md dark:bg-gray-800">
             <p className="text-6xl">🐹</p>
+            <HowToPlay steps={minigameHowTo('whack')} />
             <p className="text-gray-700 dark:text-gray-200">
               コインを {SPEND_COSTS.play}まい つかって あそぶよ
             </p>
