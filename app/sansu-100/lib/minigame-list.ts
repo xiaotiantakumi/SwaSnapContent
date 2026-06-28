@@ -59,4 +59,11 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     desc: '🏁を めざそう',
     available: true,
   },
+  {
+    id: 'flappy',
+    name: 'ぱたぱた',
+    emoji: '🐤',
+    desc: 'タップで すき間を くぐろう',
+    available: true,
+  },
 ];

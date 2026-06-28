@@ -70,3 +70,9 @@
 - [x] NewRecordBanner（紙吹雪＋ファンファーレ＋「じこベスト こうしん！」）を7ゲームに配線
 - [x] snake の旧・全体highScore表示を per-game に修正
 - [x] iPhone Playwright: memory完走で record banner＋バッジ演出・console0
+
+## ぱたぱた（flappy）8本目
+- [x] GP-A flappy.ts ＋テスト7件（重力/フラップ/天井床over/すき間scored/パイプ衝突/すき間内安全）
+- [x] GP-B FlappyGame.tsx（アバターが鳥・タップ/スペースで上昇・パイプ・responsive）
+- [x] GP-C flappy ルート＋コイン連携＋registry＋新記録演出＋flappy称号2種
+- [x] GP-D 難易度を子ども向けにやさしく調整（すき間広め・重力ゆるめ）。iPhone Playwrightで描画・console0
