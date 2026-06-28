@@ -14,7 +14,6 @@ import { SHOP_CATALOG, type ShopItemDef } from '../lib/shop-catalog';
 import type { ItemSlot } from '../lib/types';
 
 const SLOT_SECTIONS: { slot: ItemSlot; label: string; emoji: string }[] = [
-  { slot: 'hat', label: 'ぼうし・かざり', emoji: '🎩' },
   { slot: 'background', label: 'はいけい', emoji: '🖼️' },
   { slot: 'frame', label: 'フレーム', emoji: '⭕' },
   { slot: 'effect', label: 'うごき', emoji: '✨' },

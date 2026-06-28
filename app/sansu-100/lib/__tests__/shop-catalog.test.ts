@@ -52,7 +52,8 @@ describe('shop-catalog', () => {
     for (const r of rarities) {
       expect(SHOP_CATALOG.some((i) => i.rarity === r)).toBe(true);
     }
-    for (const s of VALID_SLOTS) {
+    // ぼうし等は avatarConfig（DiceBear）へ移行したので、ここは背景/枠/動きのみ。
+    for (const s of ['background', 'frame', 'effect']) {
       expect(SHOP_CATALOG.some((i) => i.slot === s)).toBe(true);
     }
   });

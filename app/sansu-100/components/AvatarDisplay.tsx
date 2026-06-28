@@ -8,16 +8,17 @@ import DiceBearAvatar from './DiceBearAvatar';
 
 type Size = 'sm' | 'md' | 'lg' | 'xl';
 
-const SIZES: Record<Size, { box: string; emoji: string; overlay: string }> = {
-  sm: { box: 'h-14 w-14', emoji: 'text-3xl', overlay: 'text-lg' },
-  md: { box: 'h-20 w-20', emoji: 'text-5xl', overlay: 'text-2xl' },
-  lg: { box: 'h-28 w-28', emoji: 'text-7xl', overlay: 'text-4xl' },
-  xl: { box: 'h-44 w-44', emoji: 'text-8xl', overlay: 'text-6xl' },
+const SIZES: Record<Size, { box: string; emoji: string }> = {
+  sm: { box: 'h-14 w-14', emoji: 'text-3xl' },
+  md: { box: 'h-20 w-20', emoji: 'text-5xl' },
+  lg: { box: 'h-28 w-28', emoji: 'text-7xl' },
+  xl: { box: 'h-44 w-44', emoji: 'text-8xl' },
 };
 
 // アバターを装備アイテムごと重ねて描画する。
-// 下から: 背景 → フレーム(リング) → アバター絵文字(＋エフェクト) → 帽子オーバーレイ。
-// 未装備のスロットはテーマ色にフォールバックし、従来の見た目を保つ（後方互換）。
+// 下から: 背景 → フレーム(リング) → キャラ本体（ぼうし/メガネ等は本体に含まれる）。
+// ぼうし・メガネ・ふく・ひげ は avatarConfig（DiceBear）の一部なので合成が自然。
+// 背景/フレーム/エフェクトはショップの装備（equippedItems）。未装備はテーマ色。
 export default function AvatarDisplay({
   user,
   size = 'md',
@@ -44,52 +45,27 @@ export default function AvatarDisplay({
   const effectItem = equipped.effect ? getItemDef(equipped.effect) : undefined;
   const effectClass =
     effectItem?.render.kind === 'effectClass' ? effectItem.render.className : '';
-  // エフェクトはアバター全体（顔＋帽子）にかけて一体で動かす。くるくるは速すぎると
-  // 顔がぐるぐるして目が回るので、ゆっくり回す。
+  // エフェクトはアバター全体にかける。くるくるは速すぎると目が回るのでゆっくり回す。
   const effectFinal =
     effectClass === 'animate-spin'
       ? 'animate-[spin_2.4s_linear_infinite]'
       : effectClass;
 
-  const hatItem = equipped.hat ? getItemDef(equipped.hat) : undefined;
-  const hat =
-    hatItem?.render.kind === 'emojiOverlay' ? hatItem.render : undefined;
-
-  // 帽子の位置は土台で変える。DiceBear キャラは顔が円の中央に収まるので、
-  // 頭のてっぺん（円の上から少し内側）に乗せる。絵文字アバターは従来どおり。
-  const isCharacter = !!user.avatarConfig;
-  const hatPos = !hat
-    ? ''
-    : hat.position === 'topRight'
-      ? isCharacter
-        ? 'right-[20%] top-[8%] -rotate-12'
-        : '-right-1 -top-1'
-      : isCharacter
-        ? 'left-1/2 top-[4%] -translate-x-1/2'
-        : '-top-2 left-1/2 -translate-x-1/2';
-
   return (
     <div
-      className={`relative inline-flex shrink-0 items-center justify-center overflow-visible rounded-full ${s.box} ${bgClass} ${frameClass} ${effectFinal} ${className}`}
+      className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${s.box} ${bgClass} ${frameClass} ${effectFinal} ${className}`}
       aria-label={`${user.name}のアバター`}
     >
       {user.avatarConfig ? (
-        <div className="absolute inset-0 overflow-hidden rounded-full">
-          <DiceBearAvatar config={user.avatarConfig} title={`${user.name}のアバター`} />
-        </div>
+        <DiceBearAvatar
+          config={user.avatarConfig}
+          title={`${user.name}のアバター`}
+        />
       ) : (
         <span className={`${s.emoji} leading-none`} aria-hidden>
           {user.avatar}
         </span>
       )}
-      {hat ? (
-        <span
-          className={`pointer-events-none absolute ${s.overlay} ${hatPos}`}
-          aria-hidden
-        >
-          {hat.emoji}
-        </span>
-      ) : null}
     </div>
   );
 }

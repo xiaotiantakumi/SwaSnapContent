@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "mcp__zen__chat",
-      "mcp__MCP_DOCKER__create_issue"
+      "mcp__MCP_DOCKER__create_issue",
+      "Bash(aimix run --mode consult --member antigravity --complexity med --task '子ども向けWeb算数アプリ『100マス計算』にゲーミフィケーション要素を追加する。既存：100問解くとポイント・バッジ・ストリーク・ベストタイムが貯まる。アバター\\(絵文字\\)とテーマ色を選べる。localStorage中心+Azure Functions同期。子ども\\(小学生\\)が対象。 *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('scripts:',json.dumps\\(d.get\\('scripts',{}\\),ensure_ascii=False\\)\\); print\\('devDeps:',json.dumps\\(d.get\\('devDependencies',{}\\),ensure_ascii=False\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('test script:',d.get\\('scripts',{}\\).get\\('test'\\)\\); print\\('vitest:',d.get\\('devDependencies',{}\\).get\\('vitest'\\)\\)\")",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m ' *)"
     ],
     "deny": []
   }

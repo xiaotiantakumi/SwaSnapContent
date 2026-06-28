@@ -32,14 +32,21 @@ export type ItemSlot = 'hat' | 'background' | 'frame' | 'effect';
 // スロットごとに装備中のアイテムID。
 export type EquippedItems = Partial<Record<ItemSlot, string>>;
 
-// パーツ組み立て式アバター（DiceBear bigSmile）の構成。色は '#' なしの16進。
+// パーツ組み立て式アバター（DiceBear avataaars）の構成。色は '#' なしの16進。
+// 土台（skin/hairColor/top=かみがた/eyes/eyebrows/mouth/clothesColor）は無料。
+// top にぼうしを入れる・accessory(メガネ)・clothing(ふく)・facialHair(ひげ) は
+// ショップで買った owned のものだけ設定できる（サーバーが所持を検証）。
 export type AvatarConfig = {
-  hair: string;
-  hairColor: string;
-  eyes: string;
-  mouth: string;
   skinColor: string;
-  accessory: string; // アクセサリID または 'none'
+  hairColor: string;
+  top: string; // かみがた（無料）または ぼうし（有料）
+  eyes: string;
+  eyebrows: string;
+  mouth: string;
+  clothesColor: string;
+  accessory: string; // メガネ等（有料）または 'none'
+  facialHair: string; // ひげ（有料）または 'none'
+  clothing: string; // ふくのデザイン（基本は無料の shirtCrewNeck）
 };
 
 export type SansuUserPublic = {

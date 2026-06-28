@@ -52,32 +52,8 @@ function item(
 }
 
 export const SHOP_CATALOG: readonly ShopItemDef[] = [
-  // ---- 帽子・アクセサリー（hat） ----
-  item('hat_cap', 'hat', 'キャップ', '🧢', 'normal', {
-    kind: 'emojiOverlay',
-    emoji: '🧢',
-    position: 'top',
-  }),
-  item('hat_ribbon', 'hat', 'リボン', '🎀', 'normal', {
-    kind: 'emojiOverlay',
-    emoji: '🎀',
-    position: 'topRight',
-  }),
-  item('hat_crown', 'hat', 'おうかん', '👑', 'rare', {
-    kind: 'emojiOverlay',
-    emoji: '👑',
-    position: 'top',
-  }),
-  item('hat_tophat', 'hat', 'シルクハット', '🎩', 'rare', {
-    kind: 'emojiOverlay',
-    emoji: '🎩',
-    position: 'top',
-  }),
-  item('hat_wizard', 'hat', 'まほうのぼうし', '🪄', 'epic', {
-    kind: 'emojiOverlay',
-    emoji: '🎓',
-    position: 'top',
-  }),
+  // 帽子・メガネ等のアクセサリーは avatarConfig（DiceBear）の一部として
+  // 「キャラづくり」画面で着せ替える（lib/avatar-shop.ts）。ここは背景/枠/動きのみ。
 
   // ---- 背景（background） ----
   item('bg_sky', 'background', 'そら', '🌤️', 'normal', {

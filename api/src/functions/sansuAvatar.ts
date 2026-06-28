@@ -23,14 +23,27 @@ app.http('sansuAvatarPost', {
       if (!body.userId) {
         return { status: 400, jsonBody: { error: 'missing userId' } };
       }
-      const config = sanitizeAvatarConfig(body.config);
 
       const uTable = await usersTable();
+      let entity: SansuUserEntity;
       try {
-        await uTable.getEntity<SansuUserEntity>(USERS_PARTITION, body.userId);
+        entity = await uTable.getEntity<SansuUserEntity>(
+          USERS_PARTITION,
+          body.userId
+        );
       } catch {
         return { status: 404, jsonBody: { error: 'user not found' } };
       }
+
+      // 所持している有料パーツだけ装備を許可（サーバーが正）。
+      let owned: string[] = [];
+      try {
+        const v = JSON.parse(entity.ownedItemsJson ?? '[]');
+        if (Array.isArray(v)) owned = v as string[];
+      } catch {
+        owned = [];
+      }
+      const config = sanitizeAvatarConfig(body.config, owned);
 
       await uTable.updateEntity(
         {

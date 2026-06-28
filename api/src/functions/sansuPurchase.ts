@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
+import { AVATAR_ITEM_PRICES } from '../shared/avatarShop';
 import { getShopPrice } from '../shared/shopCatalog';
 import {
   type EquippedItems,
@@ -29,8 +30,10 @@ app.http('sansuPurchasePost', {
       if (!body.userId || !body.action || !body.itemId) {
         return { status: 400, jsonBody: { error: 'missing fields' } };
       }
-      const price = getShopPrice(body.itemId);
-      if (!price) {
+      // 背景/枠/動き（slot あり）か、アバター・アクセサリー（買い切り）か。
+      const slotPrice = getShopPrice(body.itemId);
+      const buyPrice = slotPrice?.price ?? AVATAR_ITEM_PRICES[body.itemId];
+      if (buyPrice === undefined) {
         return { status: 400, jsonBody: { error: 'unknown item' } };
       }
 
@@ -52,24 +55,31 @@ app.http('sansuPurchasePost', {
       if (body.action === 'buy') {
         if (!owned.has(body.itemId)) {
           // 残高検証（サーバーが正）。足りなければ 409。
-          if (coins < price.price) {
+          if (coins < buyPrice) {
             return {
               status: 409,
-              jsonBody: { error: 'insufficient', coins, price: price.price },
+              jsonBody: { error: 'insufficient', coins, price: buyPrice },
             };
           }
-          coins -= price.price;
+          coins -= buyPrice;
           owned.add(body.itemId);
         }
         // 既所持なら二重課金せず、そのまま ok（子ども向けに親切）。
       } else if (body.action === 'equip') {
+        // アバター・アクセサリーは「キャラづくり」で着替える（slot 装備ではない）。
+        if (!slotPrice) {
+          return { status: 400, jsonBody: { error: 'not equippable' } };
+        }
         // 所持していないアイテムは装備できない。
         if (!owned.has(body.itemId)) {
           return { status: 409, jsonBody: { error: 'not owned' } };
         }
-        equipped[price.slot] = body.itemId;
+        equipped[slotPrice.slot] = body.itemId;
       } else if (body.action === 'unequip') {
-        delete equipped[price.slot];
+        if (!slotPrice) {
+          return { status: 400, jsonBody: { error: 'not equippable' } };
+        }
+        delete equipped[slotPrice.slot];
       } else {
         return { status: 400, jsonBody: { error: 'bad action' } };
       }

@@ -7,12 +7,7 @@ import type { ItemSlot } from './sansuTypes';
 export type ShopPriceEntry = { price: number; slot: ItemSlot };
 
 export const SHOP_PRICES: Record<string, ShopPriceEntry> = {
-  // hat
-  hat_cap: { price: 50, slot: 'hat' },
-  hat_ribbon: { price: 50, slot: 'hat' },
-  hat_crown: { price: 200, slot: 'hat' },
-  hat_tophat: { price: 200, slot: 'hat' },
-  hat_wizard: { price: 1000, slot: 'hat' },
+  // 帽子/メガネ等は avatarShop.ts（avatarConfig で着替え）。ここは背景/枠/動きのみ。
   // background
   bg_sky: { price: 50, slot: 'background' },
   bg_sea: { price: 50, slot: 'background' },

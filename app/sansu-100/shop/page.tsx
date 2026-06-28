@@ -9,8 +9,17 @@ import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
 import AvatarDisplay from '../components/AvatarDisplay';
 import CoinBalance from '../components/CoinBalance';
+import DiceBearAvatar from '../components/DiceBearAvatar';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
+import {
+  AVATAR_CATEGORY_ICON,
+  AVATAR_CATEGORY_LABEL,
+  AVATAR_SHOP,
+  type AvatarItemCategory,
+  type AvatarItemDef,
+  previewConfigWith,
+} from '../lib/avatar-shop';
 import {
   RARITY_LABEL,
   SHOP_CATALOG,
@@ -20,10 +29,16 @@ import {
 import type { ItemSlot } from '../lib/types';
 
 const SLOT_SECTIONS: { slot: ItemSlot; label: string; emoji: string }[] = [
-  { slot: 'hat', label: 'ぼうし・かざり', emoji: '🎩' },
   { slot: 'background', label: 'はいけい', emoji: '🖼️' },
   { slot: 'frame', label: 'フレーム', emoji: '⭕' },
   { slot: 'effect', label: 'うごき', emoji: '✨' },
+];
+
+const AVATAR_CATEGORIES: AvatarItemCategory[] = [
+  'hat',
+  'glasses',
+  'clothing',
+  'beard',
 ];
 
 const RARITY_BADGE: Record<ItemRarity, string> = {
@@ -58,15 +73,27 @@ export default function ShopPage(): React.JSX.Element {
       const res = await sansuApi.purchase(currentUser.id, action, item.id);
       if (res.ok && res.user) {
         saveUser(res.user);
-        if (action === 'buy') {
-          setMessage(`「${item.name}」を かったよ！🎨きせかえで つけられるよ`);
-        }
+        if (action === 'buy') setMessage(`「${item.name}」を かったよ！`);
       } else if (res.error === 'conflict') {
-        setMessage(
-          action === 'buy'
-            ? 'コインが たりないよ'
-            : 'まだ もっていないよ'
-        );
+        setMessage(action === 'buy' ? 'コインが たりないよ' : 'まだ もっていないよ');
+      }
+    } catch {
+      setMessage('いまは つうしんできないよ（あとでね）');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const buyAvatar = async (item: AvatarItemDef) => {
+    setBusy(item.id);
+    setMessage(null);
+    try {
+      const res = await sansuApi.purchase(currentUser.id, 'buy', item.id);
+      if (res.ok && res.user) {
+        saveUser(res.user);
+        setMessage(`「${item.name}」を かったよ！🧑‍🎨キャラづくりで つけられるよ`);
+      } else if (res.error === 'conflict') {
+        setMessage('コインが たりないよ');
       }
     } catch {
       setMessage('いまは つうしんできないよ（あとでね）');
@@ -105,10 +132,10 @@ export default function ShopPage(): React.JSX.Element {
         </section>
 
         <Link
-          href="/sansu-100/closet"
-          className="block rounded-xl bg-pink-100 py-2.5 text-center font-bold text-pink-800 hover:bg-pink-200 dark:bg-pink-900/30 dark:text-pink-200"
+          href="/sansu-100/avatar"
+          className="block rounded-xl bg-teal-100 py-2.5 text-center font-bold text-teal-800 hover:bg-teal-200 dark:bg-teal-900/30 dark:text-teal-200"
         >
-          🎨 きせかえで つけかえる
+          🧑‍🎨 キャラづくりで つけかえる
         </Link>
 
         {message ? (
@@ -117,6 +144,64 @@ export default function ShopPage(): React.JSX.Element {
           </div>
         ) : null}
 
+        {/* アバター・アクセサリー（買うと キャラづくりで つけられる） */}
+        {AVATAR_CATEGORIES.map((cat) => (
+          <section
+            key={cat}
+            className="space-y-3 rounded-2xl bg-white p-5 shadow-md dark:bg-gray-800"
+          >
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              {AVATAR_CATEGORY_ICON[cat]} {AVATAR_CATEGORY_LABEL[cat]}
+            </h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {AVATAR_SHOP.filter((i) => i.category === cat).map((item) => {
+                const isOwned = owned.has(item.id);
+                const canAfford = coins >= item.price;
+                return (
+                  <div
+                    key={item.id}
+                    className={`flex flex-col items-center gap-1 rounded-xl border-2 p-3 text-center ${
+                      isOwned
+                        ? 'border-green-400 bg-green-50 dark:bg-green-900/20'
+                        : 'border-transparent bg-gray-100 dark:bg-gray-700'
+                    }`}
+                  >
+                    <div className="size-16 overflow-hidden rounded-xl bg-white dark:bg-gray-600">
+                      <DiceBearAvatar
+                        config={previewConfigWith(item.category, item.value)}
+                      />
+                    </div>
+                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                      {item.name}
+                    </span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${RARITY_BADGE[item.rarity]}`}
+                    >
+                      {RARITY_LABEL[item.rarity]}
+                    </span>
+                    {isOwned ? (
+                      <span className="mt-1 w-full rounded-lg bg-green-500 px-2 py-1 text-xs font-bold text-white">
+                        もってる✓
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={busy === item.id || !canAfford}
+                        onClick={() => buyAvatar(item)}
+                        className="mt-1 flex w-full items-center justify-center gap-1 rounded-lg bg-yellow-500 px-2 py-1 text-xs font-bold text-white hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        data-testid={`buy-${item.id}`}
+                      >
+                        🪙 {item.price}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+
+        {/* 背景・フレーム・うごき（従来どおり きせかえで装備） */}
         {SLOT_SECTIONS.map((sec) => (
           <section
             key={sec.slot}
