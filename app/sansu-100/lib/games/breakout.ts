@@ -91,8 +91,10 @@ export function stepBreakout(
     bx <= paddle + BREAKOUT.paddleW
   ) {
     vy = -Math.abs(vy);
-    // 当たった位置で左右に角度をつける（-1..1）
-    const hit = (bx - (paddle + BREAKOUT.paddleW / 2)) / (BREAKOUT.paddleW / 2);
+    // 当たった位置で左右に角度をつける（-1..1）。
+    // 真ん中ヒットでも真上に行って単調にならないよう、最低限の横の動きを残す。
+    let hit = (bx - (paddle + BREAKOUT.paddleW / 2)) / (BREAKOUT.paddleW / 2);
+    if (Math.abs(hit) < 0.18) hit = hit >= 0 ? 0.18 : -0.18;
     vx = s.speed * hit;
   }
 
