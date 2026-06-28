@@ -101,7 +101,7 @@ export default function MazePage(): React.JSX.Element {
         ) : (
           <Header
             title="🗺️ めいろ"
-            description="🏁ゴールを めざして すすもう！"
+            description="せいげんじかん内に 🏁ゴールして レベルアップ！"
             showBackButton
             backHref="/sansu-100/minigame"
             backLabel="ゲームせんたくにもどる"
@@ -141,6 +141,7 @@ export default function MazePage(): React.JSX.Element {
             <MazeGame
               key={round}
               onScore={setLiveScore}
+              onGameOver={handleGameOver}
               avatar={currentUser.avatar}
             />
           </section>

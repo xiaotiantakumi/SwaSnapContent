@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { createMaze, moveMaze, MAZE, N, E, S, W } from '../games/maze';
+import {
+  createMaze,
+  mazeTimeLimit,
+  moveMaze,
+  MAZE,
+  N,
+  E,
+  S,
+  W,
+} from '../games/maze';
 import type { Dir } from '../minigame-core';
 
 const r0 = () => 0;
@@ -47,6 +56,14 @@ function bfsPath(s: ReturnType<typeof createMaze>): Dir[] | null {
 }
 
 describe('maze', () => {
+  it('制限時間はレベル別、範囲外は最後の値', () => {
+    expect(mazeTimeLimit(1)).toBe(MAZE.timeLimitSec[0]);
+    expect(mazeTimeLimit(2)).toBe(MAZE.timeLimitSec[1]);
+    expect(mazeTimeLimit(99)).toBe(
+      MAZE.timeLimitSec[MAZE.timeLimitSec.length - 1]
+    );
+  });
+
   it('初期状態: セル数・スタート左上・ゴール右下・未over', () => {
     const s = createMaze(r0);
     expect(s.cells).toHaveLength(MAZE.cols * MAZE.rows);
