@@ -76,3 +76,6 @@
 - [x] GP-B FlappyGame.tsx（アバターが鳥・タップ/スペースで上昇・パイプ・responsive）
 - [x] GP-C flappy ルート＋コイン連携＋registry＋新記録演出＋flappy称号2種
 - [x] GP-D 難易度を子ども向けにやさしく調整（すき間広め・重力ゆるめ）。iPhone Playwrightで描画・console0
+
+## メタ実績（collect them all）
+- [x] ゲームたんけんか（5種で遊ぶ）／ゲームマスター（全8種で遊ぶ）バッジ。minigameScores のキー数で award-badge が自動付与。ライブ検証OK

@@ -96,6 +96,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'maze_master', category: 'minigame', name: 'めいろ名人', description: '少ない歩数でクリア', icon: '🧭', tier: 'gold', rarity: 'epic' },
   { id: 'flappy_pro', category: 'minigame', name: 'ぱたぱた名人', description: 'ぱたぱたで10てん', icon: '🐤', tier: 'silver', rarity: 'rare' },
   { id: 'flappy_master', category: 'minigame', name: 'ぱたぱた王', description: 'ぱたぱたで30てん', icon: '👑', tier: 'gold', rarity: 'epic' },
+  { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
+  { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 
   // メタバッジ
   { id: 'badge_collector_25', category: 'meta', name: 'バッジハンター', description: 'バッジを25個集めた', icon: '🎖️', tier: 'gold', rarity: 'epic' },

@@ -62,6 +62,11 @@ app.http('sansuAwardBadgePost', {
         }
       }
 
+      // 遊んだゲームの種類数でメタバッジを付与（minigameScores のキー数）
+      const distinctGames = Object.keys(scores).length;
+      if (distinctGames >= 5) badges.add('games_explorer');
+      if (distinctGames >= 8) badges.add('games_allstar');
+
       const updated = {
         partitionKey: USERS_PARTITION,
         rowKey: body.userId,
