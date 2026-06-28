@@ -46,17 +46,17 @@ export default function MinigameHubPage(): React.JSX.Element {
           <CoinBalance coins={coins} size="lg" />
         </section>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-3">
           {MINIGAMES.map((g) => {
             const card = (
-              <div className="flex h-full flex-col items-center gap-2 rounded-2xl bg-white p-6 text-center shadow-md dark:bg-gray-800">
-                <span className="text-5xl" aria-hidden>
+              <div className="flex h-full flex-col items-center gap-1 rounded-2xl bg-white p-4 text-center shadow-md dark:bg-gray-800">
+                <span className="text-4xl" aria-hidden>
                   {g.emoji}
                 </span>
-                <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <span className="text-base font-bold text-gray-900 dark:text-gray-100">
                   {g.name}
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {g.desc}
                 </span>
                 {g.available ? (
