@@ -12,11 +12,11 @@ import { isActionKey, startGameLoop } from '../lib/minigame-core';
 import { sound } from '../lib/sound-presets';
 import { storage } from '../lib/storage';
 
-const WORLD_H = 110; // 論理ワールド高さ（描画用）
+const RUNNER_CHAR = '🦖'; // よけよけランナー専用キャラ（アバターは使わない）
 
 function computeWidth(): number {
-  if (typeof window === 'undefined') return 300;
-  return Math.max(240, Math.min(360, window.innerWidth - 40));
+  if (typeof window === 'undefined') return 320;
+  return Math.max(260, Math.min(380, window.innerWidth - 32));
 }
 
 function emoji(
@@ -36,37 +36,51 @@ function draw(
   ctx: CanvasRenderingContext2D,
   s: RunnerState,
   w: number,
-  scale: number,
-  avatar: string
+  scale: number
 ): void {
-  const h = WORLD_H * scale;
-  // 空
-  ctx.fillStyle = '#bae6fd';
+  const h = RUNNER.worldH * scale;
+  // 空（レベルが上がるほど夕方→夜っぽく）
+  const sky = ['#bae6fd', '#a5b4fc', '#818cf8', '#6366f1', '#4338ca'][
+    Math.min(4, s.level - 1)
+  ];
+  ctx.fillStyle = sky;
   ctx.fillRect(0, 0, w, h);
-  const yGround = (WORLD_H - RUNNER.groundH) * scale;
+  const yGround = (RUNNER.worldH - RUNNER.groundH) * scale;
   // 地面
   ctx.fillStyle = '#65a30d';
   ctx.fillRect(0, yGround, w, h - yGround);
-  // 障害物（サボテン）
-  for (const o of s.obstacles) {
-    emoji(
-      ctx,
-      '🌵',
-      (o.x + o.w / 2) * scale,
-      yGround - (o.h / 2) * scale,
-      o.h * scale * 1.4
-    );
+  // ふゆう台
+  for (const p of s.platforms) {
+    const py = yGround - p.top * scale;
+    ctx.fillStyle = '#a16207';
+    ctx.fillRect(p.x * scale, py, p.w * scale, 7 * scale);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(p.x * scale, py, p.w * scale, 2.5 * scale);
   }
-  // プレイヤー（アバター）
+  // 障害物（高い壁 or サボテン）
+  for (const o of s.obstacles) {
+    if (o.h > 40) {
+      ctx.fillStyle = '#7c2d12';
+      ctx.fillRect(o.x * scale, yGround - o.h * scale, o.w * scale, o.h * scale);
+    } else {
+      emoji(
+        ctx,
+        '🌵',
+        (o.x + o.w / 2) * scale,
+        yGround - (o.h / 2) * scale,
+        o.h * scale * 1.4
+      );
+    }
+  }
+  // プレイヤー
   const cx = (RUNNER.playerX + RUNNER.playerW / 2) * scale;
   const cy = yGround - (s.py + RUNNER.playerH / 2) * scale;
-  emoji(ctx, avatar, cx, cy, RUNNER.playerH * scale * 1.5);
+  emoji(ctx, RUNNER_CHAR, cx, cy, RUNNER.playerH * scale * 1.5);
 }
 
-// よけよけランナー本体。タップ/スペース/↑ でジャンプ。world はロジック、描画はスケール。
+// よけよけランナー本体。タップ/スペース/↑ でジャンプ。台に乗って降りられる。
 export default function RunnerGame({
   onGameOver,
-  avatar = '🐰',
 }: {
   onGameOver: (score: number) => void;
   avatar?: string;
@@ -77,6 +91,8 @@ export default function RunnerGame({
   const overRef = useRef(false);
   const soundRef = useRef(true);
   const [score, setScore] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [flash, setFlash] = useState(false);
 
   const jump = () => {
     jumpRef.current = true;
@@ -89,7 +105,7 @@ export default function RunnerGame({
     if (!ctx) return;
     const cw = computeWidth();
     const scale = cw / RUNNER.worldW;
-    const ch = WORLD_H * scale;
+    const ch = RUNNER.worldH * scale;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = Math.round(cw * dpr);
     canvas.height = Math.round(ch * dpr);
@@ -102,6 +118,7 @@ export default function RunnerGame({
     overRef.current = false;
     soundRef.current = storage.getSettings().soundOn;
     setScore(0);
+    setLevel(1);
 
     const handle = startGameLoop({
       stepMs: () => 40,
@@ -109,8 +126,13 @@ export default function RunnerGame({
         if (overRef.current) return;
         const wasGround = stateRef.current.onGround;
         const next = stepRunner(stateRef.current, jumpRef.current, Math.random);
-        // ジャンプ音（接地→空中に変わった瞬間）
         if (wasGround && !next.onGround && soundRef.current) sound.eat();
+        if (next.leveledUp) {
+          setLevel(next.level);
+          setFlash(true);
+          window.setTimeout(() => setFlash(false), 700);
+          if (soundRef.current) sound.correct();
+        }
         jumpRef.current = false;
         stateRef.current = next;
         setScore(next.distance);
@@ -121,7 +143,7 @@ export default function RunnerGame({
           onGameOver(next.distance);
         }
       },
-      onRender: () => draw(ctx, stateRef.current, cw, scale, avatar),
+      onRender: () => draw(ctx, stateRef.current, cw, scale),
     });
 
     const onKey = (e: KeyboardEvent) => {
@@ -141,7 +163,12 @@ export default function RunnerGame({
   return (
     <div className="flex flex-col items-center gap-3">
       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-        きょり: <span className="tabular-nums">{score}</span>
+        レベル {level} ・ きょり <span className="tabular-nums">{score}</span>
+        {flash ? (
+          <span className="ml-2 animate-pulse font-extrabold text-orange-500">
+            ⬆️ レベルアップ！
+          </span>
+        ) : null}
       </p>
       <canvas
         ref={canvasRef}
