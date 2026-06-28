@@ -142,7 +142,6 @@ export default function RunnerPage(): React.JSX.Element {
             <RunnerGame
               key={round}
               onGameOver={handleGameOver}
-              avatar={currentUser.avatar}
             />
           </section>
         ) : null}

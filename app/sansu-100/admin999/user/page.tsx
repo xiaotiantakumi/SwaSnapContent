@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import Header from '../../../components/header';
 import ThemeToggle from '../../../components/theme-toggle';
+import AvatarDisplay from '../../components/AvatarDisplay';
 import PinPad from '../../components/PinPad';
 import { formatDuration } from '../../components/SessionTimer';
 import {
@@ -76,7 +77,7 @@ function UserDetailInner(): React.JSX.Element {
       </div>
       <div className="container mx-auto max-w-2xl space-y-6 px-4 py-8">
         <Header
-          title={`${user.avatar} ${user.name}`}
+          title={user.name}
           description="ユーザー詳細・リカバリー操作"
           showBackButton
           backHref="/sansu-100/admin999"
@@ -86,7 +87,7 @@ function UserDetailInner(): React.JSX.Element {
         {/* Identity card */}
         <section className="space-y-4 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
           <div className="flex items-center gap-4">
-            <span className="text-7xl">{user.avatar}</span>
+            <AvatarDisplay user={user} size="lg" />
             <div className="flex-1 space-y-1 text-sm text-gray-700 dark:text-gray-300">
               <p>
                 <strong>名前:</strong> {user.name}
@@ -217,7 +218,7 @@ function UserDetailInner(): React.JSX.Element {
             <p className="text-sm text-gray-500 dark:text-gray-400">
               この子のアバターはこれ
             </p>
-            <span className="text-9xl">{user.avatar}</span>
+            <AvatarDisplay user={user} size="xl" />
             <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
               {user.name}
             </p>

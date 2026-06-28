@@ -142,7 +142,6 @@ export default function FallingPage(): React.JSX.Element {
             <FallingGame
               key={round}
               onGameOver={handleGameOver}
-              avatar={currentUser.avatar}
             />
           </section>
         ) : null}

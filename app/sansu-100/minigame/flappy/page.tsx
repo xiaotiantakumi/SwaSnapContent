@@ -147,7 +147,6 @@ export default function FlappyPage(): React.JSX.Element {
             <FlappyGame
               key={round}
               onGameOver={handleGameOver}
-              avatar={currentUser.avatar}
             />
           </section>
         ) : null}
