@@ -1,14 +1,22 @@
 // 神経衰弱（メモリーめくり）の純粋ロジック（React非依存・テスト対象）。
-// 1ボードそろえるたびに もっとカードが増えて難しくなる（レベルアップ）。
-// 終わりは「やめる」で、それまでにそろえたボード数がスコア。
+// レベルごとに「制限時間」内にそろえるとレベルアップ。時間切れで終了。
+// 終わりは時間切れ or 「やめる」で、それまでにそろえたボード数がスコア。
 
 export const MEMORY = {
   basePairs: 5, // レベル1のペア数
   maxPairs: 8, // 上限（4x4=16枚）
+  // レベル別の制限時間(秒)。調整しやすいよう配列で持つ（範囲外は最後の値を使う）。
+  timeLimitSec: [40, 50, 60, 70],
 } as const;
 
 export function memoryPairs(level: number): number {
   return Math.min(MEMORY.maxPairs, MEMORY.basePairs + level - 1);
+}
+
+/** レベルの制限時間(秒)。配列の範囲外は最後の値。 */
+export function memoryTimeLimit(level: number): number {
+  const t = MEMORY.timeLimitSec;
+  return t[Math.min(Math.max(1, level), t.length) - 1];
 }
 
 export type Card = { value: number; revealed: boolean; matched: boolean };

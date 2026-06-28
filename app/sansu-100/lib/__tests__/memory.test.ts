@@ -4,6 +4,7 @@ import {
   pickCard,
   resolveMemory,
   memoryPairs,
+  memoryTimeLimit,
   MEMORY,
 } from '../games/memory';
 
@@ -24,6 +25,14 @@ describe('memory', () => {
     expect(memoryPairs(1)).toBe(MEMORY.basePairs);
     expect(memoryPairs(2)).toBe(MEMORY.basePairs + 1);
     expect(memoryPairs(99)).toBe(MEMORY.maxPairs);
+  });
+
+  it('制限時間はレベル別、範囲外は最後の値', () => {
+    expect(memoryTimeLimit(1)).toBe(MEMORY.timeLimitSec[0]);
+    expect(memoryTimeLimit(2)).toBe(MEMORY.timeLimitSec[1]);
+    expect(memoryTimeLimit(99)).toBe(
+      MEMORY.timeLimitSec[MEMORY.timeLimitSec.length - 1]
+    );
   });
 
   it('1枚目をめくると revealed・firstIdx 設定', () => {
