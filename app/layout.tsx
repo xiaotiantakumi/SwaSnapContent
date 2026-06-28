@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import PWAInstallPrompt from './components/pwa-install-prompt';
 import PWAProvider from './components/pwa-provider';
+import PwaUpdate from './components/pwa-update';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -64,6 +65,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <PWAProvider />
         <PWAInstallPrompt />
+        <PwaUpdate />
         {children}
       </body>
     </html>
