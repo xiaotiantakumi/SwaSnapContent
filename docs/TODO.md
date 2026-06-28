@@ -39,3 +39,9 @@
 - [x] GF-B FallingGame.tsx（アバターが よける・🪨落下・ドラッグ/ボタン・responsive）
 - [x] GF-C falling ルート＋コイン連携＋registry＋falling称号2種
 - [x] GF-D iPhone Playwrightで score63・🐧+🪨描画・console0 確認
+
+## 神経衰弱（memory）6本目
+- [x] GM-A memory.ts ＋テスト6件（シャッフル/めくり/一致matched/不一致busy→resolve/busy中無視/全クリアover）
+- [x] GM-B MemoryGame.tsx（3x4カード・React駆動・不一致を見せて裏返す・効果音）
+- [x] GM-C memory ルート＋コイン連携＋registry＋memory称号2種
+- [x] GM-D iPhone Playwrightで 全6ペアそろえてクリア・score28・console0 確認

@@ -45,4 +45,11 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     desc: '🪨を よけよう',
     available: true,
   },
+  {
+    id: 'memory',
+    name: 'しんけいすいじゃく',
+    emoji: '🧠',
+    desc: 'おなじ えを さがそう',
+    available: true,
+  },
 ];

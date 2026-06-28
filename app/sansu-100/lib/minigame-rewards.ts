@@ -6,7 +6,8 @@ export type MinigameId =
   | 'runner'
   | 'whack'
   | 'breakout'
-  | 'falling';
+  | 'falling'
+  | 'memory';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
 const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
@@ -29,6 +30,10 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   falling: [
     { score: 500, badgeId: 'falling_pro' },
     { score: 1200, badgeId: 'falling_master' },
+  ],
+  memory: [
+    { score: 1, badgeId: 'memory_clear' },
+    { score: 20, badgeId: 'memory_ace' },
   ],
 };
 
