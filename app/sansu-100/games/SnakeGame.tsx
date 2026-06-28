@@ -33,12 +33,15 @@ function draw(
   cell: number
 ): void {
   clearCanvas(ctx, size, '#0f172a');
-  // food（りんご）
-  drawCell(ctx, s.food.x, s.food.y, cell, '#ef4444');
   // snake（頭は濃い緑）
   s.snake.forEach((c, i) =>
     drawCell(ctx, c.x, c.y, cell, i === 0 ? '#16a34a' : '#4ade80')
   );
+  // food（りんご絵文字）
+  ctx.font = `${cell * 0.9}px "Apple Color Emoji","Segoe UI Emoji",serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🍎', s.food.x * cell + cell / 2, s.food.y * cell + cell / 2);
 }
 
 // スネークの Canvas 本体。minigame-core の rAF 固定タイムステップに乗せる。
