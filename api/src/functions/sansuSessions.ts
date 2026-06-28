@@ -101,12 +101,13 @@ app.http('sansuSessionsPost', {
             .toISOString()
             .slice(0, 10);
           const coin = calculateCoins({
+            operation: body.operation,
             dailyCoinDate: user.dailyCoinDate ?? '',
             dailyCoinsEarned: user.dailyCoinsEarned ?? 0,
             dailySessionCount: user.dailySessionCount ?? 0,
             todayKey,
             isNewBest,
-            // ストリークはクライアント申告を許容（上限150が歯止め）。
+            // ストリークはクライアント申告を許容（1回上限100が歯止め）。
             streakDays: body.streakDays ?? 0,
             prevStreakDays: body.prevStreakDays ?? 0,
             isCountable: !body.isRetired,

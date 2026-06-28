@@ -105,6 +105,7 @@ export function finishSession(input: FinishSessionInput): FinishSessionResult {
 
   const todayKey = intermediateUser.lastPlayedDate; // = completedAt の YYYY-MM-DD
   const coin = calculateCoins({
+    operation: input.operation,
     dailyCoinDate: user.dailyCoinDate ?? '',
     dailyCoinsEarned: user.dailyCoinsEarned ?? 0,
     dailySessionCount: user.dailySessionCount ?? 0,

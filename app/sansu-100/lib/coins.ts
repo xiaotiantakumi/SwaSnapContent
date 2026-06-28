@@ -3,21 +3,37 @@
 //       片方を変えたら必ずもう片方も変えること。確定値はサーバー側。
 //       挙動の一致は app/sansu-100/lib/__tests__/coins.test.ts で担保する。
 //
-// 子ども向け配慮: 減点・没収は一切しない（常に coinsEarned >= 0）。
-//                 「やればやるほど増える」ように基本コインは回数で逓増し、1日の上限はなし。
+// 子ども向け配慮: 減点・没収は一切しない（常に coinsEarned >= 0）。1日の上限はなし。
+// 基本コインは「演算の難しさ」で決まる（たし算<ひき算<かけ算<わり算）。1回あたり最大100。
+// ※フィーバーのルーレット倍率は別枠で、この上限の対象外。
+
+import type { Operation } from './types';
 
 export const COIN_RULES = {
-  baseStart: 30, // その日1回目の基本コイン
-  baseStep: 20, // 1回ふえるごとに +20（2回目50・3回目70…）
-  baseMax: 150, // 1回あたりの基本コインの上限（暴走防止。1日合計の上限はなし）
-  newBest: 20, // 自己ベスト更新
+  // 演算ごとの基本コイン（調整しやすいよう変数化）。最小10〜。
+  byOperation: { add: 10, sub: 35, mul: 60, div: 90, mixed: 50 } as Record<
+    Operation,
+    number
+  >,
+  maxPerSession: 100, // 1回あたりの上限（ルーレット倍率は対象外）
+  newBest: 20, // 自己ベスト更新ボーナス
   streak3Bonus: 10, // 3日連続に到達した日
   streak7Bonus: 30, // 7日連続に到達した日
 } as const;
 
+const OP_LABEL: Record<Operation, string> = {
+  add: 'たしざん',
+  sub: 'ひきざん',
+  mul: 'かけざん',
+  div: 'わりざん',
+  mixed: 'ミックス',
+};
+
 export type CoinBreakdownEntry = { label: string; amount: number };
 
 export type CoinContext = {
+  /** 今回の演算（たし算/ひき算/かけ算/わり算/ミックス）。基本コインを決める。 */
+  operation: Operation;
   /** 当日コイン集計の対象日（ユーザーの現在値）。todayKey と異なれば日付跨ぎ。 */
   dailyCoinDate: string;
   /** 当日すでに獲得したコイン（ユーザーの現在値）。 */
@@ -39,7 +55,6 @@ export type CoinContext = {
 export type CoinResult = {
   coinsEarned: number;
   breakdown: CoinBreakdownEntry[];
-  // 反映後の当日カウンタ（呼び出し側がユーザーに保存する）
   nextDailyCoinDate: string;
   nextDailyCoinsEarned: number;
   nextDailySessionCount: number;
@@ -57,19 +72,15 @@ export function calculateCoins(ctx: CoinContext): CoinResult {
     };
   }
 
-  // 日付が変わっていたら当日カウンタをリセット。
   const sameDay = ctx.dailyCoinDate === ctx.todayKey;
   const earnedSoFar = sameDay ? ctx.dailyCoinsEarned : 0;
   const sessionCountSoFar = sameDay ? ctx.dailySessionCount : 0;
 
   const breakdown: CoinBreakdownEntry[] = [];
 
-  // 基本報酬: その日の回数で逓増（1回目30・2回目50…+20ずつ、baseMax で頭打ち）
-  const base = Math.min(
-    COIN_RULES.baseMax,
-    COIN_RULES.baseStart + sessionCountSoFar * COIN_RULES.baseStep
-  );
-  breakdown.push({ label: `きょう${sessionCountSoFar + 1}回目`, amount: base });
+  // 基本報酬: 演算の難しさで決まる
+  const base = COIN_RULES.byOperation[ctx.operation] ?? COIN_RULES.byOperation.mixed;
+  breakdown.push({ label: OP_LABEL[ctx.operation] ?? 'クリア', amount: base });
 
   // 自己ベスト更新
   if (ctx.isNewBest) {
@@ -83,8 +94,12 @@ export function calculateCoins(ctx: CoinContext): CoinResult {
     breakdown.push({ label: '3日れんぞく', amount: COIN_RULES.streak3Bonus });
   }
 
-  // 1日の上限はなし（やるほど増える）。減点もしない。
-  const coinsEarned = breakdown.reduce((sum, e) => sum + e.amount, 0);
+  const raw = breakdown.reduce((sum, e) => sum + e.amount, 0);
+  // 1回あたりの上限でクリップ（ルーレット倍率は別枠で対象外）。
+  const coinsEarned = Math.min(COIN_RULES.maxPerSession, raw);
+  if (coinsEarned < raw) {
+    breakdown.push({ label: '1回の上限', amount: coinsEarned - raw });
+  }
 
   return {
     coinsEarned,
