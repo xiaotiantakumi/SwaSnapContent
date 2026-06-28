@@ -4,15 +4,15 @@
 //       挙動の一致は app/sansu-100/lib/__tests__/coins.test.ts で担保する。
 //
 // 子ども向け配慮: 減点・没収は一切しない（常に coinsEarned >= 0）。
-//                 1日の獲得上限を設けて「短時間の毎日の習慣」を促す。
+//                 「やればやるほど増える」ように基本コインは回数で逓増し、1日の上限はなし。
 
 export const COIN_RULES = {
-  firstClearOfDay: 50, // 1日1回目のクリア
-  subsequentClear: 10, // 2回目以降のクリア
+  baseStart: 30, // その日1回目の基本コイン
+  baseStep: 20, // 1回ふえるごとに +20（2回目50・3回目70…）
+  baseMax: 150, // 1回あたりの基本コインの上限（暴走防止。1日合計の上限はなし）
   newBest: 20, // 自己ベスト更新
   streak3Bonus: 10, // 3日連続に到達した日
   streak7Bonus: 30, // 7日連続に到達した日
-  dailyCap: 150, // 1日に計算で稼げる上限
 } as const;
 
 export type CoinBreakdownEntry = { label: string; amount: number };
@@ -64,12 +64,12 @@ export function calculateCoins(ctx: CoinContext): CoinResult {
 
   const breakdown: CoinBreakdownEntry[] = [];
 
-  // 基本報酬（1日1回目 or 2回目以降）
-  if (sessionCountSoFar === 0) {
-    breakdown.push({ label: 'きょう1回目', amount: COIN_RULES.firstClearOfDay });
-  } else {
-    breakdown.push({ label: 'クリア', amount: COIN_RULES.subsequentClear });
-  }
+  // 基本報酬: その日の回数で逓増（1回目30・2回目50…+20ずつ、baseMax で頭打ち）
+  const base = Math.min(
+    COIN_RULES.baseMax,
+    COIN_RULES.baseStart + sessionCountSoFar * COIN_RULES.baseStep
+  );
+  breakdown.push({ label: `きょう${sessionCountSoFar + 1}回目`, amount: base });
 
   // 自己ベスト更新
   if (ctx.isNewBest) {
@@ -83,16 +83,8 @@ export function calculateCoins(ctx: CoinContext): CoinResult {
     breakdown.push({ label: '3日れんぞく', amount: COIN_RULES.streak3Bonus });
   }
 
-  const raw = breakdown.reduce((sum, e) => sum + e.amount, 0);
-
-  // 1日上限でクリップ（残り上限まで）。減点はしない。
-  const capRemaining = Math.max(0, COIN_RULES.dailyCap - earnedSoFar);
-  const coinsEarned = Math.min(raw, capRemaining);
-
-  // 上限で削られた分を表示に反映
-  if (coinsEarned < raw) {
-    breakdown.push({ label: '1日上限', amount: coinsEarned - raw });
-  }
+  // 1日の上限はなし（やるほど増える）。減点もしない。
+  const coinsEarned = breakdown.reduce((sum, e) => sum + e.amount, 0);
 
   return {
     coinsEarned,

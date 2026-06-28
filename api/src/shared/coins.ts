@@ -4,12 +4,12 @@
 //       匿名APIのためクライアント申告は信用せず、ここで再計算した値を正とする。
 
 export const COIN_RULES = {
-  firstClearOfDay: 50,
-  subsequentClear: 10,
+  baseStart: 30, // その日1回目の基本コイン
+  baseStep: 20, // 1回ふえるごとに +20
+  baseMax: 150, // 1回あたりの基本コインの上限（1日合計の上限はなし）
   newBest: 20,
   streak3Bonus: 10,
   streak7Bonus: 30,
-  dailyCap: 150,
 } as const;
 
 export type CoinBreakdownEntry = { label: string; amount: number };
@@ -50,11 +50,11 @@ export function calculateCoins(ctx: CoinContext): CoinResult {
 
   const breakdown: CoinBreakdownEntry[] = [];
 
-  if (sessionCountSoFar === 0) {
-    breakdown.push({ label: 'きょう1回目', amount: COIN_RULES.firstClearOfDay });
-  } else {
-    breakdown.push({ label: 'クリア', amount: COIN_RULES.subsequentClear });
-  }
+  const base = Math.min(
+    COIN_RULES.baseMax,
+    COIN_RULES.baseStart + sessionCountSoFar * COIN_RULES.baseStep
+  );
+  breakdown.push({ label: `きょう${sessionCountSoFar + 1}回目`, amount: base });
 
   if (ctx.isNewBest) {
     breakdown.push({ label: 'ベストこうしん', amount: COIN_RULES.newBest });
@@ -66,14 +66,8 @@ export function calculateCoins(ctx: CoinContext): CoinResult {
     breakdown.push({ label: '3日れんぞく', amount: COIN_RULES.streak3Bonus });
   }
 
-  const raw = breakdown.reduce((sum, e) => sum + e.amount, 0);
-
-  const capRemaining = Math.max(0, COIN_RULES.dailyCap - earnedSoFar);
-  const coinsEarned = Math.min(raw, capRemaining);
-
-  if (coinsEarned < raw) {
-    breakdown.push({ label: '1日上限', amount: coinsEarned - raw });
-  }
+  // 1日の上限はなし（やるほど増える）。
+  const coinsEarned = breakdown.reduce((sum, e) => sum + e.amount, 0);
 
   return {
     coinsEarned,
