@@ -23,6 +23,7 @@ export default function MemoryPage(): React.JSX.Element {
   const { currentUser, saveUser, loaded } = useSansuUser();
   const [phase, setPhase] = useState<Phase>('intro');
   const [lastScore, setLastScore] = useState(0);
+  const [liveScore, setLiveScore] = useState(0);
   const [round, setRound] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -36,6 +37,7 @@ export default function MemoryPage(): React.JSX.Element {
     setBusy(true);
     setMessage(null);
     setNewRecord(false);
+    setLiveScore(0);
     try {
       const res = await sansuApi.spend(currentUser.id, 'play');
       if (res.ok && res.user) {
@@ -87,12 +89,13 @@ export default function MemoryPage(): React.JSX.Element {
       </div>
       <div className="container mx-auto max-w-md space-y-4 p-4">
         {phase === 'playing' ? (
-          <Link
-            href="/sansu-100/minigame"
+          <button
+            type="button"
+            onClick={() => handleGameOver(liveScore)}
             className="inline-block text-sm font-semibold text-blue-600 dark:text-blue-300"
           >
-            ← やめる
-          </Link>
+            ← やめて けっかをみる
+          </button>
         ) : (
           <Header
             title="🧠 しんけいすいじゃく"
@@ -132,17 +135,17 @@ export default function MemoryPage(): React.JSX.Element {
 
         {phase === 'playing' ? (
           <section className="rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
-            <MemoryGame key={round} onGameOver={handleGameOver} />
+            <MemoryGame key={round} onScore={setLiveScore} />
           </section>
         ) : null}
 
         {phase === 'over' ? (
           <section className="space-y-4 rounded-2xl bg-white p-6 text-center shadow-md dark:bg-gray-800">
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              🎉 クリア！
+              おつかれさま！
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-200">
-              スコア: <b>{lastScore}</b>
+              クリアした ボード: <b>{lastScore}</b>
             </p>
             {newRecord ? <NewRecordBanner score={lastScore} /> : null}
             <button

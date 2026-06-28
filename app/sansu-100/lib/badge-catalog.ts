@@ -91,7 +91,7 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'falling_pro', category: 'minigame', name: 'よけ名人', description: 'おちものよけで500てん', icon: '💨', tier: 'silver', rarity: 'rare' },
   { id: 'falling_master', category: 'minigame', name: 'よけの達人', description: 'おちものよけで1200てん', icon: '🌀', tier: 'gold', rarity: 'epic' },
   { id: 'memory_clear', category: 'minigame', name: 'きおくの達人', description: '神経衰弱をクリア', icon: '🧠', tier: 'silver', rarity: 'rare' },
-  { id: 'memory_ace', category: 'minigame', name: 'きおくの天才', description: '少ないめくりでクリア', icon: '✨', tier: 'gold', rarity: 'epic' },
+  { id: 'memory_ace', category: 'minigame', name: 'きおくの天才', description: 'ボードを 4つ クリア', icon: '✨', tier: 'gold', rarity: 'epic' },
   { id: 'maze_explorer', category: 'minigame', name: 'めいろ探検家', description: 'めいろをクリア', icon: '🗺️', tier: 'silver', rarity: 'rare' },
   { id: 'maze_master', category: 'minigame', name: 'めいろ名人', description: 'めいろを 5つ クリア', icon: '🧭', tier: 'gold', rarity: 'epic' },
   { id: 'flappy_pro', category: 'minigame', name: 'ぱたぱた名人', description: 'ぱたぱたで10てん', icon: '🐤', tier: 'silver', rarity: 'rare' },

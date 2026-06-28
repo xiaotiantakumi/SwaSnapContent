@@ -13,20 +13,27 @@ import { storage } from '../lib/storage';
 
 const CARD_EMOJI = ['🐶', '🐱', '🦊', '🐼', '🦁', '🐰', '🐸', '🐧'];
 
-// 神経衰弱。turn-based なので rAF 不要・React state で駆動。不一致は少し見せてから裏返す。
+// 神経衰弱。1ボードそろえるたびに もっとカードが増える（レベルアップ）。
+// 終わりは「やめる」で、そろえたボード数がスコア。onScore で親に報告。
 export default function MemoryGame({
-  onGameOver,
+  onScore,
 }: {
-  onGameOver: (score: number) => void;
+  onScore: (boardsCleared: number) => void;
 }): React.JSX.Element {
   const [state, setState] = useState<MemoryState>(() =>
-    createMemory(Math.random)
+    createMemory(Math.random, 1)
   );
-  const overFired = useRef(false);
+  const [level, setLevel] = useState(1);
+  const levelRef = useRef(1);
   const soundRef = useRef(true);
 
   useEffect(() => {
     soundRef.current = storage.getSettings().soundOn;
+    levelRef.current = 1;
+    setLevel(1);
+    setState(createMemory(Math.random, 1));
+    onScore(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- マウント時に1回
   }, []);
 
   // 不一致表示中は少し待って裏返す
@@ -36,15 +43,21 @@ export default function MemoryGame({
     return () => clearTimeout(t);
   }, [state.busy]);
 
-  // クリア検知
+  // 1ボード クリア → 次のレベル（カードが増える）
   useEffect(() => {
-    if (state.over && !overFired.current) {
-      overFired.current = true;
-      if (soundRef.current) sound.fanfare();
-      const score = Math.max(1, 40 - state.moves * 2);
-      onGameOver(score);
-    }
-  }, [state.over, state.moves, onGameOver]);
+    if (!state.cleared) return;
+    if (soundRef.current) sound.fanfare();
+    const cleared = levelRef.current; // このボード= levelRef 枚目
+    onScore(cleared);
+    const t = setTimeout(() => {
+      const next = levelRef.current + 1;
+      levelRef.current = next;
+      setLevel(next);
+      setState(createMemory(Math.random, next));
+    }, 950);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cleared をトリガに進める
+  }, [state.cleared]);
 
   const pick = (i: number) => {
     setState((s) => {
@@ -58,9 +71,9 @@ export default function MemoryGame({
   return (
     <div className="flex flex-col items-center gap-3">
       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-        そろった: {state.pairs} / 6 ・ めくり: {state.moves}
+        レベル {level} ・ そろった {state.pairs}/{state.boardPairs}
       </p>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-4 gap-2">
         {state.cards.map((c, i) => {
           const face = c.revealed || c.matched;
           return (
@@ -69,7 +82,7 @@ export default function MemoryGame({
               type="button"
               disabled={state.busy || face}
               onClick={() => pick(i)}
-              className={`flex size-20 items-center justify-center rounded-2xl text-4xl shadow transition-transform active:scale-95 ${
+              className={`flex size-16 items-center justify-center rounded-2xl text-3xl shadow transition-transform active:scale-95 ${
                 c.matched
                   ? 'bg-green-100 dark:bg-green-900/30'
                   : face
