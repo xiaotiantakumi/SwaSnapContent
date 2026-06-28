@@ -74,6 +74,8 @@ export type SansuUserPublic = {
   minigameHighScore?: number; // ミニゲーム最高スコア（全体・後方互換）
   minigameScores?: Record<string, number>; // ゲームごとの最高スコア
   avatarConfig?: AvatarConfig; // パーツ組み立て式アバター（未設定なら絵文字 avatar を使う）
+  feverWindowInterval?: number; // ルーレット回数をカウントしている15分枠
+  feverWindowUses?: number; // その枠でルーレットを回した回数
 };
 
 export type SansuUserServer = SansuUserPublic & {

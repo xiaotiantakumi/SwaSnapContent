@@ -2,8 +2,10 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 
 import { calculateCoins } from '../shared/coins';
 import {
+  FEVER_MAX_PER_WINDOW,
   feverIntervalIndex,
   feverLevelForIndex,
+  feverUsesInWindow,
   isStartedAtRecent,
 } from '../shared/fever';
 import {
@@ -117,7 +119,11 @@ app.http('sansuSessionsPost', {
             coin.coinsEarned > 0 &&
             typeof body.level === 'number' &&
             body.level === feverLevelForIndex(interval) &&
-            (user.lastFeverInterval ?? -1) !== interval &&
+            feverUsesInWindow(
+              interval,
+              user.feverWindowInterval,
+              user.feverWindowUses
+            ) < FEVER_MAX_PER_WINDOW &&
             isStartedAtRecent(body.startedAt, Date.now());
 
           const updated: Partial<SansuUserEntity> & {

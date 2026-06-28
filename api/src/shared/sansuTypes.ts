@@ -30,6 +30,8 @@ export type SansuUserPublic = {
   minigameHighScore?: number;
   minigameScores?: Record<string, number>;
   avatarConfig?: AvatarConfig;
+  feverWindowInterval?: number;
+  feverWindowUses?: number;
 };
 
 export type SansuUserEntity = {
@@ -61,7 +63,8 @@ export type SansuUserEntity = {
   minigameScoresJson?: string;
   avatarConfigJson?: string;
   // --- フィーバー(おすすめ問題達成)＋ルーレット倍率 ---
-  lastFeverInterval?: number; // 最後にルーレットを使った15分枠（重複防止）
+  feverWindowInterval?: number; // ルーレット回数をカウントしている15分枠
+  feverWindowUses?: number; // その枠でルーレットを回した回数（上限 FEVER_MAX_PER_WINDOW）
   pendingFeverInterval?: number; // フィーバー達成済みで未claimの枠（-1=なし）
   pendingFeverBase?: number; // その達成セッションで得た基本コイン（倍率の対象）
 };
@@ -92,6 +95,8 @@ export function toPublic(e: SansuUserEntity): SansuUserPublic {
     minigameHighScore: e.minigameHighScore ?? 0,
     minigameScores: safeParseObject(e.minigameScoresJson ?? '{}'),
     avatarConfig: safeParseAvatarConfig(e.avatarConfigJson),
+    feverWindowInterval: e.feverWindowInterval,
+    feverWindowUses: e.feverWindowUses ?? 0,
   };
 }
 
