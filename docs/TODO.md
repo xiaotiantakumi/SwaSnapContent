@@ -58,3 +58,9 @@
 - [x] Maze: 芝生背景＋太く丸い緑の壁（プリント感を脱却）＋ボタン長押しで連続移動（幼児の操作性）
 - [x] Whack: 叩いた瞬間 💥（ばつは💢）で手応え
 - [ ] （BACKLOG）Breakout/Falling: ドラッグ時に指で隠れる問題→ボタン操作で代替済、必要なら追従オフセット検討
+
+## ゲームごとの最高スコア（replay性向上）
+- [x] 型に minigameScores（ゲームごとの最高点）追加（client/server/toPublic）
+- [x] award-badge に gameId を受け、minigameScores[gameId]=max を保存（overall も後方互換で維持）
+- [x] 各ゲームpage が gameId を送る、ハブの各カードに「🏆さいこう N」表示
+- [x] ライブ検証: snake25/falling800 が別々に保存・低スコアは更新せず

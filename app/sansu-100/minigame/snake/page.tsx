@@ -64,7 +64,8 @@ export default function SnakePage(): React.JSX.Element {
         const res = await sansuApi.awardBadge(
           currentUser.id,
           newBadges,
-          score
+          score,
+          'snake'
         );
         if (res.user) saveUser(res.user);
         if (newBadges.length > 0) setOverlayBadges(newBadges);

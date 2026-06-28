@@ -60,7 +60,7 @@ export default function RunnerPage(): React.JSX.Element {
         currentUser.earnedBadges
       );
       try {
-        const res = await sansuApi.awardBadge(currentUser.id, newBadges, score);
+        const res = await sansuApi.awardBadge(currentUser.id, newBadges, score, 'runner');
         if (res.user) saveUser(res.user);
         if (newBadges.length > 0) setOverlayBadges(newBadges);
       } catch {

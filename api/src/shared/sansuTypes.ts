@@ -25,6 +25,7 @@ export type SansuUserPublic = {
   dailyCoinsEarned?: number;
   dailySessionCount?: number;
   minigameHighScore?: number;
+  minigameScores?: Record<string, number>;
 };
 
 export type SansuUserEntity = {
@@ -53,6 +54,7 @@ export type SansuUserEntity = {
   dailyCoinsEarned?: number;
   dailySessionCount?: number;
   minigameHighScore?: number;
+  minigameScoresJson?: string;
 };
 
 export function toPublic(e: SansuUserEntity): SansuUserPublic {
@@ -79,6 +81,7 @@ export function toPublic(e: SansuUserEntity): SansuUserPublic {
     dailyCoinsEarned: e.dailyCoinsEarned ?? 0,
     dailySessionCount: e.dailySessionCount ?? 0,
     minigameHighScore: e.minigameHighScore ?? 0,
+    minigameScores: safeParseObject(e.minigameScoresJson ?? '{}'),
   };
 }
 

@@ -155,13 +155,14 @@ export const sansuApi = {
   async awardBadge(
     userId: string,
     badgeIds: string[],
-    minigameScore?: number
+    minigameScore?: number,
+    gameId?: string
   ): Promise<{ ok: boolean; user?: SansuUserPublic }> {
     return jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
       `${BASE}/award-badge`,
       {
         method: 'POST',
-        body: JSON.stringify({ userId, badgeIds, minigameScore }),
+        body: JSON.stringify({ userId, badgeIds, minigameScore, gameId }),
       }
     );
   },

@@ -7,6 +7,7 @@ type AwardBody = {
   userId: string;
   badgeIds?: string[];
   minigameScore?: number;
+  gameId?: string;
 };
 
 // ミニゲーム報酬のバッジ付与と最高スコア更新。コイン経済には一切影響しない（称号のみ）。
@@ -46,11 +47,25 @@ app.http('sansuAwardBadgePost', {
           ? Math.max(prevHigh, body.minigameScore)
           : prevHigh;
 
+      // ゲームごとの最高スコア
+      const scores =
+        (JSON.parse(user.minigameScoresJson ?? '{}') as Record<
+          string,
+          number
+        >) ?? {};
+      if (body.gameId && typeof body.minigameScore === 'number') {
+        scores[body.gameId] = Math.max(
+          scores[body.gameId] ?? 0,
+          body.minigameScore
+        );
+      }
+
       const updated = {
         partitionKey: USERS_PARTITION,
         rowKey: body.userId,
         earnedBadgesJson: JSON.stringify(Array.from(badges)),
         minigameHighScore: nextHigh,
+        minigameScoresJson: JSON.stringify(scores),
       };
       await uTable.updateEntity(updated, 'Merge');
       const refreshed = await uTable.getEntity<SansuUserEntity>(

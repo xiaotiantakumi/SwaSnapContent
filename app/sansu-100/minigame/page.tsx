@@ -48,6 +48,7 @@ export default function MinigameHubPage(): React.JSX.Element {
 
         <div className="grid grid-cols-2 gap-3">
           {MINIGAMES.map((g) => {
+            const best = currentUser.minigameScores?.[g.id];
             const card = (
               <div className="flex h-full flex-col items-center gap-1 rounded-2xl bg-white p-4 text-center shadow-md dark:bg-gray-800">
                 <span className="text-4xl" aria-hidden>
@@ -59,6 +60,11 @@ export default function MinigameHubPage(): React.JSX.Element {
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   {g.desc}
                 </span>
+                {typeof best === 'number' && best > 0 ? (
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-300">
+                    🏆 さいこう {best}
+                  </span>
+                ) : null}
                 {g.available ? (
                   <span className="mt-1 rounded-full bg-blue-100 px-3 py-1 text-sm font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
                     🪙 {SPEND_COSTS.play} であそぶ

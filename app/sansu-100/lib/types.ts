@@ -54,7 +54,8 @@ export type SansuUserPublic = {
   dailyCoinDate?: string; // 当日コイン集計の対象日 YYYY-MM-DD
   dailyCoinsEarned?: number; // 当日すでに獲得したコイン（1日上限判定）
   dailySessionCount?: number; // 当日のクリア回数（1回目/2回目判定）
-  minigameHighScore?: number; // ミニゲーム最高スコア（称号判定）
+  minigameHighScore?: number; // ミニゲーム最高スコア（全体・後方互換）
+  minigameScores?: Record<string, number>; // ゲームごとの最高スコア
 };
 
 export type SansuUserServer = SansuUserPublic & {
