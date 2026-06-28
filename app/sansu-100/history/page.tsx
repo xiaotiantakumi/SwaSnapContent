@@ -38,7 +38,7 @@ export default function HistoryPage(): React.JSX.Element {
       </div>
       <div className="container mx-auto max-w-3xl space-y-6 px-4 py-8">
         <Header
-          title={`${currentUser.avatar} ${currentUser.name} のきろく`}
+          title={`${currentUser.name} のきろく`}
           description={`累計 ${currentUser.totalSessions}回 / ${currentUser.totalPoints}pt`}
           showBackButton
           backHref="/sansu-100"

@@ -146,7 +146,6 @@ export default function MazePage(): React.JSX.Element {
               key={round}
               onScore={setLiveScore}
               onGameOver={handleGameOver}
-              avatar={currentUser.avatar}
             />
           </section>
         ) : null}

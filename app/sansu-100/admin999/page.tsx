@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
+import AvatarDisplay from '../components/AvatarDisplay';
 import { sansuAdminApi, type AdminUserSummary } from '../lib/api-client';
 
 type Summary = {
@@ -87,7 +88,7 @@ export default function SansuAdmin999Home(): React.JSX.Element {
                     className="block rounded-xl border border-gray-200 bg-gray-50 p-4 transition-colors hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-700"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-5xl">{u.avatar}</span>
+                      <AvatarDisplay user={u} size="md" />
                       <div className="min-w-0 flex-1">
                         <h3 className="font-bold text-gray-900 dark:text-gray-100">
                           {u.name}

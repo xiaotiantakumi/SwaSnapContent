@@ -54,10 +54,10 @@ function draw(
   );
 }
 
-// おちものよけ。プレイヤー(アバター)を左右に動かして いわ をよける。
+// おちものよけ。プレイヤー(固定キャラ)を左右に動かして いわ をよける。
 export default function FallingGame({
   onGameOver,
-  avatar = '🐰',
+  avatar = '🐱',
 }: {
   onGameOver: (score: number) => void;
   avatar?: string;
