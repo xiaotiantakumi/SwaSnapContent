@@ -150,7 +150,7 @@ export const sansuApi = {
   // ミニゲームの参加費/コンティニュー。残高不足は409→error返し。
   async spend(
     userId: string,
-    reason: 'play' | 'continue'
+    reason: 'play' | 'continue' | 'dressup'
   ): Promise<{ ok: boolean; user?: SansuUserPublic; error?: string }> {
     try {
       return await jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
