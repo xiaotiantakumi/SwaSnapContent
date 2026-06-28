@@ -59,3 +59,19 @@
 ---
 
 実装優先度: **第1弾は snake と runner の2本**。残りはループで GAMES のエントリを使い順次追加する。
+
+---
+
+## 8. flappy — ぱたぱた（フラッピー系・追加）
+- 操作: タップ/スペースで上昇（1ボタン）。重力で落下。
+- コア仕様: アバターが鳥になり、すき間のあるパイプをくぐる。くぐった数=スコア。天井/床/パイプで over。子ども向けにすき間広め。
+- 受入基準: タップで上昇 / すき間で加点 / 衝突で over / 再開可 / コイン消費正・報酬でコイン増えない / 軽い。
+- 報酬バッジ閾値: 10で「ぱたぱた名人🐤」、30で「ぱたぱた王👑」。
+
+---
+
+## 実装状況（2026-06-28）
+全8ゲーム実装済み（snake/runner/whack/breakout/falling/memory/maze/flappy）。各ゲーム:
+純粋ロジック＋ユニットテスト、Canvas/DOM描画、コイン参加費(10)/報酬は限定バッジ、ゲーム別最高スコア、
+自己ベスト更新で紙吹雪演出、モバイル操作対応。共通土台 `lib/minigame-core.ts`、ハブ `minigame/page.tsx`。
+新ゲーム追加手順: lib/games/<id>.ts＋test → games/<Id>Game.tsx → minigame/<id>/page.tsx → minigame-list/minigame-rewards/badge-catalog に登録。
