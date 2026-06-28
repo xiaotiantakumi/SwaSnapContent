@@ -177,6 +177,27 @@ function PlaySession({
     storage.pushPending(result.session);
     onFinishUpdate(() => result.updatedUser);
 
+    const goToResult = (feverEligible: boolean, coinsAfter: number) => {
+      sessionStorage.setItem(
+        'sansu-100:last-result',
+        JSON.stringify({
+          userId: user.id,
+          session: result.session,
+          newBadges: result.newBadges,
+          pointsEarned: result.pointsEarned,
+          coinsEarned: result.coinsEarned,
+          coinBreakdown: result.coinBreakdown,
+          coinsAfter,
+          bestKey: `lv${pick.level}:${pick.operation}`,
+          previousBest:
+            user.bestTimesByLevel[`lv${pick.level}:${pick.operation}`] ?? null,
+          feverEligible,
+        })
+      );
+      router.replace('/sansu-100/result');
+    };
+
+    // 完了→結果。フィーバー達成(feverEligible)はサーバー応答で確定するので待ってから遷移。
     sansuApi
       .submitSession(result.session, {
         streakDays: result.updatedUser.currentStreakDays,
@@ -184,28 +205,16 @@ function PlaySession({
       })
       .then((res) => {
         storage.clearPending([result.session.id]);
-        // サーバー権威のコイン残高でローカルを上書き同期
         if (res.user) onServerSync(res.user);
+        goToResult(
+          !!res.feverEligible,
+          res.user?.coins ?? result.updatedUser.coins ?? 0
+        );
       })
       .catch(() => {
-        // remain in pending queue for later sync
+        // オフライン等はフィーバー無しで結果へ（あとで同期）
+        goToResult(false, result.updatedUser.coins ?? 0);
       });
-
-    sessionStorage.setItem(
-      'sansu-100:last-result',
-      JSON.stringify({
-        session: result.session,
-        newBadges: result.newBadges,
-        pointsEarned: result.pointsEarned,
-        coinsEarned: result.coinsEarned,
-        coinBreakdown: result.coinBreakdown,
-        coinsAfter: result.updatedUser.coins ?? 0,
-        bestKey: `lv${pick.level}:${pick.operation}`,
-        previousBest:
-          user.bestTimesByLevel[`lv${pick.level}:${pick.operation}`] ?? null,
-      })
-    );
-    router.replace('/sansu-100/result');
   }, [
     session.isComplete,
     user,

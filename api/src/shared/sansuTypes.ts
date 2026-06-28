@@ -60,6 +60,10 @@ export type SansuUserEntity = {
   minigameHighScore?: number;
   minigameScoresJson?: string;
   avatarConfigJson?: string;
+  // --- フィーバー(おすすめ問題達成)＋ルーレット倍率 ---
+  lastFeverInterval?: number; // 最後にルーレットを使った15分枠（重複防止）
+  pendingFeverInterval?: number; // フィーバー達成済みで未claimの枠（-1=なし）
+  pendingFeverBase?: number; // その達成セッションで得た基本コイン（倍率の対象）
 };
 
 export function toPublic(e: SansuUserEntity): SansuUserPublic {

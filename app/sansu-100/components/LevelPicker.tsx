@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { feverLevel, feverSecondsRemaining } from '../lib/fever';
 import { LEVELS } from '../lib/levels';
 import type { LevelId, Operation } from '../lib/types';
 
@@ -19,24 +20,49 @@ const OP_COLORS: Record<string, string> = {
 export default function LevelPicker({
   onPick,
 }: LevelPickerProps): React.JSX.Element {
+  // フィーバー(おすすめ)レベルと残り時間。15分ごとに入れ替わる。
+  // SSRと食い違わないよう now は 0 で開始し、マウント後に実時刻で更新。
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const feverLv = now > 0 ? feverLevel(now) : null;
+  const remain = now > 0 ? feverSecondsRemaining(now) : 0;
+  const mmss = `${Math.floor(remain / 60)}:${String(remain % 60).padStart(2, '0')}`;
+
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        {LEVELS.map((lv) => (
-          <button
-            key={lv.id}
-            type="button"
-            onClick={() => onPick(lv.id, lv.operation)}
-            className={`group rounded-2xl bg-gradient-to-br ${OP_COLORS[lv.operation]} p-5 text-left text-white shadow-md transition-transform hover:scale-[1.02]`}
-            data-testid={`level-pick-${lv.id}`}
-          >
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-xl font-bold">{lv.label}</h3>
-              <span className="text-sm opacity-90">Lv.{lv.id}</span>
-            </div>
-            <p className="mt-1 text-sm opacity-90">{lv.description}</p>
-          </button>
-        ))}
+        {LEVELS.map((lv) => {
+          const isFever = feverLv === lv.id;
+          return (
+            <button
+              key={lv.id}
+              type="button"
+              onClick={() => onPick(lv.id, lv.operation)}
+              className={`group relative rounded-2xl bg-gradient-to-br ${OP_COLORS[lv.operation]} p-5 text-left text-white shadow-md transition-transform hover:scale-[1.02] ${
+                isFever ? 'ring-4 ring-orange-400 ring-offset-2 dark:ring-offset-gray-900' : ''
+              }`}
+              data-testid={`level-pick-${lv.id}`}
+            >
+              {isFever ? (
+                <span
+                  className="absolute -right-2 -top-2 rounded-full bg-orange-500 px-2 py-0.5 text-xs font-bold text-white shadow"
+                  data-testid="fever-badge"
+                >
+                  🔥 ボーナス中 のこり {mmss}
+                </span>
+              ) : null}
+              <div className="flex items-baseline justify-between">
+                <h3 className="text-xl font-bold">{lv.label}</h3>
+                <span className="text-sm opacity-90">Lv.{lv.id}</span>
+              </div>
+              <p className="mt-1 text-sm opacity-90">{lv.description}</p>
+            </button>
+          );
+        })}
       </div>
       <button
         type="button"

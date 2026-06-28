@@ -12,6 +12,7 @@ import './functions/sansuSessions';
 import './functions/sansuPurchase';
 import './functions/sansuAvatar';
 import './functions/sansuSpend';
+import './functions/sansuClaimFever';
 import './functions/sansuAwardBadge';
 import './functions/sansuDebugGrant';
 import './functions/sansuAdminUsers';
