@@ -101,7 +101,7 @@ export default function MemoryPage(): React.JSX.Element {
         ) : (
           <Header
             title="🧠 しんけいすいじゃく"
-            description="おなじ えの カードを 2まい さがそう！"
+            description="せいげんじかん内に そろえて レベルアップ！"
             showBackButton
             backHref="/sansu-100/minigame"
             backLabel="ゲームせんたくにもどる"
@@ -138,7 +138,11 @@ export default function MemoryPage(): React.JSX.Element {
 
         {phase === 'playing' ? (
           <section className="rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
-            <MemoryGame key={round} onScore={setLiveScore} />
+            <MemoryGame
+              key={round}
+              onScore={setLiveScore}
+              onGameOver={handleGameOver}
+            />
           </section>
         ) : null}
 
