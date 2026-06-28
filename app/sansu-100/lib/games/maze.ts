@@ -3,7 +3,13 @@
 
 import type { Dir } from '../minigame-core';
 
-export const MAZE = { cols: 7, rows: 10, maxRows: 18 } as const;
+export const MAZE = {
+  cols: 7,
+  rows: 10,
+  maxRows: 18,
+  // レベル別の制限時間(秒)。調整しやすいよう配列で保持（範囲外は最後の値）。
+  timeLimitSec: [40, 45, 50, 55, 60],
+} as const;
 
 // レベルに応じて迷路を大きく（縦長に）して難しくする。横幅は固定。
 export function mazeSize(level: number): { cols: number; rows: number } {
@@ -11,6 +17,12 @@ export function mazeSize(level: number): { cols: number; rows: number } {
     cols: MAZE.cols,
     rows: Math.min(MAZE.maxRows, MAZE.rows + (level - 1) * 2),
   };
+}
+
+/** レベルの制限時間(秒)。配列の範囲外は最後の値。 */
+export function mazeTimeLimit(level: number): number {
+  const t = MAZE.timeLimitSec;
+  return t[Math.min(Math.max(1, level), t.length) - 1];
 }
 
 // 開いている辺のビットマスク

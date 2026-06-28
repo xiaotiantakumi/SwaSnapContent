@@ -2,7 +2,16 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import { createMaze, moveMaze, N, E, S, W, type MazeState } from '../lib/games/maze';
+import {
+  createMaze,
+  mazeTimeLimit,
+  moveMaze,
+  N,
+  E,
+  S,
+  W,
+  type MazeState,
+} from '../lib/games/maze';
 import { dirFromKey, type Dir } from '../lib/minigame-core';
 import { sound } from '../lib/sound-presets';
 import { storage } from '../lib/storage';
@@ -62,20 +71,25 @@ function draw(
   ctx.fillText(avatar, s.px * cell + cell / 2, s.py * cell + cell / 2);
 }
 
-// めいろ。ゴールに着くたびに もっと大きい迷路に（レベルアップ）。
-// 終わりは「やめる」で、それまでにクリアした数がスコア。
+// めいろ。制限時間内にゴールするとレベルアップ（大きい迷路へ）。時間切れで終了。
+// 終わりは時間切れ or「やめる」で、それまでにクリアした数がスコア。
 export default function MazeGame({
   onScore,
+  onGameOver,
   avatar = '🐰',
 }: {
   onScore: (cleared: number) => void;
+  onGameOver: (cleared: number) => void;
   avatar?: string;
 }): React.JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, setState] = useState<MazeState>(() => createMaze(Math.random, 1));
   const [level, setLevel] = useState(1);
+  const [timeLeft, setTimeLeft] = useState(() => mazeTimeLimit(1));
+  const timeLeftRef = useRef(mazeTimeLimit(1));
   const cellRef = useRef(30);
   const levelRef = useRef(1);
+  const overRef = useRef(false);
   const soundRef = useRef(true);
 
   const configureCanvas = (s: MazeState) => {
@@ -97,6 +111,7 @@ export default function MazeGame({
   useEffect(() => {
     soundRef.current = storage.getSettings().soundOn;
     levelRef.current = 1;
+    overRef.current = false;
     setLevel(1);
     const fresh = createMaze(Math.random, 1);
     setState(fresh);
@@ -105,15 +120,38 @@ export default function MazeGame({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- マウント時に1回
   }, []);
 
+  // レベルごとに制限時間をリセットしてカウントダウン。0でゲームオーバー。
+  useEffect(() => {
+    if (overRef.current) return;
+    const limit = mazeTimeLimit(level);
+    timeLeftRef.current = limit;
+    setTimeLeft(limit);
+    const id = setInterval(() => {
+      const t = timeLeftRef.current - 1;
+      timeLeftRef.current = t;
+      setTimeLeft(Math.max(0, t));
+      if (t <= 0) {
+        clearInterval(id);
+        if (!overRef.current) {
+          overRef.current = true;
+          if (soundRef.current) sound.crash();
+          onGameOver(levelRef.current - 1); // クリアした迷路の数
+        }
+      }
+    }, 1000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- level 変化で時計を作り直す
+  }, [level]);
+
   // 状態が変わるたびに描画
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) draw(ctx, state, cellRef.current, avatar);
   }, [state, avatar]);
 
-  // ゴール到達 → 次のレベル（大きい迷路）
+  // ゴール到達 → 次のレベル（大きい迷路・制限時間リセット）
   useEffect(() => {
-    if (!state.over) return;
+    if (!state.over || overRef.current) return;
     const nextLevel = levelRef.current + 1;
     levelRef.current = nextLevel;
     setLevel(nextLevel);
@@ -125,7 +163,10 @@ export default function MazeGame({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- state.over をトリガに進める
   }, [state.over]);
 
-  const go = (d: Dir) => setState((s) => moveMaze(s, d));
+  const go = (d: Dir) => {
+    if (overRef.current) return;
+    setState((s) => moveMaze(s, d));
+  };
 
   const repeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stopHold = () => {
@@ -171,11 +212,28 @@ export default function MazeGame({
   const padBtn =
     'flex h-12 w-12 items-center justify-center rounded-xl bg-gray-200 text-xl font-bold text-gray-700 active:bg-gray-300 dark:bg-gray-700 dark:text-gray-200';
 
+  const limit = mazeTimeLimit(level);
+  const pct = Math.max(0, Math.min(100, (timeLeft / limit) * 100));
+  const low = timeLeft <= 5;
+
   return (
     <div className="flex flex-col items-center gap-3">
       <p className="text-sm font-bold text-gray-700 dark:text-gray-200">
         レベル {level} ・ 🏁を めざそう！
       </p>
+      <div className="w-full max-w-xs">
+        <span
+          className={`text-sm font-bold ${low ? 'text-red-600' : 'text-gray-700 dark:text-gray-200'}`}
+        >
+          ⏱ のこり {timeLeft}秒
+        </span>
+        <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+          <div
+            className={`h-full rounded-full transition-all duration-1000 ease-linear ${low ? 'bg-red-500' : 'bg-green-500'}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
       <canvas
         ref={canvasRef}
         onPointerDown={onDown}
