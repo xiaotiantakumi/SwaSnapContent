@@ -11,7 +11,6 @@ import { hashPin } from '../lib/pin-hash';
 import { storage } from '../lib/storage';
 import type { SansuUserPublic } from '../lib/types';
 
-import ColorPicker from './ColorPicker';
 import DiceBearAvatar from './DiceBearAvatar';
 import PinPad from './PinPad';
 
@@ -31,9 +30,12 @@ function newUserId(): string {
 
 export default function RegistrationForm(): React.JSX.Element {
   const router = useRouter();
-  const [step, setStep] = useState<'name' | 'color' | 'pin'>('name');
+  const [step, setStep] = useState<'name' | 'pin'>('name');
   const [name, setName] = useState('');
-  const [color, setColor] = useState<string>(THEME_COLORS[1]);
+  // テーマ色はアバターの円・ログインのタイルの色分けに使う。登録では選ばせず自動で割り当てる。
+  const [color] = useState<string>(
+    () => THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)]
+  );
   const [pin, setPin] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,37 +124,12 @@ export default function RegistrationForm(): React.JSX.Element {
           <button
             type="button"
             disabled={!name.trim()}
-            onClick={() => setStep('color')}
+            onClick={() => setStep('pin')}
             className="w-full rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700 disabled:bg-gray-400"
             data-testid="register-name-next"
           >
             つぎへ →
           </button>
-        </div>
-      )}
-
-      {step === 'color' && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            すきな いろは？
-          </h2>
-          <ColorPicker value={color} onChange={setColor} />
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setStep('name')}
-              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              ← もどる
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep('pin')}
-              className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
-            >
-              つぎへ →
-            </button>
-          </div>
         </div>
       )}
 
@@ -174,7 +151,7 @@ export default function RegistrationForm(): React.JSX.Element {
           />
           <button
             type="button"
-            onClick={() => setStep('color')}
+            onClick={() => setStep('name')}
             className="w-full rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
           >
             ← もどる
