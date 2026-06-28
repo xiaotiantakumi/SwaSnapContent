@@ -9,6 +9,10 @@ import {
   isStartedAtRecent,
 } from '../shared/fever';
 import {
+  MINIGAME_CREDITS_CAP,
+  MINIGAME_PLAYS_PER_MATH,
+} from '../shared/minigame';
+import {
   type SansuSession,
   type SansuSessionEntity,
   type SansuUserEntity,
@@ -143,6 +147,15 @@ app.http('sansuSessionsPost', {
             dailyCoinDate: coin.nextDailyCoinDate,
             dailyCoinsEarned: coin.nextDailyCoinsEarned,
             dailySessionCount: coin.nextDailySessionCount,
+            // 算数ゲート: 完走でミニゲームの「あそべる回数」を付与（リタイヤは無し）。
+            ...(!body.isRetired
+              ? {
+                  minigameCredits: Math.min(
+                    MINIGAME_CREDITS_CAP,
+                    (user.minigameCredits ?? 0) + MINIGAME_PLAYS_PER_MATH
+                  ),
+                }
+              : {}),
             // フィーバー達成なら倍率の対象(基本コイン)を保留。ルーレットでclaim。
             ...(feverEligible
               ? {

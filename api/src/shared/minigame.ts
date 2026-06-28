@@ -13,3 +13,8 @@ export function getSpendCost(reason: string): number | undefined {
     ? SPEND_COSTS[reason as SpendReason]
     : undefined;
 }
+
+// 算数ゲート: 算数を解かないとミニゲームは遊べない。算数1回完走で「あそべる回数」を付与し、
+// 1プレイで1消費する（=5回ごとに1回は算数）。クライアント lib/minigame-economy.ts と一致させる。
+export const MINIGAME_PLAYS_PER_MATH = 5; // 算数1回で増えるプレイ回数
+export const MINIGAME_CREDITS_CAP = 15; // ためられる上限（3回ぶん）

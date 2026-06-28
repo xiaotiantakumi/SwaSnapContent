@@ -73,6 +73,7 @@ export type SansuUserPublic = {
   dailySessionCount?: number; // 当日のクリア回数（1回目/2回目判定）
   minigameHighScore?: number; // ミニゲーム最高スコア（全体・後方互換）
   minigameScores?: Record<string, number>; // ゲームごとの最高スコア
+  minigameCredits?: number; // あそべる回数（算数ゲート。算数完走で増え、1プレイで1消費）
   avatarConfig?: AvatarConfig; // パーツ組み立て式アバター（未設定なら絵文字 avatar を使う）
   feverWindowInterval?: number; // ルーレット回数をカウントしている15分枠
   feverWindowUses?: number; // その枠でルーレットを回した回数

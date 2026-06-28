@@ -7,3 +7,7 @@ export const SPEND_COSTS = {
 } as const;
 
 export type SpendReason = keyof typeof SPEND_COSTS;
+
+// 算数ゲート: 算数を解かないとミニゲームは遊べない。算数1回で +5、1プレイで1消費。
+export const MINIGAME_PLAYS_PER_MATH = 5;
+export const MINIGAME_CREDITS_CAP = 15;

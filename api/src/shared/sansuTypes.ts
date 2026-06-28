@@ -29,6 +29,7 @@ export type SansuUserPublic = {
   dailySessionCount?: number;
   minigameHighScore?: number;
   minigameScores?: Record<string, number>;
+  minigameCredits?: number;
   avatarConfig?: AvatarConfig;
   feverWindowInterval?: number;
   feverWindowUses?: number;
@@ -61,6 +62,7 @@ export type SansuUserEntity = {
   dailySessionCount?: number;
   minigameHighScore?: number;
   minigameScoresJson?: string;
+  minigameCredits?: number; // あそべる回数（算数ゲート）。算数完走で増え、1プレイで1消費。
   avatarConfigJson?: string;
   // --- フィーバー(おすすめ問題達成)＋ルーレット倍率 ---
   feverWindowInterval?: number; // ルーレット回数をカウントしている15分枠
@@ -94,6 +96,7 @@ export function toPublic(e: SansuUserEntity): SansuUserPublic {
     dailySessionCount: e.dailySessionCount ?? 0,
     minigameHighScore: e.minigameHighScore ?? 0,
     minigameScores: safeParseObject(e.minigameScoresJson ?? '{}'),
+    minigameCredits: e.minigameCredits ?? 0,
     avatarConfig: safeParseAvatarConfig(e.avatarConfigJson),
     feverWindowInterval: e.feverWindowInterval,
     feverWindowUses: e.feverWindowUses ?? 0,
