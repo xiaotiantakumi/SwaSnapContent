@@ -15,6 +15,10 @@ import type {
   Problem,
 } from '../lib/types';
 
+// 1回の練習で出す問題数。アプリ名は「100マス計算」だが、100問は子どもにきついので
+// 1回あたり 30問にする（totalProblems で個別に上書きも可能）。
+export const DEFAULT_PROBLEM_COUNT = 30;
+
 export type UseSansuSessionOptions = {
   level: LevelId;
   operation: Operation;
@@ -33,7 +37,7 @@ export type SansuSessionState = {
 };
 
 export function useSansuSession(opts: UseSansuSessionOptions) {
-  const total = opts.totalProblems ?? 100;
+  const total = opts.totalProblems ?? DEFAULT_PROBLEM_COUNT;
   const problems = useMemo<Problem[]>(() => {
     if (opts.isDaily) {
       const seed = dailySeed();

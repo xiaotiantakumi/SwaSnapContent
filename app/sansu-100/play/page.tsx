@@ -343,7 +343,7 @@ function PlaySession({
               className="rounded bg-amber-600 px-2 py-1 font-semibold text-white hover:bg-amber-700"
               data-testid="debug-finish-perfect"
             >
-              一気に100問パーフェクト（25秒）
+              一気に30問パーフェクト（25秒）
             </button>
             <button
               type="button"

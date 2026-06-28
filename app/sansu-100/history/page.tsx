@@ -90,7 +90,7 @@ export default function HistoryPage(): React.JSX.Element {
                   <div className="text-right">
                     <p className="font-bold text-gray-900 dark:text-gray-100">
                       {s.isRetired
-                        ? `${s.totalProblems}/100問`
+                        ? `${s.totalProblems}問`
                         : formatDuration(s.durationMs)}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
