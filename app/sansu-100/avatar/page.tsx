@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import Header from '../../components/header';
@@ -63,9 +62,14 @@ export default function AvatarBuilderPage(): React.JSX.Element {
   const [activeKey, setActiveKey] = useState<keyof AvatarConfig>('top');
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  // 未保存のまま離脱しようとした行き先（確認ダイアログを出す）
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   const config: AvatarConfig =
     draft ?? normalizeAvatarConfig(currentUser?.avatarConfig);
+
+  // 変更があってまだ保存していない＝離脱時に確認する
+  const dirty = draft !== null && !saved;
 
   const owned = useMemo(() => currentUser?.ownedItems ?? [], [currentUser]);
 
@@ -73,6 +77,18 @@ export default function AvatarBuilderPage(): React.JSX.Element {
     () => (currentUser ? { ...currentUser, avatarConfig: config } : null),
     [currentUser, config]
   );
+
+  // タブを閉じる/リロード/外部遷移のときはブラウザ標準の確認を出す
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (dirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [dirty]);
 
   // カテゴリごとの選べる値（無料＋所持している有料）
   const optionsFor = (cat: Cat): string[] => {
@@ -101,7 +117,7 @@ export default function AvatarBuilderPage(): React.JSX.Element {
     if (storage.getSettings().soundOn) sound.correct();
   };
 
-  const save = async () => {
+  const save = async (): Promise<boolean> => {
     setBusy(true);
     try {
       const res = await sansuApi.setAvatarConfig(currentUser.id, config);
@@ -109,12 +125,32 @@ export default function AvatarBuilderPage(): React.JSX.Element {
         saveUser(res.user);
         setSaved(true);
         if (storage.getSettings().soundOn) sound.fanfare();
+        return true;
       }
+      return false;
     } catch {
       // 通信不可時は黙って失敗（あとで再保存できる）
+      return false;
     } finally {
       setBusy(false);
     }
+  };
+
+  // 未保存があれば確認ダイアログ、なければそのまま移動
+  const requestNavigate = (href: string) => {
+    if (dirty) setPendingHref(href);
+    else router.push(href);
+  };
+  const navSaveAndGo = async () => {
+    const href = pendingHref;
+    const ok = await save();
+    setPendingHref(null);
+    if (ok && href) router.push(href);
+  };
+  const navDiscardAndGo = () => {
+    const href = pendingHref;
+    setPendingHref(null);
+    if (href) router.push(href);
   };
 
   const activeCat = CATEGORIES.find((c) => c.key === activeKey) ?? CATEGORIES[0];
@@ -132,6 +168,7 @@ export default function AvatarBuilderPage(): React.JSX.Element {
           showBackButton
           backHref="/sansu-100"
           backLabel="ホームにもどる"
+          onBackClick={() => requestNavigate('/sansu-100')}
         />
 
         <section className="flex flex-col items-center gap-2 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
@@ -208,12 +245,13 @@ export default function AvatarBuilderPage(): React.JSX.Element {
           )}
 
           {activeCat.paid ? (
-            <Link
-              href="/sansu-100/shop"
-              className="block rounded-xl bg-yellow-100 py-2.5 text-center text-sm font-bold text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200"
+            <button
+              type="button"
+              onClick={() => requestNavigate('/sansu-100/shop')}
+              className="block w-full rounded-xl bg-yellow-100 py-2.5 text-center text-sm font-bold text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200"
             >
               🛍️ ショップで {activeCat.label} を かう
-            </Link>
+            </button>
           ) : null}
         </section>
 
@@ -227,6 +265,49 @@ export default function AvatarBuilderPage(): React.JSX.Element {
           {busy ? 'ほぞんちゅう…' : saved ? '✅ ほぞんしたよ！' : '💾 このキャラにする'}
         </button>
       </div>
+
+      {pendingHref !== null ? (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          data-testid="avatar-unsaved-dialog"
+        >
+          <div className="w-full max-w-xs space-y-3 rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-gray-800">
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              ほぞんして いない へんこうが あるよ
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              このまま いくと、きせかえが きえちゃうよ。どうする？
+            </p>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={navSaveAndGo}
+              className="w-full rounded-xl bg-green-600 py-3 font-bold text-white hover:bg-green-700 disabled:opacity-60"
+              data-testid="unsaved-save-go"
+            >
+              💾 ほぞんして いく
+            </button>
+            <button
+              type="button"
+              onClick={navDiscardAndGo}
+              className="w-full rounded-xl bg-gray-200 py-3 font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              data-testid="unsaved-discard-go"
+            >
+              ほぞんせずに いく
+            </button>
+            <button
+              type="button"
+              onClick={() => setPendingHref(null)}
+              className="w-full py-1 text-sm font-semibold text-blue-600 dark:text-blue-300"
+              data-testid="unsaved-cancel"
+            >
+              キャンセル（ここに のこる）
+            </button>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
