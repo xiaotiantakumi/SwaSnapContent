@@ -159,7 +159,9 @@ export const sansuApi = {
       );
     } catch (e) {
       if (e instanceof Error && /HTTP 409/.test(e.message)) {
-        return { ok: false, error: 'insufficient' };
+        // 算数ゲート(no_plays)と残高不足(insufficient)を区別する。
+        const reason = /no_plays/.test(e.message) ? 'no_plays' : 'insufficient';
+        return { ok: false, error: reason };
       }
       throw e;
     }

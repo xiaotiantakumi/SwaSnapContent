@@ -45,7 +45,11 @@ export default function WhackPage(): React.JSX.Element {
         setRound((r) => r + 1);
         setPhase('playing');
       } else {
-        setMessage('コインが たりないよ');
+        setMessage(
+          res.error === 'no_plays'
+            ? '🧮 さんすうを 1かい といてから あそぼう！'
+            : 'コインが たりないよ'
+        );
       }
     } catch {
       setMessage('いまは つうしんできないよ（あとでね）');

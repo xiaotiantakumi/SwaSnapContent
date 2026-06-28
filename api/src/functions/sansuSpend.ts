@@ -38,6 +38,14 @@ app.http('sansuSpendPost', {
       }
 
       const coins = user.coins ?? 0;
+      const credits = user.minigameCredits ?? 0;
+      // 算数ゲート: 新規プレイは「あそべる回数」が必要。0なら算数を解くまで遊べない。
+      if (body.reason === 'play' && credits <= 0) {
+        return {
+          status: 409,
+          jsonBody: { error: 'no_plays', minigameCredits: 0 },
+        };
+      }
       if (coins < cost) {
         return {
           status: 409,
@@ -45,11 +53,20 @@ app.http('sansuSpendPost', {
         };
       }
 
-      const updated = {
+      const updated: {
+        partitionKey: string;
+        rowKey: string;
+        coins: number;
+        minigameCredits?: number;
+      } = {
         partitionKey: USERS_PARTITION,
         rowKey: body.userId,
         coins: coins - cost,
       };
+      // プレイ参加でクレジットを1消費（コンティニューは消費しない）。
+      if (body.reason === 'play') {
+        updated.minigameCredits = Math.max(0, credits - 1);
+      }
       await uTable.updateEntity(updated, 'Merge');
       const refreshed = await uTable.getEntity<SansuUserEntity>(
         USERS_PARTITION,
