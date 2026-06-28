@@ -107,23 +107,25 @@ export default function SansuHome(): React.JSX.Element {
 
         {currentUser ? (
           <section className="space-y-6 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
-            <div className="flex items-center gap-4">
-              <AvatarDisplay user={currentUser} size="lg" />
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  こんにちは
-                </p>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {currentUser.name}
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  これまで {currentUser.totalSessions}回 / バッジ{' '}
-                  {currentUser.earnedBadges.length}
-                </p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <AvatarDisplay user={currentUser} size="md" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    こんにちは
+                  </p>
+                  <h2 className="truncate text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {currentUser.name}
+                  </h2>
+                </div>
+                <div data-testid="coin-balance">
+                  <CoinBalance coins={currentUser.coins} size="md" />
+                </div>
               </div>
-              <div className="ml-auto" data-testid="coin-balance">
-                <CoinBalance coins={currentUser.coins} size="lg" />
-              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                これまで {currentUser.totalSessions}回 ・ バッジ{' '}
+                {currentUser.earnedBadges.length}
+              </p>
             </div>
             <button
               type="button"
