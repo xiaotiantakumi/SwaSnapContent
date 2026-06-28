@@ -15,7 +15,7 @@ export default function RegisterPage(): React.JSX.Element {
       <div className="container mx-auto max-w-3xl space-y-6 px-4 py-8">
         <Header
           title="あたらしく とうろく"
-          description="なまえ・アバター・あいことばを えらんでね"
+          description="なまえと あいことばを いれてね（キャラは あとで かえられるよ）"
           showBackButton
           backHref="/sansu-100"
           backLabel="ホームにもどる"
