@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
 import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
 import AvatarDisplay from '../components/AvatarDisplay';
+import CoinBalance from '../components/CoinBalance';
 import DiceBearAvatar from '../components/DiceBearAvatar';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
@@ -24,6 +25,10 @@ import {
   ownedValuesOf,
 } from '../lib/avatar-shop';
 import { normalizeAvatarConfig } from '../lib/avatar-svg';
+import {
+  DRESSUP_CHARGE_COINS,
+  DRESSUP_CHARGE_INTERVAL_SEC,
+} from '../lib/minigame-economy';
 import { sound } from '../lib/sound-presets';
 import { storage } from '../lib/storage';
 import type { AvatarConfig } from '../lib/types';
@@ -70,6 +75,86 @@ export default function AvatarBuilderPage(): React.JSX.Element {
 
   // 変更があってまだ保存していない＝離脱時に確認する
   const dirty = draft !== null && !saved;
+
+  // --- 着せ替えの時間課金（一定時間ごとに 10コイン。尽きたら強制保存して戻る）---
+  // テスト用に ?chargesec=N で間隔を短縮できる（既定 180秒）。
+  const [chargeInterval] = useState(() => {
+    if (typeof window === 'undefined') return DRESSUP_CHARGE_INTERVAL_SEC;
+    const q = new URLSearchParams(window.location.search).get('chargesec');
+    const n = q ? Number.parseInt(q, 10) : NaN;
+    return !Number.isNaN(n) && n > 0 ? n : DRESSUP_CHARGE_INTERVAL_SEC;
+  });
+  const [secsLeft, setSecsLeft] = useState(chargeInterval);
+  const [kicked, setKicked] = useState(false);
+  const secsRef = useRef(chargeInterval);
+  const chargingRef = useRef(false);
+  const leavingRef = useRef(false);
+  // 強制保存で使う「いまの見た目」と「ユーザー」を常に最新に保つ。
+  const configRef = useRef(config);
+  configRef.current = config;
+  const userRef = useRef(currentUser);
+  userRef.current = currentUser;
+
+  useEffect(() => {
+    if (!loaded || !userRef.current) return;
+    secsRef.current = chargeInterval;
+    setSecsLeft(chargeInterval);
+    let stopped = false;
+
+    const forceSaveAndLeave = async (): Promise<void> => {
+      if (leavingRef.current) return;
+      leavingRef.current = true;
+      stopped = true;
+      setKicked(true);
+      const u = userRef.current;
+      if (u) {
+        try {
+          await sansuApi.setAvatarConfig(u.id, configRef.current);
+        } catch {
+          // 通信不可でもローカルには保存される（あとで同期）
+          storage.upsertUser({ ...u, avatarConfig: configRef.current });
+        }
+      }
+      window.setTimeout(() => router.replace('/sansu-100'), 1400);
+    };
+
+    const charge = async (): Promise<void> => {
+      if (stopped || chargingRef.current || leavingRef.current) return;
+      const uid = userRef.current?.id;
+      if (!uid) return;
+      chargingRef.current = true;
+      try {
+        const res = await sansuApi.spend(uid, 'dressup');
+        if (res.ok && res.user) {
+          saveUser(res.user);
+        } else {
+          await forceSaveAndLeave();
+        }
+      } catch {
+        // 通信不可は課金せず次の周期で再試行
+      } finally {
+        chargingRef.current = false;
+      }
+    };
+
+    const id = window.setInterval(() => {
+      if (stopped) return;
+      secsRef.current -= 1;
+      if (secsRef.current <= 0) {
+        secsRef.current = chargeInterval;
+        void charge();
+      }
+      setSecsLeft(secsRef.current);
+    }, 1000);
+
+    return () => {
+      stopped = true;
+      window.clearInterval(id);
+    };
+    // currentUser はコイン更新で毎回変わるが id は不変。userRef 経由で最新を見るので
+    // ここでは loaded のときに1回だけタイマーを張る。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, chargeInterval, router, saveUser]);
 
   const owned = useMemo(() => currentUser?.ownedItems ?? [], [currentUser]);
 
@@ -171,6 +256,28 @@ export default function AvatarBuilderPage(): React.JSX.Element {
           onBackClick={() => requestNavigate('/sansu-100')}
         />
 
+        <section
+          className={`flex items-center justify-between gap-2 rounded-2xl px-4 py-3 shadow-sm ${
+            (currentUser.coins ?? 0) < DRESSUP_CHARGE_COINS
+              ? 'bg-red-50 dark:bg-red-900/30'
+              : 'bg-amber-50 dark:bg-amber-900/30'
+          }`}
+          data-testid="dressup-charge"
+        >
+          <div className="text-sm font-bold text-amber-800 dark:text-amber-200">
+            ⏱️ きせかえタイム のこり{' '}
+            <span data-testid="dressup-secs">
+              {Math.floor(secsLeft / 60)}:
+              {String(secsLeft % 60).padStart(2, '0')}
+            </span>
+            <span className="ml-1 font-normal text-gray-500 dark:text-gray-400">
+              （{Math.round(chargeInterval / 60) || 1}ふんで 🪙
+              {DRESSUP_CHARGE_COINS}）
+            </span>
+          </div>
+          <CoinBalance coins={currentUser.coins ?? 0} size="sm" />
+        </section>
+
         <section className="flex flex-col items-center gap-2 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
           <AvatarDisplay user={previewUser} size="xl" />
           <button
@@ -265,6 +372,29 @@ export default function AvatarBuilderPage(): React.JSX.Element {
           {busy ? 'ほぞんちゅう…' : saved ? '✅ ほぞんしたよ！' : '💾 このキャラにする'}
         </button>
       </div>
+
+      {kicked ? (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          data-testid="dressup-kicked"
+        >
+          <div className="w-full max-w-xs space-y-2 rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-gray-800">
+            <p className="text-4xl" aria-hidden>
+              🪙
+            </p>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              コインが なくなったよ
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              いまの すがたを ほぞんして もどるね。
+              <br />
+              また あそんで コインを ためてね！
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       {pendingHref !== null ? (
         <div
