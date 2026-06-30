@@ -107,6 +107,19 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'pakupaku',
+    name: 'パクパクおじさん',
+    emoji: '👴',
+    desc: 'ドットを たべまくれ！おなかに きをつけて',
+    howTo: [
+      'やじるし か スワイプで うごく',
+      'ドット●を たべて スコアアップ。ぜんぶ たべると まわり！',
+      'パワー餌◎を たべると てきが よわるよ。うしろから のみこもう！',
+      'たべすぎると おなかいっぱいで うごきが おそくなるよ',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(
