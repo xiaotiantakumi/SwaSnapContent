@@ -10,6 +10,7 @@ import ThemeToggle from '../components/theme-toggle';
 
 import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
+import NextBadgeHint from './components/NextBadgeHint';
 import PinPad from './components/PinPad';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
@@ -190,6 +191,7 @@ export default function SansuHome(): React.JSX.Element {
             >
               ▶︎ れんしゅう スタート！
             </button>
+            <NextBadgeHint user={currentUser} />
             <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/sansu-100/shop"
