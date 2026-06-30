@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
+import { isDebugHost } from '../shared/debugEnv';
 import { getSpendCost } from '../shared/minigame';
 import { type SansuUserEntity, toPublic } from '../shared/sansuTypes';
 import { USERS_PARTITION, usersTable } from '../shared/tableClient';
@@ -40,7 +41,14 @@ app.http('sansuSpendPost', {
       const coins = user.coins ?? 0;
       const credits = user.minigameCredits ?? 0;
       // 算数ゲート: 新規プレイは「あそべる回数」が必要。0なら算数を解くまで遊べない。
-      if (body.reason === 'play' && credits <= 0) {
+      // デバッグ環境（localhost / SWA PR プレビュー）ではこのゲートをスキップする。
+      const debugHost = [
+        req.headers.get('x-forwarded-host'),
+        req.headers.get('host'),
+        req.headers.get('x-original-host'),
+        req.headers.get('referer'),
+      ].some((c) => isDebugHost(c));
+      if (body.reason === 'play' && credits <= 0 && !debugHost) {
         return {
           status: 409,
           jsonBody: { error: 'no_plays', minigameCredits: 0 },

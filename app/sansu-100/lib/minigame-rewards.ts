@@ -9,7 +9,8 @@ export type MinigameId =
   | 'falling'
   | 'memory'
   | 'maze'
-  | 'flappy';
+  | 'flappy'
+  | 'pakupaku';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
 const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
@@ -44,6 +45,10 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   flappy: [
     { score: 10, badgeId: 'flappy_pro' },
     { score: 30, badgeId: 'flappy_master' },
+  ],
+  pakupaku: [
+    { score: 500, badgeId: 'pakupaku_debut' },
+    { score: 2000, badgeId: 'pakupaku_glutton' },
   ],
 };
 
