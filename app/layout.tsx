@@ -16,7 +16,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'URL本文抽出アプリ',
+  metadataBase: new URL('https://snap-content.takumi-oda.com'),
+  title: {
+    default: 'URL本文抽出アプリ',
+    template: '%s | snap-content',
+  },
   description: 'URLからウェブページの本文を簡単に抽出できるアプリケーション',
   manifest: '/manifest.json',
   appleWebApp: {

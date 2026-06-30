@@ -91,10 +91,65 @@ export default function SansuHome(): React.JSX.Element {
     }
   };
 
-  if (!loaded) return <main className="p-8" />;
+  // 構造化データ（検索エンジン向け）。ローディング状態に関わらず常に静的HTMLに出力する。
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: '100マス計算',
+    url: 'https://snap-content.takumi-oda.com/sansu-100',
+    description:
+      '足し算・引き算・掛け算の100マス計算を無料でできる学習アプリ。タイムを計測してベスト記録を更新し、毎日の計算練習を習慣化できます。',
+    applicationCategory: 'EducationalApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'ja',
+    isAccessibleForFree: true,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'JPY',
+    },
+  };
+
+  // SEO向けの説明コンテンツ。クローラが評価できる本文として常に出力する。
+  const seoIntro = (
+    <section className="sr-only">
+      <h1>100マス計算 ｜ 無料の計算ドリル・タイム計測アプリ</h1>
+      <p>
+        100マス計算（百マス計算）は、足し算・引き算・掛け算を素早く解いて計算力をきたえる定番のトレーニングです。
+        本アプリは無料で使え、解き終わるまでのタイムを自動で計測し、ベスト記録の更新を目指して毎日の計算練習を習慣化できます。
+      </p>
+      <h2>このアプリでできること</h2>
+      <ul>
+        <li>足し算・引き算・掛け算の100マス計算をブラウザですぐに開始</li>
+        <li>解答タイムの自動計測とベスト記録の保存</li>
+        <li>練習の履歴やバッジで毎日のがんばりを見える化</li>
+        <li>スマホ・タブレット・PCに対応、PWAでアプリのように利用可能</li>
+      </ul>
+      <h2>こんな方におすすめ</h2>
+      <p>
+        小学生の計算力アップ、毎日の計算ドリルの習慣づけ、大人の脳トレや暗算トレーニングにも活用できます。
+      </p>
+    </section>
+  );
+
+  if (!loaded)
+    return (
+      <main className="p-8">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {seoIntro}
+      </main>
+    );
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {seoIntro}
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
