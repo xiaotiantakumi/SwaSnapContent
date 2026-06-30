@@ -10,6 +10,7 @@ import ThemeToggle from '../../components/theme-toggle';
 import BadgeUnlockOverlay from '../components/BadgeUnlockOverlay';
 import CoinBalance from '../components/CoinBalance';
 import FeverRoulette from '../components/FeverRoulette';
+import NextChallengeCard from '../components/NextChallengeCard';
 import { formatDuration } from '../components/SessionTimer';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
@@ -154,6 +155,8 @@ export default function ResultPage(): React.JSX.Element {
               </div>
             </div>
           ) : null}
+
+          <NextChallengeCard session={session} previousBest={previousBest} />
 
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
