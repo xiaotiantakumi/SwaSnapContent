@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   },
   description: 'URLからウェブページの本文を簡単に抽出できるアプリケーション',
   manifest: '/manifest.json',
+  verification: {
+    google: '0BvGA_MS_dtzSY9VbRl27MsgBgYPgIHr_Sw-agrqI2s',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
