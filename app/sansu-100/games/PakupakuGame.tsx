@@ -1,8 +1,7 @@
 'use client';
 // パクパクおじさん（ドットイート）
 // 独自要素:
-//   1. 満腹度システム - ドットを食べ続けると遅くなる。お茶/薬アイテムで回復
-//   2. 背後ステルス  - 弱った敵はうしろから接触したときだけ倒せる（正面 → 相打ちでミス）
+//   背後ステルス - 弱った敵は正面から当たると死ぬ。横・後ろから接触したときだけ倒せる
 
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -62,10 +61,7 @@ interface GS {
   ghosts: Ghost[];
   dots: Set<number>;
   powers: Set<number>;
-  items: Map<number, string>; // idx → emoji
-  itemTimer: number;
   score: number;
-  fullness: number;
   combo: number;
   lives: number;
   tick: number;
@@ -80,15 +76,11 @@ const GHOST_EXIT = { x: 8, y: 5 };
 const DIRS: readonly Dir[] = ['up', 'down', 'left', 'right'];
 const OPP: Record<Dir, Dir> = { up: 'down', down: 'up', left: 'right', right: 'left' };
 
-const PLAYER_TICKS_NORMAL = 2;   // 200ms
-const PLAYER_TICKS_FULL   = 5;   // 500ms
+const PLAYER_TICKS = 2;          // 200ms（常に一定）
 const GHOST_TICKS_CHASE   = 3;   // 300ms
 const GHOST_TICKS_SCARED  = 5;   // 500ms
 const GHOST_TICKS_DEAD    = 1;   // 100ms (rush back)
 const SCARED_DURATION     = 100; // ticks (~10s)
-const FULLNESS_PER_DOT    = 7;
-const FULLNESS_DECAY      = 0.12;
-const FULLNESS_SLOW_AT    = 80;
 
 // ── Maze helpers ─────────────────────────────────────────────────────────
 function cellAt(x: number, y: number): number {
@@ -159,10 +151,7 @@ function createGS(): GS {
       { x: 9, y: 7, dir: 'up', mode: 'house', color: '#44ffff', scaredTicks: 0, stepAt: 0, exitDelay: 50 },
     ],
     dots, powers,
-    items: new Map(),
-    itemTimer: 120,
     score: 0,
-    fullness: 0,
     combo: 0,
     lives: 3,
     tick: 0,
@@ -175,27 +164,10 @@ function createGS(): GS {
 function tickGame(
   gs: GS,
   rand: () => number,
-  onEvent: (ev: 'dot' | 'power' | 'kill' | 'die' | 'item') => void,
+  onEvent: (ev: 'dot' | 'power' | 'kill' | 'die') => void,
 ): void {
   if (gs.over) return;
   gs.tick++;
-
-  gs.fullness = Math.max(0, gs.fullness - FULLNESS_DECAY);
-
-  // Item spawn
-  gs.itemTimer--;
-  if (gs.itemTimer <= 0 && gs.items.size < 2) {
-    const open: number[] = [];
-    BASE_MAZE.forEach((c, i) => {
-      if (c !== 1 && c !== 4 && !gs.dots.has(i) && !gs.powers.has(i) && !gs.items.has(i)) {
-        open.push(i);
-      }
-    });
-    if (open.length > 0) {
-      gs.items.set(open[Math.floor(rand() * open.length)], rand() < 0.5 ? '🍵' : '💊');
-    }
-    gs.itemTimer = 80 + Math.floor(rand() * 80);
-  }
 
   // Respawn player
   if (gs.player.dead && !gs.over && gs.tick >= gs.player.respawnAt) {
@@ -211,10 +183,8 @@ function tickGame(
   // Move player
   if (!gs.player.dead && gs.tick >= gs.player.stepAt) {
     const { x, y, dir, nextDir } = gs.player;
-    const fullSlot = gs.fullness >= FULLNESS_SLOW_AT ? PLAYER_TICKS_FULL : PLAYER_TICKS_NORMAL;
 
     let moveDir = dir;
-    // Try to change direction
     if (nextDir !== dir) {
       const v = DIR_VECTORS[nextDir];
       if (canPass(x + v.x, y + v.y, false)) moveDir = nextDir;
@@ -232,13 +202,11 @@ function tickGame(
       if (gs.dots.has(idx)) {
         gs.dots.delete(idx);
         gs.score += 10;
-        gs.fullness = Math.min(100, gs.fullness + FULLNESS_PER_DOT);
         onEvent('dot');
         if (gs.dots.size === 0 && gs.powers.size === 0) {
           const r = makeDots();
           gs.dots = r.dots;
           gs.powers = r.powers;
-          gs.items.clear();
         }
       }
       if (gs.powers.has(idx)) {
@@ -253,14 +221,8 @@ function tickGame(
         });
         onEvent('power');
       }
-      const item = gs.items.get(idx);
-      if (item) {
-        gs.items.delete(idx);
-        gs.fullness = Math.max(0, gs.fullness - 30);
-        onEvent('item');
-      }
     }
-    gs.player.stepAt = gs.tick + fullSlot;
+    gs.player.stepAt = gs.tick + PLAYER_TICKS;
   }
 
   // Move ghosts
@@ -412,13 +374,6 @@ function drawGame(
         ctx.fill();
       }
     }
-    const item = gs.items.get(i);
-    if (item) {
-      ctx.font = `${Math.floor(cell * 0.75)}px "Apple Color Emoji","Segoe UI Emoji",serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(item, mx, my);
-    }
   });
 
   // Ghosts
@@ -500,7 +455,6 @@ export default function PakupakuGame({
   const layoutRef = useRef(computeLayout());
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
-  const [fullness, setFullness] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -538,7 +492,6 @@ export default function PakupakuGame({
           setScore(gs.score);
         }
         setLives(gs.lives);
-        setFullness(Math.round(gs.fullness));
         if (gs.over && !overRef.current) {
           overRef.current = true;
           handle.stop();
@@ -571,9 +524,6 @@ export default function PakupakuGame({
       <div className="flex w-full items-center justify-between px-1 text-sm font-bold text-gray-800 dark:text-gray-100">
         <span>スコア: <span className="tabular-nums">{score}</span></span>
         <span>{'❤️'.repeat(lives)}</span>
-        <span className={fullness >= FULLNESS_SLOW_AT ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400'}>
-          おなか: {fullness >= FULLNESS_SLOW_AT ? '😵いっぱい' : `${Math.round(fullness)}%`}
-        </span>
       </div>
 
       {/* Canvas */}
@@ -592,7 +542,7 @@ export default function PakupakuGame({
       />
 
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        よこ か うしろから さわって たべよう（まともにぶつかると やられるよ）
+        パワー餌◎を たべると てきが よわる。よこ か うしろから のみこもう！
       </p>
 
       {/* Direction pad */}
