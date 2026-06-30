@@ -221,6 +221,13 @@ export default function SansuHome(): React.JSX.Element {
               >
                 📈 きろく
               </Link>
+              <Link
+                href="/sansu-100/profile"
+                className="rounded-lg bg-blue-100 px-3 py-2 text-center font-semibold text-blue-900 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-100 dark:hover:bg-blue-900/60"
+                data-testid="profile-link"
+              >
+                📋 プロフィール
+              </Link>
             </div>
             <button
               type="button"
