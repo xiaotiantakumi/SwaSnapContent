@@ -57,6 +57,7 @@ interface GS {
     stepAt: number;
     dead: boolean;
     respawnAt: number;
+    invincibleUntil: number;
   };
   ghosts: Ghost[];
   dots: Set<number>;
@@ -150,7 +151,7 @@ function createGS(): GS {
     player: {
       x: PLAYER_START.x, y: PLAYER_START.y,
       dir: 'left', nextDir: 'left',
-      stepAt: 5, dead: false, respawnAt: -1,
+      stepAt: 5, dead: false, respawnAt: -1, invincibleUntil: -1,
     },
     ghosts: [
       { x: 8, y: 7, dir: 'up', mode: 'house', color: '#ff4444', scaredTicks: 0, stepAt: 0, exitDelay: 0 },
@@ -204,6 +205,7 @@ function tickGame(
     gs.player.nextDir = 'left';
     gs.player.dead = false;
     gs.player.stepAt = gs.tick + 8;
+    gs.player.invincibleUntil = gs.tick + 60; // 6秒間無敵
   }
 
   // Move player
@@ -314,23 +316,22 @@ function tickGame(
     );
   }
 
-  // Collision detection
-  if (!gs.player.dead) {
+  // Collision detection (スキップ: 無敵中)
+  if (!gs.player.dead && gs.tick >= gs.player.invincibleUntil) {
     const { x: px, y: py, dir: pd } = gs.player;
     for (const g of gs.ghosts) {
       if (g.x !== px || g.y !== py) continue;
       if (g.mode === 'scared') {
-        // Defeat only from BEHIND (player.dir === ghost.dir = approaching ghost's back)
-        if (pd === g.dir) {
+        // 正面衝突（プレイヤーとゴーストが真向かい）のみ死亡。横・後ろからは倒せる。
+        if (pd === OPP[g.dir]) {
+          killPlayer(gs, onEvent);
+          break;
+        } else {
           gs.score += 200 * (1 << Math.min(gs.combo, 4));
           gs.combo++;
           g.mode = 'dead';
           g.scaredTicks = 0;
           onEvent('kill');
-        } else {
-          // Approached from front or side → mutual collision → player dies
-          killPlayer(gs, onEvent);
-          break;
         }
       } else if (g.mode === 'chase' || g.mode === 'exiting') {
         killPlayer(gs, onEvent);
@@ -343,10 +344,17 @@ function tickGame(
 function killPlayer(gs: GS, onEvent: (ev: 'die') => void): void {
   gs.lives--;
   gs.player.dead = true;
-  gs.player.respawnAt = gs.tick + 20;
+  gs.player.respawnAt = gs.tick + 60; // 6秒後にリスポーン
   gs.combo = 0;
-  gs.ghosts.forEach((g) => {
-    if (g.mode !== 'dead' && g.mode !== 'house') { g.mode = 'chase'; g.scaredTicks = 0; }
+  // ゴーストを全員Houseに戻して時間差で再登場（スポーン地点での即死防止）
+  gs.ghosts.forEach((g, i) => {
+    if (g.mode !== 'dead') {
+      g.mode = 'house';
+      g.x = GHOST_HOME.x;
+      g.y = GHOST_HOME.y;
+      g.exitDelay = 30 + i * 25;
+      g.scaredTicks = 0;
+    }
   });
   if (gs.lives <= 0) gs.over = true;
   onEvent('die');
@@ -457,8 +465,10 @@ function drawGame(
     }
   }
 
-  // Player
-  if (!gs.player.dead || gs.tick % 5 < 4) {
+  // Player（死亡中はフェードアウト点滅、無敵中は高速点滅）
+  const isInvincible = !gs.player.dead && gs.tick < gs.player.invincibleUntil;
+  const showPlayer = (!gs.player.dead || gs.tick % 5 < 4) && (!isInvincible || gs.tick % 4 < 3);
+  if (showPlayer) {
     const { x: px, y: py, dir } = gs.player;
     const pcx = px * cell + cell / 2;
     const pcy = py * cell + cell / 2;
@@ -582,7 +592,7 @@ export default function PakupakuGame({
       />
 
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        うしろから はさんで たべよう
+        よこ か うしろから さわって たべよう（まともにぶつかると やられるよ）
       </p>
 
       {/* Direction pad */}
