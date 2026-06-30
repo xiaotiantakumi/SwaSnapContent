@@ -12,7 +12,7 @@
     },
     "dependencies": {
         "@azure/data-tables": "^13.3.2",
-        "@azure/functions": "^4.0.0",
+        "@azure/functions": "^4.16.0",
         "@mozilla/readability": "^0.6.0",
         "jsdom": "^22.1.0",
         "uuid": "^14.0.0",
