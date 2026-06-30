@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
 import BadgeShowcase from '../components/BadgeShowcase';
+import CalendarHeatmap from '../components/CalendarHeatmap';
 import { formatDuration } from '../components/SessionTimer';
 import StatsCharts from '../components/StatsCharts';
 import { useSansuUser } from '../hooks/useSansuUser';
@@ -44,6 +45,13 @@ export default function HistoryPage(): React.JSX.Element {
           backHref="/sansu-100"
           backLabel="ホームにもどる"
         />
+
+        <section className="space-y-3 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            📅 カレンダー
+          </h2>
+          <CalendarHeatmap sessions={sessions} />
+        </section>
 
         <section className="space-y-3 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
