@@ -11,6 +11,7 @@ import ThemeToggle from '../components/theme-toggle';
 import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
 import PinPad from './components/PinPad';
+import StreakCard from './components/StreakCard';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
@@ -182,6 +183,7 @@ export default function SansuHome(): React.JSX.Element {
                 {currentUser.earnedBadges.length}
               </p>
             </div>
+            <StreakCard user={currentUser} />
             <button
               type="button"
               onClick={() => router.push('/sansu-100/play')}
