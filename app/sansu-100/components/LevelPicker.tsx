@@ -11,11 +11,15 @@ import {
 import { LEVELS } from '../lib/levels';
 import type { LevelId, Operation } from '../lib/types';
 
+import { formatDuration } from './SessionTimer';
+
 interface LevelPickerProps {
   onPick: (level: LevelId, operation: Operation) => void;
   // フィーバー枠の使用状況（残りルーレット回数の計算に使う）
   feverWindowInterval?: number;
   feverWindowUses?: number;
+  /** ユーザーのレベル別自己ベストタイム（パーフェクト時のみ）*/
+  bestTimesByLevel?: Record<string, number>;
 }
 
 const OP_COLORS: Record<string, string> = {
@@ -29,6 +33,7 @@ export default function LevelPicker({
   onPick,
   feverWindowInterval,
   feverWindowUses,
+  bestTimesByLevel,
 }: LevelPickerProps): React.JSX.Element {
   // フィーバー(おすすめ)レベルと残り時間。15分ごとに入れ替わる。
   // SSRと食い違わないよう now は 0 で開始し、マウント後に実時刻で更新。
@@ -75,6 +80,14 @@ export default function LevelPicker({
                 <span className="text-sm opacity-90">Lv.{lv.id}</span>
               </div>
               <p className="mt-1 text-sm opacity-90">{lv.description}</p>
+              {bestTimesByLevel?.[String(lv.id)] ? (
+                <p
+                  className="mt-2 text-xs font-semibold opacity-80"
+                  data-testid={`best-time-${lv.id}`}
+                >
+                  ⏱️ ベスト: {formatDuration(bestTimesByLevel[String(lv.id)])}
+                </p>
+              ) : null}
             </button>
           );
         })}
