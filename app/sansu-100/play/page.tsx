@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
+import CountdownOverlay from '../components/CountdownOverlay';
 import LevelPicker from '../components/LevelPicker';
 import NumberKeypad from '../components/NumberKeypad';
 import ProblemDisplay from '../components/ProblemDisplay';
@@ -31,6 +32,7 @@ function PlayInner(): React.JSX.Element {
     level: LevelId;
     operation: Operation;
   } | null>(null);
+  const [counting, setCounting] = useState(false);
 
   useEffect(() => {
     if (!loaded) return;
@@ -41,6 +43,7 @@ function PlayInner(): React.JSX.Element {
     if (isDaily && !pick) {
       const lv = dailyLevel() as Exclude<LevelId, 'mix'>;
       setPick({ level: lv, operation: opOf(lv) });
+      setCounting(true);
     }
   }, [isDaily, pick]);
 
@@ -61,11 +64,25 @@ function PlayInner(): React.JSX.Element {
             backLabel="ホームにもどる"
           />
           <LevelPicker
-            onPick={(level, operation) => setPick({ level, operation })}
+            onPick={(level, operation) => {
+              setPick({ level, operation });
+              setCounting(true);
+            }}
             feverWindowInterval={currentUser.feverWindowInterval}
             feverWindowUses={currentUser.feverWindowUses}
           />
         </div>
+        {counting ? (
+          <CountdownOverlay onDone={() => setCounting(false)} />
+        ) : null}
+      </main>
+    );
+  }
+
+  if (counting) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <CountdownOverlay onDone={() => setCounting(false)} />
       </main>
     );
   }
