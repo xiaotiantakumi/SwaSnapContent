@@ -12,7 +12,9 @@
             "/sw.js",
             "/workbox-*.js",
             "/manifest.json",
-            "/icons/*"
+            "/icons/*",
+            "/robots.txt",
+            "/sitemap.xml"
         ]
     },
     "routes": [
