@@ -155,26 +155,42 @@ export default function ResultPage(): React.JSX.Element {
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => router.replace('/sansu-100/play')}
-              className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
-            >
-              🔁 もう1かい
-            </button>
-            <Link
-              href="/sansu-100/history"
-              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              📈 きろくをみる
-            </Link>
-            <Link
-              href="/sansu-100"
-              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              🏠 ホーム
-            </Link>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => {
+                  const [lvPart, op] = result.bestKey.replace(/^lv/, '').split(':');
+                  router.replace(`/sansu-100/play?level=${lvPart}&op=${op}`);
+                }}
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
+                data-testid="replay-same-btn"
+              >
+                🔁 おなじレベルでもう1回
+              </button>
+              <button
+                type="button"
+                onClick={() => router.replace('/sansu-100/play')}
+                className="flex-1 rounded-lg bg-indigo-100 px-4 py-3 font-bold text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-200 dark:hover:bg-indigo-900/60"
+                data-testid="replay-pick-btn"
+              >
+                📋 べつのレベルを選ぶ
+              </button>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link
+                href="/sansu-100/history"
+                className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                📈 きろくをみる
+              </Link>
+              <Link
+                href="/sansu-100"
+                className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                🏠 ホーム
+              </Link>
+            </div>
           </div>
         </section>
       </div>
