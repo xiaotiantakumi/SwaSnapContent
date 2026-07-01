@@ -122,6 +122,7 @@ function PlaySession({
     'quotient'
   );
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
+  const [combo, setCombo] = useState(0);
   const [showRetire, setShowRetire] = useState(false);
   const [retiring, setRetiring] = useState(false);
   // 同期ガード: 完走/リタイヤの finishSession が二重起動（連打や再レンダ）しないよう、
@@ -144,6 +145,7 @@ function PlaySession({
       const isCorrect =
         !isSkip && n === p.answer && (!remMode || r === p.remainder);
       setFeedback(isCorrect ? 'correct' : 'wrong');
+      setCombo((prev) => (isCorrect ? prev + 1 : 0));
       setTimeout(
         () => {
           session.submitAnswer(
@@ -361,6 +363,21 @@ function PlaySession({
           total={session.problems.length}
           correctCount={correctCount}
         />
+
+        {combo >= 3 ? (
+          <div
+            className={`text-center font-extrabold transition-all ${
+              combo >= 10
+                ? 'text-2xl text-red-500 dark:text-red-400'
+                : combo >= 5
+                  ? 'text-xl text-orange-500 dark:text-orange-400'
+                  : 'text-lg text-blue-500 dark:text-blue-400'
+            }`}
+            data-testid="combo-display"
+          >
+            🔥 {combo}れんせい！
+          </div>
+        ) : null}
 
         <div className="flex flex-1 items-center justify-center">
           {session.currentProblem ? <ProblemDisplay
