@@ -11,6 +11,7 @@ import BadgeUnlockOverlay from '../components/BadgeUnlockOverlay';
 import CoinBalance from '../components/CoinBalance';
 import FeverRoulette from '../components/FeverRoulette';
 import { formatDuration } from '../components/SessionTimer';
+import ShareButton from '../components/ShareButton';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
 import type { CoinBreakdownEntry } from '../lib/coins';
@@ -154,6 +155,10 @@ export default function ResultPage(): React.JSX.Element {
               </div>
             </div>
           ) : null}
+
+          <div className="flex justify-end">
+            <ShareButton session={session} durationText={formatDuration(session.durationMs)} />
+          </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
