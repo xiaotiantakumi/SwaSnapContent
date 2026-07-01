@@ -11,13 +11,15 @@ import ThemeToggle from '../components/theme-toggle';
 import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
 import PinPad from './components/PinPad';
+import QuickStartCard from './components/QuickStartCard';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
 import { sansuApi } from './lib/api-client';
 import { isDebugEnv } from './lib/debug-env';
 import { hashPin } from './lib/pin-hash';
-import type { SansuUserPublic } from './lib/types';
+import { storage } from './lib/storage';
+import type { SansuSession, SansuUserPublic } from './lib/types';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
@@ -27,6 +29,7 @@ export default function SansuHome(): React.JSX.Element {
   const { recentUsers, currentUser, selectUser, saveUser, loaded, refreshUsers } =
     useSansuUser();
   const seedDone = useRef(false);
+  const [recentSessions, setRecentSessions] = useState<SansuSession[]>([]);
   const [selectingUser, setSelectingUser] = useState<SansuUserPublic | null>(
     null
   );
@@ -46,6 +49,14 @@ export default function SansuHome(): React.JSX.Element {
       }).catch(console.warn)
     );
   }, [refreshUsers]);
+
+  useEffect(() => {
+    if (currentUser) {
+      setRecentSessions(storage.getSessions(currentUser.id));
+    } else {
+      setRecentSessions([]);
+    }
+  }, [currentUser]);
 
   const handleSelect = (user: SansuUserPublic) => {
     setSelectingUser(user);
@@ -190,6 +201,7 @@ export default function SansuHome(): React.JSX.Element {
             >
               ▶︎ れんしゅう スタート！
             </button>
+            <QuickStartCard sessions={recentSessions} />
             <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/sansu-100/shop"
