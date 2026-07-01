@@ -38,11 +38,23 @@ function PlayInner(): React.JSX.Element {
   }, [loaded, currentUser, router]);
 
   useEffect(() => {
-    if (isDaily && !pick) {
+    if (pick) return;
+    if (isDaily) {
       const lv = dailyLevel() as Exclude<LevelId, 'mix'>;
       setPick({ level: lv, operation: opOf(lv) });
+      return;
     }
-  }, [isDaily, pick]);
+    // ?level=N&op=add で直接レベルを指定できる（結果画面からの直リプレイ用）
+    const lvParam = params.get('level');
+    const opParam = params.get('op') as Operation | null;
+    if (lvParam && opParam) {
+      const n = Number(lvParam);
+      const validOps: Operation[] = ['add', 'sub', 'mul', 'div', 'mixed'];
+      if (!Number.isNaN(n) && validOps.includes(opParam)) {
+        setPick({ level: n as LevelId, operation: opParam });
+      }
+    }
+  }, [isDaily, pick, params]);
 
   if (!loaded || !currentUser) return <main className="p-8" />;
 
