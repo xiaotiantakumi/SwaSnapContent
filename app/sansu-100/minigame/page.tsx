@@ -72,6 +72,15 @@ export default function MinigameHubPage(): React.JSX.Element {
           </Link>
         ) : null}
 
+        <Link
+          href="/sansu-100/minigame/scores"
+          className="flex items-center justify-between rounded-xl bg-amber-50 px-4 py-3 font-semibold text-amber-800 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-200 dark:hover:bg-amber-900/30"
+          data-testid="scores-link"
+        >
+          <span>🏆 マイベストスコア</span>
+          <span className="text-sm">→</span>
+        </Link>
+
         <div className="grid grid-cols-2 gap-3">
           {MINIGAMES.map((g) => {
             const locked = playCredits <= 0;
