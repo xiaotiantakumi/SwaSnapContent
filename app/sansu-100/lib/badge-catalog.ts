@@ -108,6 +108,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'ponpon_skyhigh', category: 'minigame', name: '天まで とどけ', description: 'ぽんぽんジャンプで たかさ80', icon: '☁️', tier: 'gold', rarity: 'epic' },
   { id: 'airhockey_rookie', category: 'minigame', name: 'ホッケー見習い', description: 'はじいてホッケーで5てん', icon: '🏒', tier: 'silver', rarity: 'rare' },
   { id: 'airhockey_champion', category: 'minigame', name: 'ホッケー王者', description: 'はじいてホッケーで10てん', icon: '🏆', tier: 'gold', rarity: 'epic' },
+  { id: 'kururin_roller', category: 'minigame', name: 'ころころ名人', description: 'くるりんボールで2かいクリア', icon: '🌀', tier: 'silver', rarity: 'rare' },
+  { id: 'kururin_master', category: 'minigame', name: 'めいろの達人', description: 'くるりんボールで5かいクリア', icon: '🎯', tier: 'gold', rarity: 'epic' },
   { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
   { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 
