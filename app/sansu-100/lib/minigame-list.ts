@@ -179,6 +179,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'airhockey',
+    name: 'はじいてホッケー',
+    emoji: '🏒',
+    desc: 'マレットで パックを うちかえせ！',
+    howTo: [
+      'ゆびで うごかす か ◀▶ボタンで じぶんの マレットを うごかす',
+      'パックを うちかえして あいての ゴールに いれよう',
+      'せいげん時間の あいだ つづくよ。あいてに 5てん さきに ひきはなされると おわり',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(
