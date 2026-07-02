@@ -7,7 +7,7 @@ import { USERS_PARTITION, usersTable } from '../shared/tableClient';
 type DebugGrantBody = { userId: string; amount?: number };
 
 // デバッグ用: コインを付与する。本番ドメインからのリクエストは、対象ユーザーが
-// 管理者アカウント（isAdminAccount: 名前＋登録済みPINのハッシュ一致）でない限り 403。
+// 管理者アカウント（isAdminAccount: 固定userIdとの一致）でない限り 403。
 // テスト用途（一気にコインを得て着せ替え/ミニゲームを試す）＋管理者の自由な付与に使う。
 app.http('sansuDebugGrantPost', {
   methods: ['POST'],
@@ -47,7 +47,7 @@ app.http('sansuDebugGrantPost', {
         req.headers.get('x-original-host'),
         req.headers.get('referer'),
       ].some((c) => isDebugHost(c));
-      if (!debugHost && !(await isAdminAccount(user))) {
+      if (!debugHost && !isAdminAccount(user)) {
         return { status: 403, jsonBody: { error: 'debug disabled' } };
       }
 

@@ -9,7 +9,7 @@ import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
 import CoinBalance from '../components/CoinBalance';
 import { useSansuUser } from '../hooks/useSansuUser';
-import { isAdminUserName } from '../lib/debug-env';
+import { isAdminUserId } from '../lib/debug-env';
 import {
   MINIGAME_PLAYS_PER_MATH,
   SPEND_COSTS,
@@ -29,7 +29,7 @@ export default function MinigameHubPage(): React.JSX.Element {
 
   const coins = currentUser.coins ?? 0;
   const playCredits = currentUser.minigameCredits ?? 0;
-  const isAdmin = isAdminUserName(currentUser.name);
+  const isAdmin = isAdminUserId(currentUser.id);
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-gray-900">

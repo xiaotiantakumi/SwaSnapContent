@@ -52,7 +52,7 @@ app.http('sansuSpendPost', {
         body.reason === 'play' &&
         credits <= 0 &&
         !debugHost &&
-        !(await isAdminAccount(user))
+        !isAdminAccount(user)
       ) {
         return {
           status: 409,
