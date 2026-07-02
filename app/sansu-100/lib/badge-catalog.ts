@@ -106,6 +106,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'starshooter_hero', category: 'minigame', name: '宇宙のヒーロー', description: 'ピューピュー星空で35てん', icon: '🌟', tier: 'gold', rarity: 'epic' },
   { id: 'ponpon_climber', category: 'minigame', name: 'のぼり名人', description: 'ぽんぽんジャンプで たかさ30', icon: '🐰', tier: 'silver', rarity: 'rare' },
   { id: 'ponpon_skyhigh', category: 'minigame', name: '天まで とどけ', description: 'ぽんぽんジャンプで たかさ80', icon: '☁️', tier: 'gold', rarity: 'epic' },
+  { id: 'airhockey_rookie', category: 'minigame', name: 'ホッケー見習い', description: 'はじいてホッケーで5てん', icon: '🏒', tier: 'silver', rarity: 'rare' },
+  { id: 'airhockey_champion', category: 'minigame', name: 'ホッケー王者', description: 'はじいてホッケーで10てん', icon: '🏆', tier: 'gold', rarity: 'epic' },
   { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
   { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 
