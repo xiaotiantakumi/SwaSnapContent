@@ -16,7 +16,7 @@ const PADS = [
   { id: 3, color: '#22c55e', lit: '#86efac' },
 ] as const;
 
-type Phase = 'showing' | 'input' | 'wrong';
+type Phase = 'showing' | 'input' | 'gap' | 'wrong';
 
 export default function OboeteTouchGame({
   onGameOver,
@@ -90,7 +90,10 @@ export default function OboeteTouchGame({
       if (soundRef.current) sound.correct();
       const nextIdx = inputIdx + 1;
       if (nextIdx === sequence.length) {
-        // 1ラウンドクリア → 次のレベルへ
+        // 1ラウンドクリア → 次のシーケンスが始まるまでは入力を受け付けない
+        // （'gap' 中にパッドをタップできてしまうと、直前の正解パッドへの二重判定や
+        // 誤った即ゲームオーバーが起きるため）
+        setPhase('gap');
         if (soundRef.current) sound.fanfare();
         setTimeout(() => {
           if (overRef.current) return;
@@ -111,7 +114,13 @@ export default function OboeteTouchGame({
         レベル {level}
       </p>
       <p className="text-sm text-gray-600 dark:text-gray-400" data-testid="oboete-status">
-        {phase === 'showing' ? 'よく みてね…' : phase === 'input' ? 'じゅんばん どおりに タッチ！' : 'ざんねん！'}
+        {phase === 'input'
+          ? 'じゅんばん どおりに タッチ！'
+          : phase === 'wrong'
+            ? 'ざんねん！'
+            : phase === 'gap'
+              ? 'せいかい！ つぎへ…'
+              : 'よく みてね…'}
       </p>
       <div className="grid grid-cols-2 gap-3">
         {PADS.map((p) => (

@@ -133,4 +133,42 @@ test.describe('おぼえてタッチ ミニゲーム', () => {
 
     await expect(finalScore).toBeVisible({ timeout: 8000 });
   });
+
+  test('ラウンドクリア後の待機中（gapフェーズ）にタップしてもゲームオーバーにならない', async ({ page }) => {
+    // Math.random を固定し、シーケンスが常にパッド0になるようにして挙動を決定的にする。
+    await page.addInitScript(() => {
+      Math.random = () => 0;
+    });
+
+    const name = uniqueName();
+    await registerAndLogin(page, name);
+    await earnCoinsViaDebug(page);
+
+    await page.goto('/sansu-100/minigame/oboete');
+    await page.waitForLoadState('networkidle');
+    const startBtn = page.locator('[data-testid="oboete-start"]');
+    await startBtn.waitFor({ timeout: 8000 });
+    await startBtn.click();
+
+    const status = page.getByTestId('oboete-status');
+    const finalScore = page.getByTestId('oboete-final-score');
+    const pad0 = page.locator('[data-testid="oboete-pad-0"]');
+    const pad1 = page.locator('[data-testid="oboete-pad-1"]');
+
+    // 1問目（シーケンス長1・正解は常にパッド0）をクリアする
+    await expect(status).toHaveText('じゅんばん どおりに タッチ！', { timeout: 8000 });
+    await pad0.click();
+
+    // クリア直後の gap フェーズでは、他のパッドをタップしても無視される
+    // （無視されずに誤判定されると、この時点で即ゲームオーバーになってしまう）
+    await expect(status).toHaveText('せいかい！ つぎへ…', { timeout: 2000 });
+    await expect(pad1).toBeDisabled();
+    await pad1.click({ force: true });
+    await page.waitForTimeout(100);
+    await expect(finalScore).not.toBeVisible();
+
+    // gap が終わって次のラウンド（レベル1）が正常に始まる
+    await expect(status).toHaveText('じゅんばん どおりに タッチ！', { timeout: 3000 });
+    await expect(page.getByText('レベル 1')).toBeVisible();
+  });
 });
