@@ -191,6 +191,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'kururin',
+    name: 'くるりんボール',
+    emoji: '🌀',
+    desc: 'かたむけて ゴールを めざそう！',
+    howTo: [
+      'ゆびで かたむける ほうこうへ ドラッグ か ◀▲▼▶ボタンで ボールを ころがす',
+      'かべに ぶつかると とまるよ。🏁ゴールに つくと つぎの めいろへ',
+      'せいげん時間の 中で なんかい クリアできるかな。時間切れで おわり',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(

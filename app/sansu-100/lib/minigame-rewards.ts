@@ -16,7 +16,8 @@ export type MinigameId =
   | 'rhythmdon'
   | 'starshooter'
   | 'ponpon'
-  | 'airhockey';
+  | 'airhockey'
+  | 'kururin';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
 const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
@@ -79,6 +80,10 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   airhockey: [
     { score: 5, badgeId: 'airhockey_rookie' },
     { score: 10, badgeId: 'airhockey_champion' },
+  ],
+  kururin: [
+    { score: 2, badgeId: 'kururin_roller' },
+    { score: 5, badgeId: 'kururin_master' },
   ],
 };
 
