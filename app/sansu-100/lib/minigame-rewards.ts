@@ -11,7 +11,8 @@ export type MinigameId =
   | 'maze'
   | 'flappy'
   | 'pakupaku'
-  | 'oboete';
+  | 'oboete'
+  | 'swipesort';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
 const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
@@ -54,6 +55,10 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   oboete: [
     { score: 5, badgeId: 'oboete_sharp' },
     { score: 10, badgeId: 'oboete_genius' },
+  ],
+  swipesort: [
+    { score: 15, badgeId: 'swipesort_quick' },
+    { score: 30, badgeId: 'swipesort_lightning' },
   ],
 };
 

@@ -98,6 +98,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'flappy_master', category: 'minigame', name: 'ぱたぱた王', description: 'ぱたぱたで30てん', icon: '👑', tier: 'gold', rarity: 'epic' },
   { id: 'oboete_sharp', category: 'minigame', name: 'きおく力じまん', description: 'おぼえてタッチで レベル5', icon: '🧠', tier: 'silver', rarity: 'rare' },
   { id: 'oboete_genius', category: 'minigame', name: 'きおくの天才児', description: 'おぼえてタッチで レベル10', icon: '💡', tier: 'gold', rarity: 'epic' },
+  { id: 'swipesort_quick', category: 'minigame', name: 'わけっこ名人', description: 'スワイプわけっこで15てん', icon: '🔀', tier: 'silver', rarity: 'rare' },
+  { id: 'swipesort_lightning', category: 'minigame', name: 'いなずまの手', description: 'スワイプわけっこで30てん', icon: '⚡', tier: 'gold', rarity: 'epic' },
   { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
   { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 
