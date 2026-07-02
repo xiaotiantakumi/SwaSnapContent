@@ -14,7 +14,8 @@ export type MinigameId =
   | 'oboete'
   | 'swipesort'
   | 'rhythmdon'
-  | 'starshooter';
+  | 'starshooter'
+  | 'ponpon';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
 const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
@@ -69,6 +70,10 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   starshooter: [
     { score: 15, badgeId: 'starshooter_ace' },
     { score: 35, badgeId: 'starshooter_hero' },
+  ],
+  ponpon: [
+    { score: 30, badgeId: 'ponpon_climber' },
+    { score: 80, badgeId: 'ponpon_skyhigh' },
   ],
 };
 
