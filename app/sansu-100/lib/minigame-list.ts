@@ -167,6 +167,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'ponpon',
+    name: 'ぽんぽんジャンプ',
+    emoji: '🐰',
+    desc: 'あしばを つたって うえを めざそう！',
+    howTo: [
+      'キャラクターは じどうで はねつづけるよ',
+      'ゆびで うごかす か ◀▶ボタンで あしばを つたって うえへ すすもう',
+      'あしばを ふみはずして したに おちると おわり。とどいた たかさが スコア',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(

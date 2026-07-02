@@ -104,6 +104,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'rhythmdon_maestro', category: 'minigame', name: 'リズムの達人', description: 'リズムでドンで25てん', icon: '🎵', tier: 'gold', rarity: 'epic' },
   { id: 'starshooter_ace', category: 'minigame', name: 'エースパイロット', description: 'ピューピュー星空で15てん', icon: '🚀', tier: 'silver', rarity: 'rare' },
   { id: 'starshooter_hero', category: 'minigame', name: '宇宙のヒーロー', description: 'ピューピュー星空で35てん', icon: '🌟', tier: 'gold', rarity: 'epic' },
+  { id: 'ponpon_climber', category: 'minigame', name: 'のぼり名人', description: 'ぽんぽんジャンプで たかさ30', icon: '🐰', tier: 'silver', rarity: 'rare' },
+  { id: 'ponpon_skyhigh', category: 'minigame', name: '天まで とどけ', description: 'ぽんぽんジャンプで たかさ80', icon: '☁️', tier: 'gold', rarity: 'epic' },
   { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
   { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 
