@@ -110,6 +110,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'airhockey_champion', category: 'minigame', name: 'ホッケー王者', description: 'はじいてホッケーで10てん', icon: '🏆', tier: 'gold', rarity: 'epic' },
   { id: 'kururin_roller', category: 'minigame', name: 'ころころ名人', description: 'くるりんボールで2かいクリア', icon: '🌀', tier: 'silver', rarity: 'rare' },
   { id: 'kururin_master', category: 'minigame', name: 'めいろの達人', description: 'くるりんボールで5かいクリア', icon: '🎯', tier: 'gold', rarity: 'epic' },
+  { id: 'hitofude_artist', category: 'minigame', name: 'いっぴつがき名人', description: 'ひとふでラインで3もんクリア', icon: '✏️', tier: 'silver', rarity: 'rare' },
+  { id: 'hitofude_master', category: 'minigame', name: 'せんの達人', description: 'ひとふでラインで6もんクリア', icon: '🖊️', tier: 'gold', rarity: 'epic' },
   { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
   { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 

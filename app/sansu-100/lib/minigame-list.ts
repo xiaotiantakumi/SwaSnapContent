@@ -203,6 +203,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'hitofude',
+    name: 'ひとふでライン',
+    emoji: '✏️',
+    desc: '一ふでで ぜんぶの せんを なぞろう！',
+    howTo: [
+      '点と点が せんで つながっているよ',
+      'おなじ せんを 2回 とおらずに、ぜんぶの せんを タップで なぞろう',
+      'ぜんぶ なぞれたら つぎの もんだいへ（はなびらが ふえるよ）。時間切れで おわり',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(
