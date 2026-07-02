@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
-import { isDebugHost } from '../shared/debugEnv';
+import { isAdminAccount, isDebugHost } from '../shared/debugEnv';
 import { getSpendCost } from '../shared/minigame';
 import { type SansuUserEntity, toPublic } from '../shared/sansuTypes';
 import { USERS_PARTITION, usersTable } from '../shared/tableClient';
@@ -48,7 +48,12 @@ app.http('sansuSpendPost', {
         req.headers.get('x-original-host'),
         req.headers.get('referer'),
       ].some((c) => isDebugHost(c));
-      if (body.reason === 'play' && credits <= 0 && !debugHost) {
+      if (
+        body.reason === 'play' &&
+        credits <= 0 &&
+        !debugHost &&
+        !(await isAdminAccount(user))
+      ) {
         return {
           status: 409,
           jsonBody: { error: 'no_plays', minigameCredits: 0 },

@@ -1,13 +1,14 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
-import { isDebugHost } from '../shared/debugEnv';
+import { isAdminAccount, isDebugHost } from '../shared/debugEnv';
 import { type SansuUserEntity, toPublic } from '../shared/sansuTypes';
 import { USERS_PARTITION, usersTable } from '../shared/tableClient';
 
 type DebugGrantBody = { userId: string; amount?: number };
 
-// デバッグ用: コインを付与する。本番ドメインからのリクエストは 403。
-// テスト用途（一気にコインを得て着せ替え/ミニゲームを試す）専用。
+// デバッグ用: コインを付与する。本番ドメインからのリクエストは、対象ユーザーが
+// 管理者アカウント（isAdminAccount: 名前＋登録済みPINのハッシュ一致）でない限り 403。
+// テスト用途（一気にコインを得て着せ替え/ミニゲームを試す）＋管理者の自由な付与に使う。
 app.http('sansuDebugGrantPost', {
   methods: ['POST'],
   authLevel: 'anonymous',
@@ -17,17 +18,6 @@ app.http('sansuDebugGrantPost', {
     context: InvocationContext
   ): Promise<HttpResponseInit> => {
     try {
-      // SWA 実環境では x-forwarded-host 単独だと内部ホストが入ることがあるため、
-      // 複数のホスト系ヘッダのいずれかが「正規ドメイン以外」なら許可する（本番ドメインは全て不一致→403）。
-      const allowed = [
-        req.headers.get('x-forwarded-host'),
-        req.headers.get('host'),
-        req.headers.get('x-original-host'),
-        req.headers.get('referer'),
-      ].some((c) => isDebugHost(c));
-      if (!allowed) {
-        return { status: 403, jsonBody: { error: 'debug disabled' } };
-      }
       const body = (await req.json()) as DebugGrantBody;
       if (!body.userId) {
         return { status: 400, jsonBody: { error: 'missing fields' } };
@@ -46,6 +36,19 @@ app.http('sansuDebugGrantPost', {
         );
       } catch {
         return { status: 404, jsonBody: { error: 'user not found' } };
+      }
+
+      // SWA 実環境では x-forwarded-host 単独だと内部ホストが入ることがあるため、
+      // 複数のホスト系ヘッダのいずれかが「正規ドメイン以外」なら許可する（本番ドメインは全て不一致→403）。
+      // 管理者ユーザー自身への付与は、本番ドメインでも許可する。
+      const debugHost = [
+        req.headers.get('x-forwarded-host'),
+        req.headers.get('host'),
+        req.headers.get('x-original-host'),
+        req.headers.get('referer'),
+      ].some((c) => isDebugHost(c));
+      if (!debugHost && !(await isAdminAccount(user))) {
+        return { status: 403, jsonBody: { error: 'debug disabled' } };
       }
 
       const updated = {

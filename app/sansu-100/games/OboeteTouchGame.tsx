@@ -10,10 +10,10 @@ import { storage } from '../lib/storage';
 // 間違えたら終了、そこまでクリアしたレベル数（=シーケンス長-1）がスコア。
 
 const PADS = [
-  { id: 0, color: '#ef4444', lit: '#fca5a5' },
-  { id: 1, color: '#3b82f6', lit: '#93c5fd' },
-  { id: 2, color: '#eab308', lit: '#fde68a' },
-  { id: 3, color: '#22c55e', lit: '#86efac' },
+  { id: 0, color: '#ef4444' },
+  { id: 1, color: '#3b82f6' },
+  { id: 2, color: '#eab308' },
+  { id: 3, color: '#22c55e' },
 ] as const;
 
 type Phase = 'showing' | 'input' | 'gap' | 'wrong';
@@ -123,18 +123,28 @@ export default function OboeteTouchGame({
               : 'よく みてね…'}
       </p>
       <div className="grid grid-cols-2 gap-3">
-        {PADS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            disabled={phase !== 'input'}
-            onClick={() => handlePadTap(p.id)}
-            data-testid={`oboete-pad-${p.id}`}
-            className="size-24 rounded-2xl shadow-md transition-transform active:scale-90 disabled:active:scale-100"
-            style={{ backgroundColor: litPad === p.id ? p.lit : p.color }}
-            aria-label={`パッド${p.id + 1}`}
-          />
-        ))}
+        {PADS.map((p) => {
+          const isLit = litPad === p.id;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              disabled={phase !== 'input'}
+              onClick={() => handlePadTap(p.id)}
+              data-testid={`oboete-pad-${p.id}`}
+              className="size-24 rounded-2xl transition-all duration-100 ease-out active:scale-90 disabled:active:scale-100"
+              style={{
+                backgroundColor: p.color,
+                filter: isLit ? 'brightness(1.6) saturate(1.3)' : 'brightness(0.55)',
+                boxShadow: isLit
+                  ? `0 0 0 4px white, 0 0 30px 10px ${p.color}`
+                  : '0 2px 4px rgba(0,0,0,0.2)',
+                transform: isLit ? 'scale(1.08)' : 'scale(1)',
+              }}
+              aria-label={`パッド${p.id + 1}`}
+            />
+          );
+        })}
       </div>
     </div>
   );

@@ -52,7 +52,7 @@ interface Ghost {
 
 interface GS {
   player: {
-    x: number; y: number; dir: Dir; nextDir: Dir;
+    x: number; y: number; dir: Dir;
     stepAt: number;
     dead: boolean;
     respawnAt: number;
@@ -142,7 +142,7 @@ function createGS(): GS {
   return {
     player: {
       x: PLAYER_START.x, y: PLAYER_START.y,
-      dir: 'left', nextDir: 'left',
+      dir: 'left',
       stepAt: 5, dead: false, respawnAt: -1, invincibleUntil: -1,
     },
     ghosts: [
@@ -163,6 +163,7 @@ function createGS(): GS {
 // ── Game tick ─────────────────────────────────────────────────────────────
 function tickGame(
   gs: GS,
+  heldDir: Dir | null,
   rand: () => number,
   onEvent: (ev: 'dot' | 'power' | 'kill' | 'die') => void,
 ): void {
@@ -174,22 +175,19 @@ function tickGame(
     gs.player.x = PLAYER_START.x;
     gs.player.y = PLAYER_START.y;
     gs.player.dir = 'left';
-    gs.player.nextDir = 'left';
     gs.player.dead = false;
     gs.player.stepAt = gs.tick + 8;
     gs.player.invincibleUntil = gs.tick + 60; // 6秒間無敵
   }
 
-  // Move player
-  if (!gs.player.dead && gs.tick >= gs.player.stepAt) {
-    const { x, y, dir, nextDir } = gs.player;
+  // Move player（方向キー/ボタンが押されている間だけ進む。離すと止まる）
+  if (!gs.player.dead && heldDir && gs.tick >= gs.player.stepAt) {
+    const { x, y, dir } = gs.player;
 
     let moveDir = dir;
-    // Try to change direction
-    if (nextDir !== dir) {
-      const v = DIR_VECTORS[nextDir];
-      if (canPass(x + v.x, y + v.y, false)) moveDir = nextDir;
-    }
+    // Try to change direction toward the held input
+    const hv = DIR_VECTORS[heldDir];
+    if (canPass(x + hv.x, y + hv.y, false)) moveDir = heldDir;
 
     const v = DIR_VECTORS[moveDir];
     const nx = x + v.x;
@@ -425,22 +423,13 @@ function drawGame(
   const isInvincible = !gs.player.dead && gs.tick < gs.player.invincibleUntil;
   const showPlayer = (!gs.player.dead || gs.tick % 5 < 4) && (!isInvincible || gs.tick % 4 < 3);
   if (showPlayer) {
-    const { x: px, y: py, dir } = gs.player;
+    const { x: px, y: py } = gs.player;
     const pcx = px * cell + cell / 2;
     const pcy = py * cell + cell / 2;
-    const pr = cell * 0.42;
-    const mouthOpen = 0.22 + Math.abs(Math.sin(gs.tick * 0.5)) * 0.18;
-    const base = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 }[dir];
-    ctx.fillStyle = '#ffee00';
-    ctx.beginPath();
-    ctx.moveTo(pcx, pcy);
-    ctx.arc(pcx, pcy, pr, base + mouthOpen, base + Math.PI * 2 - mouthOpen);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#cc8800';
-    ctx.beginPath();
-    ctx.arc(pcx, pcy, pr * 0.25, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.font = `${Math.floor(cell * 0.85)}px "Apple Color Emoji","Segoe UI Emoji",serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('👴', pcx, pcy);
   }
 }
 
@@ -456,6 +445,8 @@ export default function PakupakuGame({
   const layoutRef = useRef(computeLayout());
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
+  // 押している間だけ進む（離すと止まる）。キー/ボタン/ドラッグのいずれかで更新する。
+  const heldDirRef = useRef<Dir | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -483,7 +474,7 @@ export default function PakupakuGame({
       stepMs: () => 100,
       onTick: () => {
         if (overRef.current) return;
-        tickGame(gs, rng, (ev) => {
+        tickGame(gs, heldDirRef.current, rng, (ev) => {
           if (ev === 'dot' && gs.soundOn) sound.eat();
           if (ev === 'die' && gs.soundOn) sound.crash();
           if (ev === 'kill' && gs.soundOn) sound.eat();
@@ -502,20 +493,33 @@ export default function PakupakuGame({
       onRender: () => drawGame(ctx, gsRef.current, layoutRef.current.cell),
     });
 
-    const onKey = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       const d = dirFromKey(e.key);
-      if (d) { gsRef.current.player.nextDir = d; e.preventDefault(); }
+      if (d) { heldDirRef.current = d; e.preventDefault(); }
     };
-    window.addEventListener('keydown', onKey);
+    const onKeyUp = (e: KeyboardEvent) => {
+      const d = dirFromKey(e.key);
+      // 今まさに押している方向のキーを離したときだけ止める
+      // （別の古いキーのkeyupで現在の入力を誤って消さないため）
+      if (d && heldDirRef.current === d) heldDirRef.current = null;
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
     return () => {
       handle.stop();
-      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setDir = (d: Dir) => { gsRef.current.player.nextDir = d; };
+  // ボタン: 押している間だけ進む。同じボタンを離したときだけ止める。
+  const pressDir = (d: Dir) => { heldDirRef.current = d; };
+  const releaseDir = (d: Dir) => {
+    if (heldDirRef.current === d) heldDirRef.current = null;
+  };
 
+  // ドラッグ: 指を置いている間、動かした方向へ進み続ける（離すと止まる）。
   const touch = useRef<{ x: number; y: number } | null>(null);
   const padBtn = 'flex h-12 w-12 items-center justify-center rounded-xl bg-gray-200 text-xl font-bold text-gray-700 active:bg-gray-300 dark:bg-gray-700 dark:text-gray-200';
 
@@ -533,29 +537,59 @@ export default function PakupakuGame({
         className="rounded-xl shadow-lg"
         style={{ touchAction: 'none' }}
         onPointerDown={(e) => { touch.current = { x: e.clientX, y: e.clientY }; }}
-        onPointerUp={(e) => {
-          const s0 = touch.current; touch.current = null;
+        onPointerMove={(e) => {
+          const s0 = touch.current;
           if (!s0) return;
           const dx = e.clientX - s0.x, dy = e.clientY - s0.y;
           if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;
-          setDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+          heldDirRef.current = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
         }}
+        onPointerUp={() => { touch.current = null; heldDirRef.current = null; }}
+        onPointerLeave={() => { touch.current = null; heldDirRef.current = null; }}
       />
 
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        よこ か うしろから さわって たべよう（まともにぶつかると やられるよ）
+        ゆびを おいたまま うごかそう（まともに ぶつかると やられるよ）
       </p>
 
-      {/* Direction pad */}
+      {/* Direction pad（押している間だけ進む） */}
       <div className="grid grid-cols-3 gap-2" aria-label="そうさボタン">
         <span/>
-        <button type="button" className={padBtn} onClick={() => setDir('up')} aria-label="うえ">▲</button>
+        <button
+          type="button"
+          className={padBtn}
+          onPointerDown={() => pressDir('up')}
+          onPointerUp={() => releaseDir('up')}
+          onPointerLeave={() => releaseDir('up')}
+          aria-label="うえ"
+        >▲</button>
         <span/>
-        <button type="button" className={padBtn} onClick={() => setDir('left')} aria-label="ひだり">◀</button>
+        <button
+          type="button"
+          className={padBtn}
+          onPointerDown={() => pressDir('left')}
+          onPointerUp={() => releaseDir('left')}
+          onPointerLeave={() => releaseDir('left')}
+          aria-label="ひだり"
+        >◀</button>
         <span/>
-        <button type="button" className={padBtn} onClick={() => setDir('right')} aria-label="みぎ">▶</button>
+        <button
+          type="button"
+          className={padBtn}
+          onPointerDown={() => pressDir('right')}
+          onPointerUp={() => releaseDir('right')}
+          onPointerLeave={() => releaseDir('right')}
+          aria-label="みぎ"
+        >▶</button>
         <span/>
-        <button type="button" className={padBtn} onClick={() => setDir('down')} aria-label="した">▼</button>
+        <button
+          type="button"
+          className={padBtn}
+          onPointerDown={() => pressDir('down')}
+          onPointerUp={() => releaseDir('down')}
+          onPointerLeave={() => releaseDir('down')}
+          aria-label="した"
+        >▼</button>
         <span/>
       </div>
     </div>

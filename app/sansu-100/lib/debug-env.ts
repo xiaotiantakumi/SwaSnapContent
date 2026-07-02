@@ -13,3 +13,11 @@ export function isDebugEnv(): boolean {
   if (h.endsWith('.azurestaticapps.net') && /-\d+\./.test(h)) return true;
   return false;
 }
+
+// 常に管理者として扱うユーザー名（本番環境でも算数ゲート等をスキップする）。
+// サーバー側 api/src/shared/debugEnv.ts の ADMIN_USER_NAME と一致させること。
+export const ADMIN_USER_NAME = 'たくみ';
+
+export function isAdminUserName(name: string | null | undefined): boolean {
+  return name === ADMIN_USER_NAME;
+}
