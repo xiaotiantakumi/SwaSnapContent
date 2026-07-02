@@ -62,6 +62,8 @@ function createGS(rand: () => number): GS {
   return gs;
 }
 
+const PUCK_VY_MIN = 1.5; // これ未満だとパックがほぼ水平に張り付いて停滞するので下限を設ける
+
 function reflectOffPaddle(gs: GS, paddleX: number, goingDown: boolean): void {
   const hitOffset = (gs.puckX - (paddleX + PADDLE_W / 2)) / (PADDLE_W / 2); // -1..1
   gs.puckVY = goingDown ? -Math.abs(gs.puckVY) : Math.abs(gs.puckVY);
@@ -71,6 +73,9 @@ function reflectOffPaddle(gs: GS, paddleX: number, goingDown: boolean): void {
     const s = PUCK_SPEED_MAX / speed;
     gs.puckVX *= s;
     gs.puckVY *= s;
+  }
+  if (Math.abs(gs.puckVY) < PUCK_VY_MIN) {
+    gs.puckVY = Math.sign(gs.puckVY) * PUCK_VY_MIN;
   }
 }
 
