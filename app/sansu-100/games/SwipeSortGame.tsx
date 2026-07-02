@@ -82,6 +82,7 @@ export default function SwipeSortGame({
       }
 
       setTimeout(() => {
+        if (overRef.current) return;
         if (livesRef.current <= 0) {
           overRef.current = true;
           onGameOver(scoreRef.current);
