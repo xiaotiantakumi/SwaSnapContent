@@ -155,6 +155,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'starshooter',
+    name: 'ピューピュー星空',
+    emoji: '🚀',
+    desc: 'いんせきを うちおとせ！',
+    howTo: [
+      'ゆびで うごかす か ◀▶ボタンで じきを うごかす',
+      'たまは じどうで でるよ。あたると いんせきが こわれてスコアアップ',
+      'いんせきが したの せんまで とどくと 1かい ミス。3かい ミスすると おわり',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(
