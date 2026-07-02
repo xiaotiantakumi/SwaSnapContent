@@ -100,6 +100,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'oboete_genius', category: 'minigame', name: 'きおくの天才児', description: 'おぼえてタッチで レベル10', icon: '💡', tier: 'gold', rarity: 'epic' },
   { id: 'swipesort_quick', category: 'minigame', name: 'わけっこ名人', description: 'スワイプわけっこで15てん', icon: '🔀', tier: 'silver', rarity: 'rare' },
   { id: 'swipesort_lightning', category: 'minigame', name: 'いなずまの手', description: 'スワイプわけっこで30てん', icon: '⚡', tier: 'gold', rarity: 'epic' },
+  { id: 'rhythmdon_groovy', category: 'minigame', name: 'リズムかん抜群', description: 'リズムでドンで15てん', icon: '🥁', tier: 'silver', rarity: 'rare' },
+  { id: 'rhythmdon_maestro', category: 'minigame', name: 'リズムの達人', description: 'リズムでドンで25てん', icon: '🎵', tier: 'gold', rarity: 'epic' },
   { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
   { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 

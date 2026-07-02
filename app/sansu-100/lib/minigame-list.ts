@@ -143,6 +143,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'rhythmdon',
+    name: 'リズムでドン',
+    emoji: '🥁',
+    desc: 'ノーツが せんに きたら タイミングよく ドン！',
+    howTo: [
+      '2つの レーンに うえから ノーツが おちてくるよ',
+      'ノーツが したの せんに きたタイミングで そのレーンの「ドン！」を タップ',
+      'せいげん時間の あいだ つづくよ。せんを とおりすぎると 1かい ミス。3かい ミスすると おわり',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(
