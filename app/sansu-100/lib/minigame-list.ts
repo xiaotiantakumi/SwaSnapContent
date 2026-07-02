@@ -131,6 +131,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'swipesort',
+    name: 'スワイプわけっこ',
+    emoji: '🔀',
+    desc: 'ぐうすう・きすうを すばやく わけよう！',
+    howTo: [
+      'すうじの カードが でてくるよ',
+      'ぐうすう（2,4,6…）なら みぎへ、きすう（1,3,5…）なら ひだりへ スワイプ！',
+      'せいげん時間の 中で なんかい せいかいできるかな。3かい まちがえると おわり',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(
