@@ -12,7 +12,8 @@ export type MinigameId =
   | 'flappy'
   | 'pakupaku'
   | 'oboete'
-  | 'swipesort';
+  | 'swipesort'
+  | 'rhythmdon';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
 const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
@@ -59,6 +60,10 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   swipesort: [
     { score: 15, badgeId: 'swipesort_quick' },
     { score: 30, badgeId: 'swipesort_lightning' },
+  ],
+  rhythmdon: [
+    { score: 15, badgeId: 'rhythmdon_groovy' },
+    { score: 25, badgeId: 'rhythmdon_maestro' },
   ],
 };
 
