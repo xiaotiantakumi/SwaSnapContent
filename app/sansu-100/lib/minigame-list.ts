@@ -119,6 +119,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'oboete',
+    name: 'おぼえてタッチ',
+    emoji: '🧠',
+    desc: 'ひかった じゅんばんを おぼえて タッチ！',
+    howTo: [
+      '4つの ボタンが じゅんばんに ひかるよ',
+      'ひかった とおりの じゅんばんで ボタンを タッチしよう',
+      'せいかいすると 1つずつ ながく なるよ。まちがえたら おわり',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(
