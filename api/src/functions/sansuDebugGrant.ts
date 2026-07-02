@@ -1,14 +1,17 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
-import { isAdminAccount, isDebugHost } from '../shared/debugEnv';
+import { isDebugHost } from '../shared/debugEnv';
 import { type SansuUserEntity, toPublic } from '../shared/sansuTypes';
 import { USERS_PARTITION, usersTable } from '../shared/tableClient';
 
 type DebugGrantBody = { userId: string; amount?: number };
 
-// デバッグ用: コインを付与する。本番ドメインからのリクエストは、対象ユーザーが
-// 管理者アカウント（isAdminAccount: 固定userIdとの一致）でない限り 403。
-// テスト用途（一気にコインを得て着せ替え/ミニゲームを試す）＋管理者の自由な付与に使う。
+// デバッグ用: コインを付与する。本番ドメインからのリクエストは常に 403。
+// テスト用途（一気にコインを得て着せ替え/ミニゲームを試す）専用。
+// このエンドポイントは認証なし（body.userId を渡すだけで誰でも呼べる）なので、
+// 「対象が管理者アカウントか」だけで本番開放すると、他人が管理者のuserIdを
+// 知っているだけでそのアカウントのコインを書き換えられてしまう。そのため
+// 管理者であっても本番でのコイン付与は行わず、localhost / SWA PRプレビューに限定する。
 app.http('sansuDebugGrantPost', {
   methods: ['POST'],
   authLevel: 'anonymous',
@@ -40,14 +43,13 @@ app.http('sansuDebugGrantPost', {
 
       // SWA 実環境では x-forwarded-host 単独だと内部ホストが入ることがあるため、
       // 複数のホスト系ヘッダのいずれかが「正規ドメイン以外」なら許可する（本番ドメインは全て不一致→403）。
-      // 管理者ユーザー自身への付与は、本番ドメインでも許可する。
       const debugHost = [
         req.headers.get('x-forwarded-host'),
         req.headers.get('host'),
         req.headers.get('x-original-host'),
         req.headers.get('referer'),
       ].some((c) => isDebugHost(c));
-      if (!debugHost && !isAdminAccount(user)) {
+      if (!debugHost) {
         return { status: 403, jsonBody: { error: 'debug disabled' } };
       }
 

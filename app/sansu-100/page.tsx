@@ -15,7 +15,7 @@ import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
 import { sansuApi } from './lib/api-client';
-import { isAdminUserId, isDebugEnv } from './lib/debug-env';
+import { isDebugEnv } from './lib/debug-env';
 import { hashPin } from './lib/pin-hash';
 import type { SansuUserPublic } from './lib/types';
 
@@ -229,12 +229,10 @@ export default function SansuHome(): React.JSX.Element {
             >
               👋 おわる
             </button>
-            {isDebugEnv() || isAdminUserId(currentUser.id) ? (
+            {isDebugEnv() ? (
               <div className="space-y-2 rounded-xl border border-dashed border-orange-400 p-3">
                 <p className="text-xs font-bold text-orange-600 dark:text-orange-300">
-                  {isAdminUserId(currentUser.id)
-                    ? '🛡️ かんりしゃメニュー'
-                    : '🐛 デバッグ（本番では表示されません）'}
+                  🐛 デバッグ（本番では表示されません）
                 </p>
                 <button
                   type="button"
