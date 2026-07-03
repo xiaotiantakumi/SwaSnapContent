@@ -1,7 +1,17 @@
 // 有料アバター・アクセサリーのサーバー版（購入価格＋所持検証の正）。
 // クライアント app/sansu-100/lib/avatar-shop.ts と id・価格・カテゴリ・値を一致させること。
 
-export type AvatarItemCategory = 'hat' | 'glasses' | 'clothing' | 'beard';
+export type AvatarItemCategory =
+  | 'hat'
+  | 'glasses'
+  | 'clothing'
+  | 'beard'
+  | 'hairstyle'
+  | 'haircolor'
+  | 'eyes'
+  | 'eyebrow'
+  | 'mouthstyle'
+  | 'clothescolor';
 
 // カテゴリ → avatarConfig のどのフィールドに入るか
 export const AVATAR_ITEM_FIELD: Record<AvatarItemCategory, string> = {
@@ -9,6 +19,12 @@ export const AVATAR_ITEM_FIELD: Record<AvatarItemCategory, string> = {
   glasses: 'accessory',
   clothing: 'clothing',
   beard: 'facialHair',
+  hairstyle: 'top',
+  haircolor: 'hairColor',
+  eyes: 'eyes',
+  eyebrow: 'eyebrows',
+  mouthstyle: 'mouth',
+  clothescolor: 'clothesColor',
 };
 
 const PRICE = { normal: 50, rare: 200, epic: 1000 } as const;
@@ -43,6 +59,55 @@ const SEEDS: Seed[] = [
   ['beard', 'moustacheFancy', 'rare'],
   ['beard', 'moustacheMagnum', 'epic'],
   ['beard', 'beardMajestic', 'epic'],
+  // ---- かみがた（新カテゴリ。top に入る） ----
+  ['hairstyle', 'curvy', 'rare'],
+  ['hairstyle', 'miaWallace', 'rare'],
+  ['hairstyle', 'frida', 'rare'],
+  ['hairstyle', 'froBand', 'rare'],
+  ['hairstyle', 'straight02', 'normal'],
+  ['hairstyle', 'straightAndStrand', 'normal'],
+  ['hairstyle', 'dreads02', 'rare'],
+  ['hairstyle', 'frizzle', 'normal'],
+  ['hairstyle', 'shaggy', 'normal'],
+  ['hairstyle', 'shaggyMullet', 'rare'],
+  ['hairstyle', 'shavedSides', 'rare'],
+  ['hairstyle', 'theCaesarAndSidePart', 'normal'],
+  // ---- かみのいろ（新カテゴリ。hairColor に入る） ----
+  ['haircolor', 'f59797', 'normal'],
+  ['haircolor', 'ecdcbf', 'normal'],
+  ['haircolor', 'd6b370', 'normal'],
+  ['haircolor', 'c7a2ff', 'rare'],
+  ['haircolor', 'a7ffc4', 'rare'],
+  ['haircolor', 'b1e2ff', 'rare'],
+  ['haircolor', 'ffd6f5', 'rare'],
+  ['haircolor', 'c0c0c0', 'epic'],
+  // ---- め（既存カテゴリに追加。eyes に入る） ----
+  ['eyes', 'cry', 'normal'],
+  ['eyes', 'eyeRoll', 'normal'],
+  ['eyes', 'winkWacky', 'rare'],
+  ['eyes', 'xDizzy', 'rare'],
+  // ---- まゆげ（新カテゴリ。eyebrows に入る） ----
+  ['eyebrow', 'angryNatural', 'normal'],
+  ['eyebrow', 'frownNatural', 'normal'],
+  ['eyebrow', 'raisedExcitedNatural', 'normal'],
+  ['eyebrow', 'sadConcernedNatural', 'normal'],
+  ['eyebrow', 'unibrowNatural', 'rare'],
+  ['eyebrow', 'upDownNatural', 'rare'],
+  ['eyebrow', 'upDown', 'normal'],
+  // ---- くち（新カテゴリ。mouth に入る） ----
+  ['mouthstyle', 'concerned', 'normal'],
+  ['mouthstyle', 'grimace', 'rare'],
+  ['mouthstyle', 'sad', 'normal'],
+  ['mouthstyle', 'vomit', 'rare'],
+  // ---- ふくのいろ（新カテゴリ。clothesColor に入る） ----
+  ['clothescolor', 'ff488e', 'normal'],
+  ['clothescolor', 'a7ffc4', 'normal'],
+  ['clothescolor', 'b1e2ff', 'normal'],
+  ['clothescolor', 'ffffb1', 'normal'],
+  ['clothescolor', 'ffafb9', 'normal'],
+  ['clothescolor', '25557c', 'rare'],
+  ['clothescolor', 'ffffff', 'rare'],
+  ['clothescolor', '262e33', 'rare'],
 ];
 
 const idOf = (category: AvatarItemCategory, value: string): string =>
@@ -59,6 +124,12 @@ export const PAID_VALUES: Record<AvatarItemCategory, Set<string>> = {
   glasses: new Set(),
   clothing: new Set(),
   beard: new Set(),
+  hairstyle: new Set(),
+  haircolor: new Set(),
+  eyes: new Set(),
+  eyebrow: new Set(),
+  mouthstyle: new Set(),
+  clothescolor: new Set(),
 };
 for (const [c, v] of SEEDS) PAID_VALUES[c].add(v);
 
