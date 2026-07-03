@@ -70,19 +70,24 @@ test.describe('sansu-100 拡充アバターカタログ（PR1）', () => {
     });
     expect(grantRes.ok()).toBeTruthy();
 
-    // --- ショップで新カテゴリ（かみのいろ・まゆげ）のアイテムを購入 ---
+    // --- ショップで新カテゴリ（かみのいろ・まゆげ）のアイテムをカゴにいれて、まとめて購入 ---
+    // PR3でアバターアイテムは即時購入からカート方式に変わったため、カゴにいれて
+    // カートの「ぜんぶかう」から購入する。
     await page.goto('/sansu-100/shop');
     await page.waitForLoadState('networkidle');
 
     const haircolorBuy = page.getByTestId('buy-av_haircolor_c7a2ff');
     await expect(haircolorBuy).toBeVisible();
     await haircolorBuy.click();
-    await expect(page.getByText('を かったよ！')).toBeVisible();
 
     const eyebrowBuy = page.getByTestId('buy-av_eyebrow_unibrowNatural');
     await expect(eyebrowBuy).toBeVisible();
     await eyebrowBuy.click();
-    await expect(page.getByText('を かったよ！')).toBeVisible();
+
+    await expect(page.getByTestId('cart-badge')).toHaveText('2');
+    await page.getByRole('button', { name: 'カートをひらく' }).click();
+    await page.getByTestId('cart-checkout').click();
+    await expect(page.getByText('を ぜんぶ かったよ！')).toBeVisible();
 
     // --- キャラづくりで購入した値を選択して保存 ---
     await page.goto('/sansu-100/avatar');
