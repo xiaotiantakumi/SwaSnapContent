@@ -146,7 +146,7 @@ const SEEDS: Seed[] = [
   ['mouthstyle', 'concerned', 'こまりがお', 'normal'],
   ['mouthstyle', 'grimace', 'にやり', 'rare'],
   ['mouthstyle', 'sad', 'しょんぼり', 'normal'],
-  ['mouthstyle', 'vomit', 'げろげろ', 'rare'],
+  ['mouthstyle', 'vomit', 'びっくりくち', 'rare'],
   // ---- ふくのいろ（新カテゴリ。clothesColor に入る） ----
   ['clothescolor', 'ff488e', 'ホットピンク', 'normal'],
   ['clothescolor', 'a7ffc4', 'ミント', 'normal'],
