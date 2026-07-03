@@ -138,6 +138,11 @@ export default function ShopPage(): React.JSX.Element {
         setCartOpen(false);
       } else if (res.error === 'insufficient') {
         setMessage(`あと 🪙${res.shortfall ?? 0} たりないよ`);
+      } else if (res.error === 'unknown_item') {
+        // サーバーが認識できないアイテムが混ざっている（カタログ変更等の稀なケース）。
+        // カートに残したままだと再チェックアウトしても必ず失敗して詰むため、空にする。
+        setCart(new Set());
+        setMessage('カートの なかみが ふるくなっちゃった。もういちど えらんでね');
       } else {
         setMessage('いまは つうしんできないよ（あとでね）');
       }
