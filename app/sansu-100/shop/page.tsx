@@ -120,40 +120,29 @@ export default function ShopPage(): React.JSX.Element {
   const total = cartTotal(cart, priceOf);
   const shortfall = Math.max(0, total - coins);
 
-  // PR3時点ではバッチ購入API（PR4予定・sansuApi.purchaseBatch）が未実装のため、
-  // 暫定実装として既存の単品購入API(sansuApi.purchase)をカート内アイテム分だけ
-  // 順番に呼ぶ。all-or-nothingではないため、途中でコインが尽きた場合は
-  // そこまで購入したものだけ確定してしまう点に注意。
-  // PR4でバッチ購入API（残高不足なら1件も購入しない・全ロールバック）に置き換え予定。
   const checkoutCart = async () => {
     if (cartLines.length === 0 || coins < total) return;
     setCheckingOut(true);
     setMessage(null);
     try {
-      let boughtCount = 0;
-      for (const item of cartLines) {
-        const res = await sansuApi.purchase(currentUser.id, 'buy', item.id);
-        if (res.ok && res.user) {
-          saveUser(res.user);
-          boughtCount += 1;
-          setCart((prev) => {
-            const next = new Set(prev);
-            next.delete(item.id);
-            return next;
-          });
-        } else {
-          // どこかで失敗したら止める（コイン不足・競合など）
-          break;
-        }
-      }
-      if (boughtCount === cartLines.length) {
-        setMessage('カートの アイテムを ぜんぶ かったよ！🧑‍🎨キャラづくりで つけられるよ');
+      const res = await sansuApi.purchaseBatch(
+        currentUser.id,
+        Array.from(cart)
+      );
+      if (res.ok && res.user) {
+        saveUser(res.user);
+        setCart(new Set());
+        setMessage(
+          'カートの アイテムを ぜんぶ かったよ！🧑‍🎨キャラづくりで つけられるよ'
+        );
         setCartOpen(false);
-      } else if (boughtCount > 0) {
-        setMessage('とちゅうまで かったよ。のこりは また こんど！');
+      } else if (res.error === 'insufficient') {
+        setMessage(`あと 🪙${res.shortfall ?? 0} たりないよ`);
       } else {
         setMessage('いまは つうしんできないよ（あとでね）');
       }
+    } catch {
+      setMessage('いまは つうしんできないよ（あとでね）');
     } finally {
       setCheckingOut(false);
     }
