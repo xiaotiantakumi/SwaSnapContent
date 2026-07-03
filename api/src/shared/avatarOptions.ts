@@ -1,7 +1,7 @@
 // パーツ組み立て式アバター（avataaars）の許可値（クライアント lib/avatar-options.ts と同期）。
 // サーバーを権威として、未知の値・未所持の有料パーツはデフォルトに丸める。
 
-import { ownsValue, PAID_VALUES, type AvatarItemCategory } from './avatarShop';
+import { ownsValue, type AvatarItemCategory } from './avatarShop';
 
 export type AvatarConfig = {
   skinColor: string;
@@ -47,19 +47,6 @@ const MOUTH = [
 ];
 const FREE_CLOTHING = 'shirtCrewNeck';
 
-// PR1（カタログ拡充のみ・有料化検証はPR2）時点では、新カテゴリの値も
-// まだ無条件で保存を許可する（=事実上無料相当）。PR2の pickPaid 拡張で
-// 所持チェックに切り替える。値の実在確認は avatarShop.ts の SEEDS を正とする。
-const valsOf = (cat: AvatarItemCategory): string[] =>
-  Array.from(PAID_VALUES[cat]);
-// hat(帽子)は既存どおり所持チェック対象のまま。hairstyle だけ PR1時点で無条件許可に混ぜる。
-const ALL_TOP = [...HAIRSTYLES, ...valsOf('hairstyle')];
-const ALL_HAIR_COLOR = [...HAIR_COLOR, ...valsOf('haircolor')];
-const ALL_EYES = [...EYES, ...valsOf('eyes')];
-const ALL_EYEBROWS = [...EYEBROWS, ...valsOf('eyebrow')];
-const ALL_MOUTH = [...MOUTH, ...valsOf('mouthstyle')];
-const ALL_CLOTHES_COLOR = [...CLOTHES_COLOR, ...valsOf('clothescolor')];
-
 export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   skinColor: 'edb98a',
   hairColor: '4a312c',
@@ -90,6 +77,19 @@ const pickPaid = (
   return fallback;
 };
 
+// top は hat / hairstyle の2カテゴリにまたがるため pickPaid ではなく専用判定。
+const pickTop = (
+  v: unknown,
+  owned: Set<string>,
+  fallback: string
+): string => {
+  if (typeof v !== 'string') return fallback;
+  if (HAIRSTYLES.includes(v)) return v;
+  if (ownsValue('hat', v, owned)) return v;
+  if (ownsValue('hairstyle', v, owned)) return v;
+  return fallback;
+};
+
 /** 入力を許可値だけに丸めた安全な AvatarConfig を返す。owned に応じて有料パーツを検証。 */
 export function sanitizeAvatarConfig(
   input: unknown,
@@ -99,16 +99,34 @@ export function sanitizeAvatarConfig(
   const owned = new Set(ownedIds);
   return {
     skinColor: pick(c.skinColor, SKIN, DEFAULT_AVATAR_CONFIG.skinColor),
-    // PR1時点では新カテゴリ(haircolor等)もカタログ実在値なら無条件許可（有料検証はPR2）。
-    hairColor: pick(c.hairColor, ALL_HAIR_COLOR, DEFAULT_AVATAR_CONFIG.hairColor),
-    // top は無料の髪型 or 所持している有料の帽子（+ PR1時点ではhairstyleも無条件許可）
-    top: pickPaid(c.top, 'hat', ALL_TOP, owned, DEFAULT_AVATAR_CONFIG.top),
-    eyes: pick(c.eyes, ALL_EYES, DEFAULT_AVATAR_CONFIG.eyes),
-    eyebrows: pick(c.eyebrows, ALL_EYEBROWS, DEFAULT_AVATAR_CONFIG.eyebrows),
-    mouth: pick(c.mouth, ALL_MOUTH, DEFAULT_AVATAR_CONFIG.mouth),
-    clothesColor: pick(
+    hairColor: pickPaid(
+      c.hairColor,
+      'haircolor',
+      HAIR_COLOR,
+      owned,
+      DEFAULT_AVATAR_CONFIG.hairColor
+    ),
+    top: pickTop(c.top, owned, DEFAULT_AVATAR_CONFIG.top),
+    eyes: pickPaid(c.eyes, 'eyes', EYES, owned, DEFAULT_AVATAR_CONFIG.eyes),
+    eyebrows: pickPaid(
+      c.eyebrows,
+      'eyebrow',
+      EYEBROWS,
+      owned,
+      DEFAULT_AVATAR_CONFIG.eyebrows
+    ),
+    mouth: pickPaid(
+      c.mouth,
+      'mouthstyle',
+      MOUTH,
+      owned,
+      DEFAULT_AVATAR_CONFIG.mouth
+    ),
+    clothesColor: pickPaid(
       c.clothesColor,
-      ALL_CLOTHES_COLOR,
+      'clothescolor',
+      CLOTHES_COLOR,
+      owned,
       DEFAULT_AVATAR_CONFIG.clothesColor
     ),
     accessory: pickPaid(c.accessory, 'glasses', ['none'], owned, 'none'),
