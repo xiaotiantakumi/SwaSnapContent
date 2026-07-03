@@ -39,7 +39,19 @@ const AVATAR_CATEGORIES: AvatarItemCategory[] = [
   'glasses',
   'clothing',
   'beard',
+  'hairstyle',
+  'haircolor',
+  'eyes',
+  'eyebrow',
+  'mouthstyle',
+  'clothescolor',
 ];
+
+// 色そのものを見せたいカテゴリ（サムネはDiceBearプレビューでなく色丸にする）
+const COLOR_CATEGORIES: ReadonlySet<AvatarItemCategory> = new Set([
+  'haircolor',
+  'clothescolor',
+]);
 
 const RARITY_BADGE: Record<ItemRarity, string> = {
   normal: 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200',
@@ -166,10 +178,18 @@ export default function ShopPage(): React.JSX.Element {
                         : 'border-transparent bg-gray-100 dark:bg-gray-700'
                     }`}
                   >
-                    <div className="size-16 overflow-hidden rounded-xl bg-white dark:bg-gray-600">
-                      <DiceBearAvatar
-                        config={previewConfigWith(item.category, item.value)}
-                      />
+                    <div className="flex size-16 items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-gray-600">
+                      {COLOR_CATEGORIES.has(item.category) ? (
+                        <div
+                          aria-hidden
+                          className="size-12 rounded-full border-4 border-gray-100 shadow dark:border-gray-500"
+                          style={{ backgroundColor: `#${item.value}` }}
+                        />
+                      ) : (
+                        <DiceBearAvatar
+                          config={previewConfigWith(item.category, item.value)}
+                        />
+                      )}
                     </div>
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                       {item.name}
