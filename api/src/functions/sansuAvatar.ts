@@ -1,6 +1,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
-import { sanitizeAvatarConfig } from '../shared/avatarOptions';
+import {
+  DEFAULT_AVATAR_CONFIG,
+  sanitizeAvatarConfig,
+  type AvatarConfig,
+} from '../shared/avatarOptions';
+import { grantEquippedPaidValues } from '../shared/avatarShop';
 import { type SansuUserEntity, toPublic } from '../shared/sansuTypes';
 import { USERS_PARTITION, usersTable } from '../shared/tableClient';
 
@@ -43,6 +48,21 @@ app.http('sansuAvatarPost', {
       } catch {
         owned = [];
       }
+
+      // 有料化タイミングで既存装備を保存時に剥がさないための無償付与（マイグレーション）。
+      let currentConfig: AvatarConfig = DEFAULT_AVATAR_CONFIG;
+      if (entity.avatarConfigJson) {
+        try {
+          currentConfig = JSON.parse(entity.avatarConfigJson) as AvatarConfig;
+        } catch {
+          /* 新規ユーザー等でパース不能ならデフォルトのまま */
+        }
+      }
+      const toGrant = grantEquippedPaidValues(currentConfig, owned);
+      if (toGrant.length > 0) {
+        owned = [...owned, ...toGrant];
+      }
+
       const config = sanitizeAvatarConfig(body.config, owned);
 
       await uTable.updateEntity(
@@ -50,6 +70,9 @@ app.http('sansuAvatarPost', {
           partitionKey: USERS_PARTITION,
           rowKey: body.userId,
           avatarConfigJson: JSON.stringify(config),
+          ...(toGrant.length > 0
+            ? { ownedItemsJson: JSON.stringify(owned) }
+            : {}),
         },
         'Merge'
       );

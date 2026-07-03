@@ -1,6 +1,8 @@
 // 有料アバター・アクセサリーのサーバー版（購入価格＋所持検証の正）。
 // クライアント app/sansu-100/lib/avatar-shop.ts と id・価格・カテゴリ・値を一致させること。
 
+import type { AvatarConfig } from './avatarOptions';
+
 export type AvatarItemCategory =
   | 'hat'
   | 'glasses'
@@ -140,4 +142,37 @@ export function ownsValue(
   owned: Set<string>
 ): boolean {
   return owned.has(idOf(category, value));
+}
+
+/**
+ * 装備中の有料値のうち、まだ所持 id が無いものを返す（無償付与・マイグレーション用）。
+ * top など複数カテゴリにまたがるフィールドは categories を列挙して判定する。
+ */
+export function grantEquippedPaidValues(
+  config: AvatarConfig,
+  ownedIds: string[]
+): string[] {
+  const owned = new Set(ownedIds);
+  const toGrant = new Set<string>();
+  const checkField = (
+    value: string,
+    categories: AvatarItemCategory[]
+  ): void => {
+    for (const cat of categories) {
+      if (PAID_VALUES[cat].has(value)) {
+        const id = idOf(cat, value);
+        if (!owned.has(id)) toGrant.add(id);
+      }
+    }
+  };
+  checkField(config.top, ['hat', 'hairstyle']);
+  checkField(config.hairColor, ['haircolor']);
+  checkField(config.eyes, ['eyes']);
+  checkField(config.eyebrows, ['eyebrow']);
+  checkField(config.mouth, ['mouthstyle']);
+  checkField(config.clothesColor, ['clothescolor']);
+  checkField(config.accessory, ['glasses']);
+  checkField(config.facialHair, ['beard']);
+  checkField(config.clothing, ['clothing']);
+  return Array.from(toGrant);
 }
