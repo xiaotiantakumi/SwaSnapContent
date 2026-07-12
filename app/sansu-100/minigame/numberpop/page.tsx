@@ -65,9 +65,6 @@ export default function NumberPopPage(): React.JSX.Element {
       setPhase('over');
       if (!currentUser) return;
 
-      const isNewRecord = score > highScore;
-      setNewRecord(isNewRecord);
-
       const newBadges = evaluateMinigameBadges(
         'numberpop',
         score,
@@ -75,27 +72,20 @@ export default function NumberPopPage(): React.JSX.Element {
       );
 
       try {
-        const res = await sansuApi.recordMinigame(
+        const res = await sansuApi.awardBadge(
           currentUser.id,
-          'numberpop',
-          score
+          newBadges,
+          score,
+          'numberpop'
         );
-        if (res.ok && res.user) {
-          saveUser(res.user);
-          const finalBadges = evaluateMinigameBadges(
-            'numberpop',
-            score,
-            currentUser.earnedBadges
-          );
-          setOverlayBadges(finalBadges);
-        } else {
-          setOverlayBadges(newBadges);
-        }
+        if (res.user) saveUser(res.user);
+        if (res.newRecord) setNewRecord(true);
+        if (newBadges.length > 0) setOverlayBadges(newBadges);
       } catch {
-        setOverlayBadges(newBadges);
+        // 報酬付与に失敗しても致命的ではない
       }
     },
-    [currentUser, highScore, saveUser]
+    [currentUser, saveUser]
   );
 
   if (!loaded || !currentUser) {
@@ -116,7 +106,7 @@ export default function NumberPopPage(): React.JSX.Element {
 
       <BadgeUnlockOverlay
         badgeIds={overlayBadges}
-        onClose={() => setOverlayBadges([])}
+        onDone={() => setOverlayBadges([])}
       />
 
       <div className="container mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
@@ -167,7 +157,7 @@ export default function NumberPopPage(): React.JSX.Element {
           </section>
         ) : (
           <section className="space-y-4 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
-            {newRecord ? <NewRecordBanner /> : null}
+            {newRecord ? <NewRecordBanner score={lastScore} /> : null}
             <div className="text-center">
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
                 ゲームおわり！
