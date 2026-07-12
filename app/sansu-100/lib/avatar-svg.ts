@@ -23,12 +23,12 @@ const valsOf = (cat: string): string[] =>
 // 各フィールドの「描画してよい値」（無料＋全有料パーツ。描画は所持に関係なくOK）。
 const ALLOWED: Record<keyof AvatarConfig, string[]> = {
   skinColor: AVATAR_SKIN,
-  hairColor: AVATAR_HAIR_COLOR,
-  clothesColor: AVATAR_CLOTHES_COLOR,
-  eyes: AVATAR_EYES,
-  eyebrows: AVATAR_EYEBROWS,
-  mouth: AVATAR_MOUTH,
-  top: [...AVATAR_HAIR, ...valsOf('hat')],
+  hairColor: [...AVATAR_HAIR_COLOR, ...valsOf('haircolor')],
+  clothesColor: [...AVATAR_CLOTHES_COLOR, ...valsOf('clothescolor')],
+  eyes: [...AVATAR_EYES, ...valsOf('eyes')],
+  eyebrows: [...AVATAR_EYEBROWS, ...valsOf('eyebrow')],
+  mouth: [...AVATAR_MOUTH, ...valsOf('mouthstyle')],
+  top: [...AVATAR_HAIR, ...valsOf('hat'), ...valsOf('hairstyle')],
   accessory: ['none', ...valsOf('glasses')],
   facialHair: ['none', ...valsOf('beard')],
   clothing: ['shirtCrewNeck', ...valsOf('clothing')],
