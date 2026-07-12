@@ -10,14 +10,16 @@ export type RhythmConfig = {
   lives: number;
 };
 
+// 開発者が曲を聴きながら調整する値（spawnIntervalMs, noteTravelMs 等）
 const NOTE_TRAVEL_MS = 1600;
 const HIT_WINDOW_MS = 260;
 
 export const DEFAULT_RHYTHM_CONFIG: RhythmConfig = {
-  lanes: 2,
+  lanes: 4,
   noteTravelMs: NOTE_TRAVEL_MS,
   spawnIntervalMs: 800,
-  gameDurationMs: 25000,
+  // BGM shaved-ice-temperature.mp3 の実測長。BGMの loadedmetadata が取得できない場合のフォールバック値
+  gameDurationMs: 176065,
   hitWindowMs: HIT_WINDOW_MS,
   missAtMs: NOTE_TRAVEL_MS + HIT_WINDOW_MS + 150,
   lives: 3,
