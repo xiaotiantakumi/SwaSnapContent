@@ -1,24 +1,40 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('不正解ふりかえり', () => {
-  test('不正解があれば結果画面にふりかえりセクションが表示される', async ({ page }) => {
-    await page.goto('/sansu-100');
-    await page.evaluate(() => {
+async function seedUser(page: import('@playwright/test').Page, userId: string): Promise<void> {
+  await page.goto('/sansu-100');
+  await page.evaluate(
+    ({ userId }) => {
       const user = {
-        id: 'test-wrong-user',
+        id: userId,
         name: 'テスト',
+        avatar: '🙂',
+        themeColor: '#3b82f6',
+        createdAt: Date.now(),
+        totalPoints: 50,
+        earnedBadges: [] as string[],
+        bestTimesByLevel: {},
+        currentStreakDays: 1,
+        lastPlayedDate: '',
+        lastPlayedAt: 0,
+        totalSessions: 5,
         coins: 50,
-        earnedBadges: [],
         minigameScores: {},
         minigameCredits: 0,
-        bestTimesByLevel: {},
-        totalSessions: 5,
-        totalPoints: 50,
-        currentStreakDays: 1,
-        avatarConfig: null,
-        ownedItems: [],
       };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
+      localStorage.setItem('sansu-100:users', JSON.stringify([user]));
+      localStorage.setItem('sansu-100:current-user', JSON.stringify(userId));
+      // dev-seed(たろう等の自動ユーザー作成)を止め、seed直後にcurrentUserが
+      // 上書きされる競合を防ぐ
+      sessionStorage.setItem('sansu-100:dev-seeded', '1');
+    },
+    { userId }
+  );
+}
+
+test.describe('不正解ふりかえり', () => {
+  test('不正解があれば結果画面にふりかえりセクションが表示される', async ({ page }) => {
+    await seedUser(page, 'test-wrong-user');
+    await page.evaluate(() => {
       // 不正解を含む結果をsessionStorageに設定
       const result = {
         session: {
@@ -58,23 +74,8 @@ test.describe('不正解ふりかえり', () => {
   });
 
   test('全問正解の場合はふりかえりセクションが表示されない', async ({ page }) => {
-    await page.goto('/sansu-100');
+    await seedUser(page, 'test-perfect-user');
     await page.evaluate(() => {
-      const user = {
-        id: 'test-perfect-user',
-        name: 'テスト',
-        coins: 50,
-        earnedBadges: [],
-        minigameScores: {},
-        minigameCredits: 0,
-        bestTimesByLevel: {},
-        totalSessions: 5,
-        totalPoints: 50,
-        currentStreakDays: 1,
-        avatarConfig: null,
-        ownedItems: [],
-      };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
       const result = {
         session: {
           id: 'test-session-2',
