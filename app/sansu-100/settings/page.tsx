@@ -83,7 +83,7 @@ export default function SettingsPage(): React.JSX.Element {
               data-testid="sound-toggle"
             >
               <span
-                className={`inline-block size-6 rounded-full bg-white shadow transition-transform${
+                className={`inline-block size-6 rounded-full bg-white shadow transition-transform ${
                   settings.soundOn ? 'translate-x-7' : 'translate-x-1'
                 }`}
               />
