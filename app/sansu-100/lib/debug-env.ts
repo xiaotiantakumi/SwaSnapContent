@@ -13,3 +13,15 @@ export function isDebugEnv(): boolean {
   if (h.endsWith('.azurestaticapps.net') && /-\d+\./.test(h)) return true;
   return false;
 }
+
+// 常に管理者として扱うユーザー（本番環境でも算数ゲート等をスキップする）。
+// 登録時に発行される固定の userId で判定する（表示名は誰でも登録し直せるため使わない）。
+// userId はランダムなUUID（個人情報ではない不透明な識別子）なのでソースに書いてよい。
+// サーバー側 api/src/shared/debugEnv.ts の ADMIN_USER_ID と一致させること。
+// 実際の権限判定はサーバー側（api/src/shared/debugEnv.ts の isAdminAccount）が行う。
+// ここでの判定はUI表示のみに使う補助的なものであり、それ自体はセキュリティ境界ではない。
+const ADMIN_USER_ID = '158e35fa-6b0a-4817-9747-cd6b12b02830';
+
+export function isAdminUserId(id: string | null | undefined): boolean {
+  return id === ADMIN_USER_ID;
+}
