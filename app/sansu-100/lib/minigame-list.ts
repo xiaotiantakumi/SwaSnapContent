@@ -215,6 +215,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'daruma',
+    name: 'だるまさんがころんだ',
+    emoji: '🪆',
+    desc: 'とまれる？ ふりむかれる まえに ぴたっと！',
+    howTo: [
+      'がめんを れんだで まえに すすむ',
+      '「だるまさんがころんだ」で おにが ふりむく！うごいてたら アウト',
+      'おにに ちかいほど スコアが たかい。とおりすぎたら つぎのラウンドへ',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(

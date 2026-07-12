@@ -18,7 +18,8 @@ export type MinigameId =
   | 'ponpon'
   | 'airhockey'
   | 'kururin'
-  | 'hitofude';
+  | 'hitofude'
+  | 'daruma';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
 const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
@@ -89,6 +90,10 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   hitofude: [
     { score: 3, badgeId: 'hitofude_artist' },
     { score: 6, badgeId: 'hitofude_master' },
+  ],
+  daruma: [
+    { score: 300, badgeId: 'daruma_stopper' },
+    { score: 1000, badgeId: 'daruma_master' },
   ],
 };
 
