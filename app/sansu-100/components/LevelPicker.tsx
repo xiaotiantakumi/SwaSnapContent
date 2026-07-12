@@ -80,12 +80,12 @@ export default function LevelPicker({
                 <span className="text-sm opacity-90">Lv.{lv.id}</span>
               </div>
               <p className="mt-1 text-sm opacity-90">{lv.description}</p>
-              {bestTimesByLevel?.[String(lv.id)] ? (
+              {bestTimesByLevel?.[`lv${lv.id}:${lv.operation}`] ? (
                 <p
                   className="mt-2 text-xs font-semibold opacity-80"
                   data-testid={`best-time-${lv.id}`}
                 >
-                  ⏱️ ベスト: {formatDuration(bestTimesByLevel[String(lv.id)])}
+                  ⏱️ ベスト: {formatDuration(bestTimesByLevel[`lv${lv.id}:${lv.operation}`])}
                 </p>
               ) : null}
             </button>

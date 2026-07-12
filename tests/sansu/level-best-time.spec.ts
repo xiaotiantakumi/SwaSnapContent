@@ -48,7 +48,7 @@ test.describe('レベル選択 — 自己ベストタイム表示', () => {
         avatarConfig: null,
         ownedItems: [],
         // Lv1のベストタイムが90秒
-        bestTimesByLevel: { '1': 90000 },
+        bestTimesByLevel: { 'lv1:add': 90000 },
       };
       localStorage.setItem('sansu_current_user', JSON.stringify(user));
       localStorage.setItem(
@@ -80,7 +80,7 @@ test.describe('レベル選択 — 自己ベストタイム表示', () => {
         minigameCredits: 0,
         avatarConfig: null,
         ownedItems: [],
-        bestTimesByLevel: { '2': 120000 },
+        bestTimesByLevel: { 'lv2:add': 120000 },
       };
       localStorage.setItem('sansu_current_user', JSON.stringify(user));
       localStorage.setItem(
