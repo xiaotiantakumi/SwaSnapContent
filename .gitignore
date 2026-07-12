@@ -53,3 +53,6 @@ public/*
 # logs
 *.log
 /tmp/*.log
+
+# goal-ex runtime state
+.aimix/
