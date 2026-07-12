@@ -53,13 +53,18 @@ export const AVATAR_MOUTH: string[] = [
   'screamOpen',
 ];
 
-// 肌の色（明→暗）。
+// 肌の色（明→暗。身体的アイデンティティなので無料のまま、ショップには載せない）。
+// 既存6色は変更せず、中間色・アンダートーン違いを4色追加（Monk Skin Tone Scale の趣旨）。
 export const AVATAR_SKIN: string[] = [
   'ffdbb4',
+  'f7d7c4',
   'edb98a',
+  'e8b17d',
   'fd9841',
   'd08b5b',
+  'c68863',
   'ae5d29',
+  '8d5524',
   '614335',
 ];
 
