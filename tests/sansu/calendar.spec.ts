@@ -15,8 +15,9 @@ test.describe('カレンダーヒートマップ', () => {
 
   test('曜日ヘッダーが表示される', async ({ page }) => {
     await page.goto('/sansu-100/history');
-    await expect(page.getByText('日')).toBeVisible();
-    await expect(page.getByText('月')).toBeVisible();
-    await expect(page.getByText('土')).toBeVisible();
+    const calendar = page.getByTestId('calendar-heatmap');
+    await expect(calendar.getByText('日', { exact: true })).toBeVisible();
+    await expect(calendar.getByText('月', { exact: true })).toBeVisible();
+    await expect(calendar.getByText('土', { exact: true })).toBeVisible();
   });
 });
