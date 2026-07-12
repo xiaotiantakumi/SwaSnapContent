@@ -26,26 +26,37 @@ const makeResult = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+async function seedUser(page: import('@playwright/test').Page): Promise<void> {
+  await page.goto('/sansu-100');
+  await page.evaluate(() => {
+    const user = {
+      id: 'test-user',
+      name: 'テスト',
+      avatar: '🙂',
+      themeColor: '#3b82f6',
+      createdAt: Date.now(),
+      totalPoints: 50,
+      earnedBadges: [] as string[],
+      bestTimesByLevel: {},
+      currentStreakDays: 1,
+      lastPlayedDate: '',
+      lastPlayedAt: 0,
+      totalSessions: 5,
+      coins: 50,
+      minigameScores: {},
+      minigameCredits: 0,
+    };
+    localStorage.setItem('sansu-100:users', JSON.stringify([user]));
+    localStorage.setItem('sansu-100:current-user', JSON.stringify(user.id));
+    // dev-seed(たろう等の自動ユーザー作成)を止め、seed直後にcurrentUserが
+    // 上書きされる競合を防ぐ
+    sessionStorage.setItem('sansu-100:dev-seeded', '1');
+  });
+}
+
 test.describe('つぎのチャレンジ提案カード', () => {
   test('パーフェクト+速い→次レベル提案が表示される', async ({ page }) => {
-    await page.goto('/sansu-100');
-    await page.evaluate(() => {
-      const user = {
-        id: 'test-user',
-        name: 'テスト',
-        coins: 50,
-        earnedBadges: [],
-        minigameScores: {},
-        minigameCredits: 0,
-        bestTimesByLevel: {},
-        totalSessions: 5,
-        totalPoints: 50,
-        currentStreakDays: 1,
-        avatarConfig: null,
-        ownedItems: [],
-      };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
-    });
+    await seedUser(page);
 
     const result = makeResult({ previousBest: null });
     await page.evaluate((r) => {
@@ -58,24 +69,7 @@ test.describe('つぎのチャレンジ提案カード', () => {
   });
 
   test('パーフェクトでない→もう1かいカードが表示される', async ({ page }) => {
-    await page.goto('/sansu-100');
-    await page.evaluate(() => {
-      const user = {
-        id: 'test-user',
-        name: 'テスト',
-        coins: 50,
-        earnedBadges: [],
-        minigameScores: {},
-        minigameCredits: 0,
-        bestTimesByLevel: {},
-        totalSessions: 5,
-        totalPoints: 50,
-        currentStreakDays: 1,
-        avatarConfig: null,
-        ownedItems: [],
-      };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
-    });
+    await seedUser(page);
 
     const result = makeResult({
       session: {
@@ -102,24 +96,7 @@ test.describe('つぎのチャレンジ提案カード', () => {
   });
 
   test('次レベルボタンのhrefに?level=が含まれる', async ({ page }) => {
-    await page.goto('/sansu-100');
-    await page.evaluate(() => {
-      const user = {
-        id: 'test-user',
-        name: 'テスト',
-        coins: 50,
-        earnedBadges: [],
-        minigameScores: {},
-        minigameCredits: 0,
-        bestTimesByLevel: {},
-        totalSessions: 5,
-        totalPoints: 50,
-        currentStreakDays: 1,
-        avatarConfig: null,
-        ownedItems: [],
-      };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
-    });
+    await seedUser(page);
 
     const result = makeResult({ previousBest: null });
     await page.evaluate((r) => {
