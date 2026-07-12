@@ -16,7 +16,11 @@ export type AvatarConfig = {
   clothing: string;
 };
 
-const SKIN = ['ffdbb4', 'edb98a', 'fd9841', 'd08b5b', 'ae5d29', '614335'];
+// 身体的アイデンティティなので無料のまま（既存6色は変更せず4色追加。app/lib/avatar-options.ts と同期）。
+const SKIN = [
+  'ffdbb4', 'f7d7c4', 'edb98a', 'e8b17d', 'fd9841', 'd08b5b', 'c68863',
+  'ae5d29', '8d5524', '614335',
+];
 const HAIR_COLOR = [
   '2c1b18', '4a312c', '724133', 'a55728', 'b58143', 'e8e1e1', 'c93305',
   '65c9ff', 'ff488e', '7ed957',
@@ -73,6 +77,19 @@ const pickPaid = (
   return fallback;
 };
 
+// top は hat / hairstyle の2カテゴリにまたがるため pickPaid ではなく専用判定。
+const pickTop = (
+  v: unknown,
+  owned: Set<string>,
+  fallback: string
+): string => {
+  if (typeof v !== 'string') return fallback;
+  if (HAIRSTYLES.includes(v)) return v;
+  if (ownsValue('hat', v, owned)) return v;
+  if (ownsValue('hairstyle', v, owned)) return v;
+  return fallback;
+};
+
 /** 入力を許可値だけに丸めた安全な AvatarConfig を返す。owned に応じて有料パーツを検証。 */
 export function sanitizeAvatarConfig(
   input: unknown,
@@ -82,15 +99,34 @@ export function sanitizeAvatarConfig(
   const owned = new Set(ownedIds);
   return {
     skinColor: pick(c.skinColor, SKIN, DEFAULT_AVATAR_CONFIG.skinColor),
-    hairColor: pick(c.hairColor, HAIR_COLOR, DEFAULT_AVATAR_CONFIG.hairColor),
-    // top は無料の髪型 or 所持している有料の帽子
-    top: pickPaid(c.top, 'hat', HAIRSTYLES, owned, DEFAULT_AVATAR_CONFIG.top),
-    eyes: pick(c.eyes, EYES, DEFAULT_AVATAR_CONFIG.eyes),
-    eyebrows: pick(c.eyebrows, EYEBROWS, DEFAULT_AVATAR_CONFIG.eyebrows),
-    mouth: pick(c.mouth, MOUTH, DEFAULT_AVATAR_CONFIG.mouth),
-    clothesColor: pick(
+    hairColor: pickPaid(
+      c.hairColor,
+      'haircolor',
+      HAIR_COLOR,
+      owned,
+      DEFAULT_AVATAR_CONFIG.hairColor
+    ),
+    top: pickTop(c.top, owned, DEFAULT_AVATAR_CONFIG.top),
+    eyes: pickPaid(c.eyes, 'eyes', EYES, owned, DEFAULT_AVATAR_CONFIG.eyes),
+    eyebrows: pickPaid(
+      c.eyebrows,
+      'eyebrow',
+      EYEBROWS,
+      owned,
+      DEFAULT_AVATAR_CONFIG.eyebrows
+    ),
+    mouth: pickPaid(
+      c.mouth,
+      'mouthstyle',
+      MOUTH,
+      owned,
+      DEFAULT_AVATAR_CONFIG.mouth
+    ),
+    clothesColor: pickPaid(
       c.clothesColor,
+      'clothescolor',
       CLOTHES_COLOR,
+      owned,
       DEFAULT_AVATAR_CONFIG.clothesColor
     ),
     accessory: pickPaid(c.accessory, 'glasses', ['none'], owned, 'none'),
