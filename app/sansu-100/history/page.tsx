@@ -9,6 +9,7 @@ import ThemeToggle from '../../components/theme-toggle';
 import BadgeShowcase from '../components/BadgeShowcase';
 import { formatDuration } from '../components/SessionTimer';
 import StatsCharts from '../components/StatsCharts';
+import WeeklyReport from '../components/WeeklyReport';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { storage } from '../lib/storage';
 import type { SansuSession } from '../lib/types';
@@ -44,6 +45,13 @@ export default function HistoryPage(): React.JSX.Element {
           backHref="/sansu-100"
           backLabel="ホームにもどる"
         />
+
+        <section className="space-y-3 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            📅 今週のれんしゅう
+          </h2>
+          <WeeklyReport sessions={sessions} />
+        </section>
 
         <section className="space-y-3 rounded-2xl bg-white p-6 shadow-md dark:bg-gray-800">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
