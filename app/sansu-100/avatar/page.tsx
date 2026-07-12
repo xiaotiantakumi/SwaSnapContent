@@ -38,20 +38,50 @@ type Cat = {
   label: string;
   kind: 'parts' | 'color';
   free: readonly string[];
-  paid?: AvatarItemCategory; // 所持していれば足す有料カテゴリ
+  paid?: AvatarItemCategory | AvatarItemCategory[]; // 所持していれば足す有料カテゴリ（複数可）
 };
 
 const CATEGORIES: Cat[] = [
-  { key: 'top', label: 'かみ・ぼうし', kind: 'parts', free: AVATAR_HAIR, paid: 'hat' },
-  { key: 'hairColor', label: 'かみのいろ', kind: 'color', free: AVATAR_HAIR_COLOR },
-  { key: 'eyes', label: 'め', kind: 'parts', free: AVATAR_EYES },
-  { key: 'eyebrows', label: 'まゆげ', kind: 'parts', free: AVATAR_EYEBROWS },
-  { key: 'mouth', label: 'くち', kind: 'parts', free: AVATAR_MOUTH },
+  {
+    key: 'top',
+    label: 'かみ・ぼうし',
+    kind: 'parts',
+    free: AVATAR_HAIR,
+    paid: ['hat', 'hairstyle'],
+  },
+  {
+    key: 'hairColor',
+    label: 'かみのいろ',
+    kind: 'color',
+    free: AVATAR_HAIR_COLOR,
+    paid: 'haircolor',
+  },
+  { key: 'eyes', label: 'め', kind: 'parts', free: AVATAR_EYES, paid: 'eyes' },
+  {
+    key: 'eyebrows',
+    label: 'まゆげ',
+    kind: 'parts',
+    free: AVATAR_EYEBROWS,
+    paid: 'eyebrow',
+  },
+  {
+    key: 'mouth',
+    label: 'くち',
+    kind: 'parts',
+    free: AVATAR_MOUTH,
+    paid: 'mouthstyle',
+  },
   { key: 'accessory', label: 'メガネ', kind: 'parts', free: ['none'], paid: 'glasses' },
   { key: 'facialHair', label: 'ひげ', kind: 'parts', free: ['none'], paid: 'beard' },
   { key: 'clothing', label: 'ふく', kind: 'parts', free: ['shirtCrewNeck'], paid: 'clothing' },
   { key: 'skinColor', label: 'はだのいろ', kind: 'color', free: AVATAR_SKIN },
-  { key: 'clothesColor', label: 'ふくのいろ', kind: 'color', free: AVATAR_CLOTHES_COLOR },
+  {
+    key: 'clothesColor',
+    label: 'ふくのいろ',
+    kind: 'color',
+    free: AVATAR_CLOTHES_COLOR,
+    paid: 'clothescolor',
+  },
 ];
 
 function randomFrom(opts: string[]): string {
@@ -175,9 +205,9 @@ export default function AvatarBuilderPage(): React.JSX.Element {
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
   }, [dirty]);
 
-  // カテゴリごとの選べる値（無料＋所持している有料）
+  // カテゴリごとの選べる値（無料＋所持している有料。色カテゴリも有料値があれば追加）
   const optionsFor = (cat: Cat): string[] => {
-    if (cat.kind === 'color' || !cat.paid) return [...cat.free];
+    if (!cat.paid) return [...cat.free];
     return [...cat.free, ...ownedValuesOf(cat.paid, owned)];
   };
 
