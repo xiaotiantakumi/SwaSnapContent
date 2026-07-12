@@ -262,6 +262,7 @@ function PlaySession({
           previousBest:
             user.bestTimesByLevel[`lv${pick.level}:${pick.operation}`] ?? null,
           feverEligible,
+          problems: session.answered,
         })
       );
       router.replace('/sansu-100/result');
