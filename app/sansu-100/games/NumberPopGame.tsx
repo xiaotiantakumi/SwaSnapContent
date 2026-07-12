@@ -39,6 +39,9 @@ export default function NumberPopGame({
   onGameOver: (score: number) => void;
 }): React.JSX.Element {
   const [round, setRound] = useState(1);
+  // ライフを失ってラウンド内で再挑戦する(クリア/ゲームオーバーに至らない)たびにインクリメント。
+  // round自体は変わらないので、タイマーeffectを再起動させるために使う。
+  const [retryTick, setRetryTick] = useState(0);
   const [lives, setLives] = useState(LIVES_MAX);
   const [score, setScore] = useState(0);
   const [bubbles, setBubbles] = useState<Bubble[]>(() => makeBubbles(INITIAL_COUNT, 1));
@@ -80,6 +83,7 @@ export default function NumberPopGame({
               const count = countRef.current;
               setBubbles(makeBubbles(count, roundRef.current));
               setNextExpected(1);
+              setRetryTick((v) => v + 1);
             }
           }, 600);
           return 0;
@@ -89,7 +93,7 @@ export default function NumberPopGame({
     }, 1000);
     return () => clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [round]);
+  }, [round, retryTick]);
 
   const handleTap = useCallback(
     (bubble: Bubble) => {
@@ -140,6 +144,7 @@ export default function NumberPopGame({
             const count = countRef.current;
             setBubbles(makeBubbles(count, roundRef.current));
             setNextExpected(1);
+            setRetryTick((v) => v + 1);
           }
         }, 600);
       }
