@@ -137,6 +137,48 @@ export const sansuApi = {
       throw e;
     }
   },
+  // カート一括購入（all-or-nothing）。残高不足・不明アイテムは例外にせず error として返す。
+  async purchaseBatch(
+    userId: string,
+    itemIds: string[]
+  ): Promise<{
+    ok: boolean;
+    user?: SansuUserPublic;
+    error?: 'insufficient' | 'unknown_item' | 'conflict';
+    shortfall?: number;
+    total?: number;
+  }> {
+    const res = await fetch(`${BASE}/purchase/batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, itemIds }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      user?: SansuUserPublic;
+      error?: string;
+      shortfall?: number;
+      total?: number;
+    };
+    if (res.ok) {
+      return { ok: true, user: data.user, total: data.total };
+    }
+    if (res.status === 409 && data.error === 'insufficient') {
+      return {
+        ok: false,
+        error: 'insufficient',
+        shortfall: data.shortfall,
+        total: data.total,
+      };
+    }
+    if (res.status === 400 && data.error === 'unknown_item') {
+      return { ok: false, error: 'unknown_item' };
+    }
+    if (res.status === 409) {
+      return { ok: false, error: 'conflict' };
+    }
+    throw new Error(`HTTP ${res.status}: ${JSON.stringify(data)}`);
+  },
   // パーツ組み立て式アバターの構成を保存。サーバーが許可値に丸めた user を返す。
   async setAvatarConfig(
     userId: string,
