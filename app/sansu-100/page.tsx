@@ -226,6 +226,13 @@ export default function SansuHome(): React.JSX.Element {
                 📈 きろく
               </Link>
               <Link
+                href="/sansu-100/records"
+                className="rounded-lg bg-orange-200 px-3 py-2 text-center font-semibold text-orange-900 hover:bg-orange-300 dark:bg-orange-900/40 dark:text-orange-100 dark:hover:bg-orange-900/60"
+                data-testid="records-link"
+              >
+                🏆 ベスト記録
+              </Link>
+              <Link
                 href="/sansu-100/badges"
                 className="rounded-lg bg-amber-200 px-3 py-2 text-center font-semibold text-amber-900 hover:bg-amber-300 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-900/60"
                 data-testid="badges-link"
