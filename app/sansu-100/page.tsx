@@ -12,6 +12,7 @@ import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
 import DailyChallengeCard from './components/DailyChallengeCard';
 import PinPad from './components/PinPad';
+import StreakCard from './components/StreakCard';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
@@ -183,6 +184,7 @@ export default function SansuHome(): React.JSX.Element {
                 {currentUser.earnedBadges.length}
               </p>
             </div>
+            <StreakCard user={currentUser} />
             <DailyChallengeCard user={currentUser} />
             <button
               type="button"
