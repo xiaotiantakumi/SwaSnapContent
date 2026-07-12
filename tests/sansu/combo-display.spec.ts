@@ -7,20 +7,27 @@ test.describe('コンボ表示', () => {
       const user = {
         id: 'test-combo-user',
         name: 'テスト',
+        avatar: '🙂',
+        themeColor: '#3b82f6',
+        createdAt: Date.now(),
+        totalPoints: 50,
+        earnedBadges: [] as string[],
+        bestTimesByLevel: {},
+        currentStreakDays: 1,
+        lastPlayedDate: '',
+        lastPlayedAt: 0,
+        totalSessions: 5,
         coins: 50,
-        earnedBadges: [],
         minigameScores: {},
         minigameCredits: 0,
-        bestTimesByLevel: {},
-        totalSessions: 5,
-        totalPoints: 50,
-        currentStreakDays: 1,
-        avatarConfig: null,
-        ownedItems: [],
         feverWindowInterval: null,
         feverWindowUses: 0,
       };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
+      localStorage.setItem('sansu-100:users', JSON.stringify([user]));
+      localStorage.setItem('sansu-100:current-user', JSON.stringify(user.id));
+      // dev-seed(たろう等の自動ユーザー作成)を止め、seed直後にcurrentUserが
+      // 上書きされる競合を防ぐ
+      sessionStorage.setItem('sansu-100:dev-seeded', '1');
     });
     await page.goto('/sansu-100/play?debug=1');
     // デバッグ環境でコンボ表示のテストはスキップ（実際の正解入力が必要）
