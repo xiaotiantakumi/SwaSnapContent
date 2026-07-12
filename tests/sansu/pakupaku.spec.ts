@@ -20,33 +20,22 @@ function uniqueName(): string {
   return `PKP${suffix}`; // 例: PKP834625（9文字）
 }
 
-async function enterPin(page: Page, pin: string, confirmLabel: string) {
-  const pad = page.locator('[data-testid=pin-pad]');
-  await pad.waitFor();
-  for (const d of pin) {
-    await pad.getByRole('button', { name: d, exact: true }).click();
-  }
-  await page.getByRole('button', { name: confirmLabel }).click();
-}
-
 /** テストユーザを登録してログインした状態でトップページまで戻る */
 async function registerAndLogin(page: Page, name: string): Promise<void> {
   await page.addInitScript(() => {
     try { sessionStorage.setItem('sansu-100:dev-seeded', '1'); } catch { /* ignore */ }
   });
-  await page.goto('/sansu-100');
-  // 登録ボタン
-  const regBtn = page.getByRole('button', { name: /あたらしく はじめる|新しく|登録/ });
-  await regBtn.waitFor({ timeout: 8000 });
-  await regBtn.click();
+  await page.goto('/sansu-100/register');
   // 名前入力
-  const nameInput = page.getByPlaceholder(/なまえ|名前/);
-  await nameInput.fill(name);
-  await page.getByRole('button', { name: /つぎへ|次へ|次/ }).click();
+  await page.getByTestId('register-name-input').fill(name);
+  await page.getByTestId('register-name-next').click();
   // PIN 設定
-  await enterPin(page, PIN, '決定');
-  // PIN 確認
-  await enterPin(page, PIN, '確認');
+  const pad = page.locator('[data-testid=pin-pad]');
+  await pad.waitFor();
+  for (const d of PIN) {
+    await pad.getByRole('button', { name: d, exact: true }).click();
+  }
+  await page.getByRole('button', { name: 'これでとうろく！' }).click();
   // 登録完了 → top
   await page.waitForURL('**/sansu-100', { timeout: 10000 });
 }
@@ -149,7 +138,7 @@ test.describe('パクパクおじさん ミニゲーム', () => {
     await expect(page.getByRole('button', { name: 'した' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'ひだり' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'みぎ' })).toBeVisible();
-    // 満腹度表示が見える
-    await expect(page.getByText('おなか')).toBeVisible();
+    // スコア表示が見える
+    await expect(page.getByText('スコア:')).toBeVisible();
   });
 });
