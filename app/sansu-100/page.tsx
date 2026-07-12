@@ -10,6 +10,7 @@ import ThemeToggle from '../components/theme-toggle';
 
 import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
+import DailyChallengeCard from './components/DailyChallengeCard';
 import PinPad from './components/PinPad';
 import StreakCard from './components/StreakCard';
 import UserTile from './components/UserTile';
@@ -184,6 +185,7 @@ export default function SansuHome(): React.JSX.Element {
               </p>
             </div>
             <StreakCard user={currentUser} />
+            <DailyChallengeCard user={currentUser} />
             <button
               type="button"
               onClick={() => router.push('/sansu-100/play')}
