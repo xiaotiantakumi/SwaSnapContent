@@ -227,6 +227,18 @@ export const MINIGAMES: readonly MinigameMeta[] = [
     ],
     available: true,
   },
+  {
+    id: 'numberpop',
+    name: 'かずならべ',
+    emoji: '🔢',
+    desc: 'ちいさい じゅんに タップ！',
+    howTo: [
+      '画面に ならんだ かずを ちいさい じゅんに タップ',
+      'ぜんぶ タップできたら クリア！つぎの ラウンドへ',
+      'まちがえるか じかん切れに なると ライフが へるよ',
+    ],
+    available: true,
+  },
 ];
 
 const BY_ID: Record<string, MinigameMeta> = Object.fromEntries(

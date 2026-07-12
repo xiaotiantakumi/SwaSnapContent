@@ -10,8 +10,12 @@ import ThemeToggle from '../components/theme-toggle';
 
 import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
+import DailyChallengeCard from './components/DailyChallengeCard';
+import NextBadgeHint from './components/NextBadgeHint';
 import PinPad from './components/PinPad';
 import QuickStartCard from './components/QuickStartCard';
+import StreakCard from './components/StreakCard';
+import TodaySummaryCard from './components/TodaySummaryCard';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
@@ -30,6 +34,7 @@ export default function SansuHome(): React.JSX.Element {
     useSansuUser();
   const seedDone = useRef(false);
   const [recentSessions, setRecentSessions] = useState<SansuSession[]>([]);
+  const [todaySessions, setTodaySessions] = useState<SansuSession[]>([]);
   const [selectingUser, setSelectingUser] = useState<SansuUserPublic | null>(
     null
   );
@@ -38,6 +43,11 @@ export default function SansuHome(): React.JSX.Element {
   const [verifyingPin, setVerifyingPin] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [debugBusy, setDebugBusy] = useState(false);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    setTodaySessions(storage.getSessions(currentUser.id));
+  }, [currentUser]);
 
   // Auto-seed test users in dev mode on first mount
   useEffect(() => {
@@ -193,6 +203,8 @@ export default function SansuHome(): React.JSX.Element {
                 {currentUser.earnedBadges.length}
               </p>
             </div>
+            <StreakCard user={currentUser} />
+            <DailyChallengeCard user={currentUser} />
             <button
               type="button"
               onClick={() => router.push('/sansu-100/play')}
@@ -202,6 +214,8 @@ export default function SansuHome(): React.JSX.Element {
               ▶︎ れんしゅう スタート！
             </button>
             <QuickStartCard sessions={recentSessions} />
+            <TodaySummaryCard sessions={todaySessions} />
+            <NextBadgeHint user={currentUser} />
             <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/sansu-100/shop"
@@ -232,6 +246,34 @@ export default function SansuHome(): React.JSX.Element {
                 className="rounded-lg bg-gray-200 px-3 py-2 text-center font-semibold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               >
                 📈 きろく
+              </Link>
+              <Link
+                href="/sansu-100/records"
+                className="rounded-lg bg-orange-200 px-3 py-2 text-center font-semibold text-orange-900 hover:bg-orange-300 dark:bg-orange-900/40 dark:text-orange-100 dark:hover:bg-orange-900/60"
+                data-testid="records-link"
+              >
+                🏆 ベスト記録
+              </Link>
+              <Link
+                href="/sansu-100/badges"
+                className="rounded-lg bg-amber-200 px-3 py-2 text-center font-semibold text-amber-900 hover:bg-amber-300 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-900/60"
+                data-testid="badges-link"
+              >
+                🏅 バッジ図鑑
+              </Link>
+              <Link
+                href="/sansu-100/profile"
+                className="rounded-lg bg-blue-100 px-3 py-2 text-center font-semibold text-blue-900 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-100 dark:hover:bg-blue-900/60"
+                data-testid="profile-link"
+              >
+                📋 プロフィール
+              </Link>
+              <Link
+                href="/sansu-100/settings"
+                className="rounded-lg bg-slate-200 px-3 py-2 text-center font-semibold text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                data-testid="settings-link"
+              >
+                ⚙️ せってい
               </Link>
             </div>
             <button
