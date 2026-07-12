@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -13,10 +13,10 @@ export default function MinigameScoresPage(): React.JSX.Element {
   const router = useRouter();
   const { currentUser, loaded } = useSansuUser();
 
-  if (loaded && !currentUser) {
-    if (typeof window !== 'undefined') router.replace('/sansu-100');
-    return <main className="p-8" />;
-  }
+  useEffect(() => {
+    if (loaded && !currentUser) router.replace('/sansu-100');
+  }, [loaded, currentUser, router]);
+
   if (!currentUser) return <main className="p-8" />;
 
   const scores = currentUser.minigameScores ?? {};
