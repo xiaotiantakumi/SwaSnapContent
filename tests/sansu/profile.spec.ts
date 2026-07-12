@@ -1,5 +1,76 @@
 import { expect, test } from '@playwright/test';
 
+type SeedUserOpts = {
+  name: string;
+  earnedBadges?: string[];
+};
+
+async function seedUser(
+  page: import('@playwright/test').Page,
+  userId: string,
+  opts: SeedUserOpts,
+  sessions: Record<string, unknown>[] = []
+): Promise<void> {
+  await page.goto('/sansu-100');
+  await page.evaluate(
+    ({ userId, opts, sessions }) => {
+      const user = {
+        id: userId,
+        name: opts.name,
+        avatar: '🙂',
+        themeColor: '#3b82f6',
+        createdAt: Date.now(),
+        totalPoints: 0,
+        earnedBadges: opts.earnedBadges ?? [],
+        bestTimesByLevel: {},
+        currentStreakDays: 0,
+        lastPlayedDate: '',
+        lastPlayedAt: 0,
+        totalSessions: sessions.length,
+        coins: 100,
+        minigameScores: {},
+        minigameCredits: 0,
+      };
+      localStorage.setItem('sansu-100:users', JSON.stringify([user]));
+      localStorage.setItem('sansu-100:current-user', JSON.stringify(userId));
+      localStorage.setItem(`sansu-100:sessions:${userId}`, JSON.stringify(sessions));
+      // dev-seed(たろう等の自動ユーザー作成)を止め、seed直後にcurrentUserが
+      // 上書きされる競合を防ぐ
+      sessionStorage.setItem('sansu-100:dev-seeded', '1');
+    },
+    { userId, opts, sessions }
+  );
+}
+
+function makeSessions(
+  userId: string,
+  count: number,
+  overrides: Partial<{
+    level: number;
+    operation: string;
+    durationMs: number;
+    correctCount: number;
+    totalProblems: number;
+  }> = {}
+): Record<string, unknown>[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: `s-${userId}-${i}`,
+    userId,
+    userName: 'テスト',
+    level: overrides.level ?? 1,
+    operation: overrides.operation ?? 'add',
+    isDaily: false,
+    isRetired: false,
+    startedAt: Date.now() - i * 86400000 - (overrides.durationMs ?? 90000),
+    completedAt: Date.now() - i * 86400000,
+    durationMs: overrides.durationMs ?? 90000,
+    totalProblems: overrides.totalProblems ?? 100,
+    correctCount: overrides.correctCount ?? 100,
+    pointsEarned: 10,
+    newBadges: [] as string[],
+  }));
+}
+
 test.describe('プロフィールページ', () => {
   test('未ログインはホームにリダイレクトされる', async ({ page }) => {
     await page.goto('/sansu-100/profile');
@@ -7,67 +78,15 @@ test.describe('プロフィールページ', () => {
   });
 
   test('ホームのナビグリッドにプロフィールリンクが表示される', async ({ page }) => {
-    await page.goto('/sansu-100');
-    await page.evaluate(() => {
-      const userId = 'test-profile-user';
-      const user = {
-        id: userId,
-        name: 'プロフィールくん',
-        pinHash: '',
-        createdAt: Date.now(),
-        totalSessions: 3,
-        coins: 100,
-        earnedBadges: [],
-        minigameScores: {},
-        minigameCredits: 0,
-        avatarConfig: null,
-        ownedItems: [],
-      };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
-      localStorage.setItem(
-        'sansu_recent_users',
-        JSON.stringify([{ id: userId, name: 'プロフィールくん' }])
-      );
-    });
+    await seedUser(page, 'test-profile-user', { name: 'プロフィールくん' });
     await page.reload();
     await expect(page.locator('[data-testid="profile-link"]')).toBeVisible({ timeout: 5000 });
   });
 
   test('プロフィールページのヘッダーとユーザー情報が表示される', async ({ page }) => {
-    await page.goto('/sansu-100');
-    await page.evaluate(() => {
-      const userId = 'test-profile-user2';
-      const user = {
-        id: userId,
-        name: 'テスト花子',
-        pinHash: '',
-        createdAt: Date.now(),
-        totalSessions: 10,
-        coins: 200,
-        earnedBadges: ['sessions_1', 'perfect_first'],
-        minigameScores: {},
-        minigameCredits: 0,
-        avatarConfig: null,
-        ownedItems: [],
-      };
-      const sessions = Array.from({ length: 5 }, (_, i) => ({
-        id: `s-${i}`,
-        userId,
-        level: 'standard' as const,
-        operation: 'add',
-        durationMs: 90000 + i * 10000,
-        correctCount: 100,
-        totalProblems: 100,
-        completedAt: Date.now() - i * 86400000,
-        isDaily: false,
-      }));
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
-      localStorage.setItem(`sansu_sessions_${userId}`, JSON.stringify(sessions));
-      localStorage.setItem(
-        'sansu_recent_users',
-        JSON.stringify([{ id: userId, name: 'テスト花子' }])
-      );
-    });
+    const userId = 'test-profile-user2';
+    const sessions = makeSessions(userId, 5);
+    await seedUser(page, userId, { name: 'テスト花子', earnedBadges: ['sessions_1', 'perfect_first'] }, sessions);
 
     await page.goto('/sansu-100/profile');
     await expect(page.locator('[data-testid="profile-header"]')).toBeVisible({ timeout: 8000 });
@@ -75,40 +94,13 @@ test.describe('プロフィールページ', () => {
   });
 
   test('統計グリッドに累計回数と時間が表示される', async ({ page }) => {
-    await page.goto('/sansu-100');
-    await page.evaluate(() => {
-      const userId = 'test-profile-user3';
-      const user = {
-        id: userId,
-        name: 'テスト太郎',
-        pinHash: '',
-        createdAt: Date.now(),
-        totalSessions: 5,
-        coins: 0,
-        earnedBadges: [],
-        minigameScores: {},
-        minigameCredits: 0,
-        avatarConfig: null,
-        ownedItems: [],
-      };
-      const sessions = Array.from({ length: 5 }, (_, i) => ({
-        id: `s3-${i}`,
-        userId,
-        level: 'standard' as const,
-        operation: 'mul',
-        durationMs: 60000,
-        correctCount: 80,
-        totalProblems: 100,
-        completedAt: Date.now() - i * 86400000,
-        isDaily: false,
-      }));
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
-      localStorage.setItem(`sansu_sessions_${userId}`, JSON.stringify(sessions));
-      localStorage.setItem(
-        'sansu_recent_users',
-        JSON.stringify([{ id: userId, name: 'テスト太郎' }])
-      );
+    const userId = 'test-profile-user3';
+    const sessions = makeSessions(userId, 5, {
+      operation: 'mul',
+      durationMs: 60000,
+      correctCount: 80,
     });
+    await seedUser(page, userId, { name: 'テスト太郎' }, sessions);
 
     await page.goto('/sansu-100/profile');
     const stats = page.locator('[data-testid="profile-stats"]');
@@ -118,28 +110,7 @@ test.describe('プロフィールページ', () => {
   });
 
   test('履歴ページへのリンクが存在する', async ({ page }) => {
-    await page.goto('/sansu-100');
-    await page.evaluate(() => {
-      const userId = 'test-profile-user4';
-      const user = {
-        id: userId,
-        name: 'テスト次郎',
-        pinHash: '',
-        createdAt: Date.now(),
-        totalSessions: 2,
-        coins: 0,
-        earnedBadges: ['sessions_1'],
-        minigameScores: {},
-        minigameCredits: 0,
-        avatarConfig: null,
-        ownedItems: [],
-      };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
-      localStorage.setItem(
-        'sansu_recent_users',
-        JSON.stringify([{ id: userId, name: 'テスト次郎' }])
-      );
-    });
+    await seedUser(page, 'test-profile-user4', { name: 'テスト次郎', earnedBadges: ['sessions_1'] });
 
     await page.goto('/sansu-100/profile');
     await expect(page.locator('[data-testid="profile-history-link"]')).toBeVisible({ timeout: 8000 });
