@@ -64,6 +64,7 @@ function PlayInner(): React.JSX.Element {
             onPick={(level, operation) => setPick({ level, operation })}
             feverWindowInterval={currentUser.feverWindowInterval}
             feverWindowUses={currentUser.feverWindowUses}
+            bestTimesByLevel={currentUser.bestTimesByLevel}
           />
         </div>
       </main>
