@@ -13,6 +13,7 @@ import CoinBalance from './components/CoinBalance';
 import DailyChallengeCard from './components/DailyChallengeCard';
 import NextBadgeHint from './components/NextBadgeHint';
 import PinPad from './components/PinPad';
+import QuickStartCard from './components/QuickStartCard';
 import StreakCard from './components/StreakCard';
 import TodaySummaryCard from './components/TodaySummaryCard';
 import UserTile from './components/UserTile';
@@ -32,6 +33,7 @@ export default function SansuHome(): React.JSX.Element {
   const { recentUsers, currentUser, selectUser, saveUser, loaded, refreshUsers } =
     useSansuUser();
   const seedDone = useRef(false);
+  const [recentSessions, setRecentSessions] = useState<SansuSession[]>([]);
   const [todaySessions, setTodaySessions] = useState<SansuSession[]>([]);
   const [selectingUser, setSelectingUser] = useState<SansuUserPublic | null>(
     null
@@ -57,6 +59,14 @@ export default function SansuHome(): React.JSX.Element {
       }).catch(console.warn)
     );
   }, [refreshUsers]);
+
+  useEffect(() => {
+    if (currentUser) {
+      setRecentSessions(storage.getSessions(currentUser.id));
+    } else {
+      setRecentSessions([]);
+    }
+  }, [currentUser]);
 
   const handleSelect = (user: SansuUserPublic) => {
     setSelectingUser(user);
@@ -203,6 +213,7 @@ export default function SansuHome(): React.JSX.Element {
             >
               ▶︎ れんしゅう スタート！
             </button>
+            <QuickStartCard sessions={recentSessions} />
             <TodaySummaryCard sessions={todaySessions} />
             <NextBadgeHint user={currentUser} />
             <div className="grid grid-cols-2 gap-3">
