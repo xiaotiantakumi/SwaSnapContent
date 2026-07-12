@@ -11,6 +11,7 @@ import ThemeToggle from '../components/theme-toggle';
 import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
 import DailyChallengeCard from './components/DailyChallengeCard';
+import NextBadgeHint from './components/NextBadgeHint';
 import PinPad from './components/PinPad';
 import StreakCard from './components/StreakCard';
 import TodaySummaryCard from './components/TodaySummaryCard';
@@ -203,6 +204,7 @@ export default function SansuHome(): React.JSX.Element {
               ▶︎ れんしゅう スタート！
             </button>
             <TodaySummaryCard sessions={todaySessions} />
+            <NextBadgeHint user={currentUser} />
             <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/sansu-100/shop"
