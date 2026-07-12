@@ -39,7 +39,11 @@ export default function RecordsPage(): React.JSX.Element {
   if (!loaded || !currentUser) return <main className="p-8" />;
 
   const best = currentUser.bestTimesByLevel ?? {};
-  const recordCount = Object.values(best).filter((v) => v > 0).length;
+  // ミックス('lvmix:mixed'等、LEVELSに含まれないキー)を含めず、表に出るレベルのみで数える
+  const recordCount = LEVELS.filter((lv) => {
+    const ms = best[`lv${lv.id}:${lv.operation}`];
+    return typeof ms === 'number' && ms > 0;
+  }).length;
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-gray-900">
