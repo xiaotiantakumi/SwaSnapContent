@@ -7,18 +7,25 @@ test.describe('ミニゲームマイベストスコア', () => {
       const user = {
         id: 'test-scores-user',
         name: 'テスト',
+        avatar: '🙂',
+        themeColor: '#3b82f6',
+        createdAt: Date.now(),
+        totalPoints: 50,
+        earnedBadges: [] as string[],
+        bestTimesByLevel: {},
+        currentStreakDays: 1,
+        lastPlayedDate: '',
+        lastPlayedAt: 0,
+        totalSessions: 5,
         coins: 100,
-        earnedBadges: [],
         minigameScores: { snake: 150, runner: 80 },
         minigameCredits: 3,
-        bestTimesByLevel: {},
-        totalSessions: 5,
-        totalPoints: 50,
-        currentStreakDays: 1,
-        avatarConfig: null,
-        ownedItems: [],
       };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
+      localStorage.setItem('sansu-100:users', JSON.stringify([user]));
+      localStorage.setItem('sansu-100:current-user', JSON.stringify(user.id));
+      // dev-seed(たろう等の自動ユーザー作成)を止め、seed直後にcurrentUserが
+      // 上書きされる競合を防ぐ
+      sessionStorage.setItem('sansu-100:dev-seeded', '1');
     });
   });
 
