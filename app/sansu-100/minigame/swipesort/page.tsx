@@ -11,7 +11,7 @@ import BadgeUnlockOverlay from '../../components/BadgeUnlockOverlay';
 import CoinBalance from '../../components/CoinBalance';
 import HowToPlay from '../../components/HowToPlay';
 import NewRecordBanner from '../../components/NewRecordBanner';
-import PakupakuGame from '../../games/PakupakuGame';
+import SwipeSortGame from '../../games/SwipeSortGame';
 import { useSansuUser } from '../../hooks/useSansuUser';
 import { sansuApi } from '../../lib/api-client';
 import { SPEND_COSTS } from '../../lib/minigame-economy';
@@ -20,7 +20,7 @@ import { evaluateMinigameBadges } from '../../lib/minigame-rewards';
 
 type Phase = 'intro' | 'playing' | 'over';
 
-export default function PakupakuPage(): React.JSX.Element {
+export default function SwipeSortPage(): React.JSX.Element {
   const router = useRouter();
   const { currentUser, saveUser, loaded } = useSansuUser();
   const [phase, setPhase] = useState<Phase>('intro');
@@ -32,7 +32,6 @@ export default function PakupakuPage(): React.JSX.Element {
   const [newRecord, setNewRecord] = useState(false);
 
   const coins = currentUser?.coins ?? 0;
-  const highScore = currentUser?.minigameScores?.pakupaku ?? 0;
 
   const start = useCallback(async () => {
     if (!currentUser) return;
@@ -65,22 +64,17 @@ export default function PakupakuPage(): React.JSX.Element {
       setPhase('over');
       if (!currentUser) return;
       const newBadges = evaluateMinigameBadges(
-        'pakupaku',
+        'swipesort',
         score,
         currentUser.earnedBadges
       );
       try {
-        const res = await sansuApi.awardBadge(
-          currentUser.id,
-          newBadges,
-          score,
-          'pakupaku'
-        );
+        const res = await sansuApi.awardBadge(currentUser.id, newBadges, score, 'swipesort');
         if (res.user) saveUser(res.user);
         if (res.newRecord) setNewRecord(true);
         if (newBadges.length > 0) setOverlayBadges(newBadges);
       } catch {
-        // 報酬付与に失敗しても致命的ではない
+        // 報酬付与失敗は致命的でない
       }
     },
     [currentUser, saveUser]
@@ -106,22 +100,13 @@ export default function PakupakuPage(): React.JSX.Element {
             ← やめる
           </Link>
         ) : (
-          <>
-            <Header
-              title="👴 パクパクおじさん"
-              description="ドットを たべまくれ！おばけに きをつけて"
-              showBackButton
-              backHref="/sansu-100/minigame"
-              backLabel="ゲームせんたくにもどる"
-            />
-            <section className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                さいこう:{' '}
-                <b className="text-gray-900 dark:text-gray-100">{highScore}</b>
-              </span>
-              <CoinBalance coins={coins} />
-            </section>
-          </>
+          <Header
+            title="🔀 スワイプわけっこ"
+            description="ぐうすう・きすうを すばやく わけよう！"
+            showBackButton
+            backHref="/sansu-100/minigame"
+            backLabel="ゲームせんたくにもどる"
+          />
         )}
 
         {message ? (
@@ -132,17 +117,20 @@ export default function PakupakuPage(): React.JSX.Element {
 
         {phase === 'intro' ? (
           <section className="space-y-4 rounded-2xl bg-white p-6 text-center shadow-md dark:bg-gray-800">
-            <p className="text-6xl">👴</p>
-            <HowToPlay steps={minigameHowTo('pakupaku')} />
+            <p className="text-6xl">🔀</p>
+            <HowToPlay steps={minigameHowTo('swipesort')} />
             <p className="text-gray-700 dark:text-gray-200">
               コインを {SPEND_COSTS.play}まい つかって あそぶよ
             </p>
+            <div className="flex justify-center">
+              <CoinBalance coins={coins} />
+            </div>
             <button
               type="button"
               disabled={busy}
               onClick={start}
-              className="w-full rounded-xl bg-yellow-500 py-4 text-lg font-bold text-white hover:bg-yellow-600 disabled:opacity-60"
-              data-testid="pakupaku-start"
+              className="w-full rounded-xl bg-purple-600 py-4 text-lg font-bold text-white hover:bg-purple-700 disabled:opacity-60"
+              data-testid="swipesort-start"
             >
               🪙 {SPEND_COSTS.play} であそぶ
             </button>
@@ -151,25 +139,25 @@ export default function PakupakuPage(): React.JSX.Element {
 
         {phase === 'playing' ? (
           <section className="rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
-            <PakupakuGame key={round} onGameOver={handleGameOver} />
+            <SwipeSortGame key={round} onGameOver={handleGameOver} />
           </section>
         ) : null}
 
         {phase === 'over' ? (
           <section className="space-y-4 rounded-2xl bg-white p-6 text-center shadow-md dark:bg-gray-800">
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              ゲームオーバー
+              おわり！
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-200">
-              スコア: <b data-testid="pakupaku-final-score">{lastScore}</b>
+              スコア: <b data-testid="swipesort-final-score">{lastScore}</b>
             </p>
             {newRecord ? <NewRecordBanner score={lastScore} /> : null}
             <button
               type="button"
               disabled={busy}
               onClick={start}
-              className="w-full rounded-xl bg-yellow-500 py-4 text-lg font-bold text-white hover:bg-yellow-600 disabled:opacity-60"
-              data-testid="pakupaku-again"
+              className="w-full rounded-xl bg-purple-600 py-4 text-lg font-bold text-white hover:bg-purple-700 disabled:opacity-60"
+              data-testid="swipesort-again"
             >
               🪙 {SPEND_COSTS.play} で もういちど
             </button>
