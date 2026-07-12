@@ -89,7 +89,7 @@ function tickGame(
   if (gs.phase === 'chant') {
     // 連打で前進
     if (gs.tapsThisTick > 0) {
-      gs.playerX = Math.min(CLEAR_X - 0.001, gs.playerX + TAP_ADVANCE * gs.tapsThisTick);
+      gs.playerX = Math.min(CLEAR_X, gs.playerX + TAP_ADVANCE * gs.tapsThisTick);
       gs.score += tapScore(gs.playerX) * gs.tapsThisTick;
       gs.tapsThisTick = 0;
     }
