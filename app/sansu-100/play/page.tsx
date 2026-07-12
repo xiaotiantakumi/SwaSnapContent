@@ -13,6 +13,7 @@ import ProblemDisplay from '../components/ProblemDisplay';
 import ProgressBar from '../components/ProgressBar';
 import SessionTimer from '../components/SessionTimer';
 import { useSansuSession } from '../hooks/useSansuSession';
+import { useSansuSound } from '../hooks/useSansuSound';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
 import { dailyLevel } from '../lib/daily';
@@ -142,6 +143,7 @@ function PlaySession({
     operation: pick.operation,
     isDaily,
   });
+  const { play: playSound } = useSansuSound();
   const [input, setInput] = useState('');
   // あまりあり割り算用: あまりの入力と、入力中のマス
   const [remInput, setRemInput] = useState('');
@@ -175,6 +177,7 @@ function PlaySession({
       }
       const isCorrect =
         !isSkip && n === p.answer && (!remMode || r === p.remainder);
+      playSound(isCorrect ? 'correct' : 'wrong');
       setFeedback(isCorrect ? 'correct' : 'wrong');
       setTimeout(
         () => {
@@ -190,7 +193,7 @@ function PlaySession({
         isCorrect ? 200 : 500
       );
     },
-    [session]
+    [session, playSound]
   );
 
   // キーパッド入力: いま入力中のマスに反映し、答えがそろったら自動で正解判定する。
@@ -228,6 +231,7 @@ function PlaySession({
   useEffect(() => {
     if (!session.isComplete || finalizingRef.current || !user) return;
     finalizingRef.current = true;
+    playSound('complete');
     const result = finishSession({
       user,
       level: pick.level,
@@ -293,6 +297,7 @@ function PlaySession({
     onFinishUpdate,
     onServerSync,
     router,
+    playSound,
   ]);
 
   if (!user) return <main className="p-8" />;
