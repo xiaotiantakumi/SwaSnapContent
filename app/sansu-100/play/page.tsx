@@ -44,14 +44,13 @@ function PlayInner(): React.JSX.Element {
       setPick({ level: lv, operation: opOf(lv) });
       return;
     }
-    // ?level=N&op=add で直接レベルを指定できる（結果画面からの直リプレイ用）
+    // ?level=N&op=add で直接レベルを指定できる（結果画面からの直リプレイ用）。
+    // opは信用せずlevelから導出する（不正なURL改変でbestTimesByLevelのキーが汚染されるのを防ぐ）。
     const lvParam = params.get('level');
-    const opParam = params.get('op') as Operation | null;
-    if (lvParam && opParam) {
+    if (lvParam !== null) {
       const n = Number(lvParam);
-      const validOps: Operation[] = ['add', 'sub', 'mul', 'div', 'mixed'];
-      if (!Number.isNaN(n) && validOps.includes(opParam)) {
-        setPick({ level: n as LevelId, operation: opParam });
+      if (Number.isInteger(n) && n >= 1 && n <= 11) {
+        setPick({ level: n as Exclude<LevelId, 'mix'>, operation: opOf(n as Exclude<LevelId, 'mix'>) });
       }
     }
   }, [isDaily, pick, params]);

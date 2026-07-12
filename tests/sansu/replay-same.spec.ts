@@ -7,18 +7,25 @@ test.describe('同じレベル直リプレイ', () => {
       const user = {
         id: 'test-replay-user',
         name: 'テスト',
+        avatar: '🙂',
+        themeColor: '#3b82f6',
+        createdAt: Date.now(),
+        totalPoints: 50,
+        earnedBadges: [] as string[],
+        bestTimesByLevel: {},
+        currentStreakDays: 1,
+        lastPlayedDate: '',
+        lastPlayedAt: 0,
+        totalSessions: 5,
         coins: 50,
-        earnedBadges: [],
         minigameScores: {},
         minigameCredits: 0,
-        bestTimesByLevel: {},
-        totalSessions: 5,
-        totalPoints: 50,
-        currentStreakDays: 1,
-        avatarConfig: null,
-        ownedItems: [],
       };
-      localStorage.setItem('sansu_current_user', JSON.stringify(user));
+      localStorage.setItem('sansu-100:users', JSON.stringify([user]));
+      localStorage.setItem('sansu-100:current-user', JSON.stringify(user.id));
+      // dev-seed(たろう等の自動ユーザー作成)を止め、seed直後にcurrentUserが
+      // 上書きされる競合を防ぐ
+      sessionStorage.setItem('sansu-100:dev-seeded', '1');
       const result = {
         session: {
           id: 'test-replay-session',
@@ -58,10 +65,9 @@ test.describe('同じレベル直リプレイ', () => {
 
   test('URLパラメータで直接レベルを指定して練習を開始できる', async ({ page }) => {
     await page.goto('/sansu-100/play?level=2&op=add');
-    // ログインしているので、レベル選択をスキップして練習が始まることを確認
-    await page.waitForTimeout(1000);
-    // ProgressBarまたは問題表示エリアが見えることを確認
-    const main = page.locator('main');
-    await expect(main).toBeVisible();
+    // ログインしているので、レベル選択（「どの れんしゅう？」画面）をスキップして
+    // 練習が直接始まることを確認する
+    await expect(page.getByText('どの れんしゅう？')).not.toBeVisible({ timeout: 5000 });
+    await expect(page.locator('main')).toBeVisible();
   });
 });
