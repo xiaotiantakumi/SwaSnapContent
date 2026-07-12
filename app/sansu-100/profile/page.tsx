@@ -90,8 +90,10 @@ export default function ProfilePage(): React.JSX.Element {
       if (cnt > maxCount) { maxCount = cnt; favoriteOp = op; }
     }
 
-    // 最速タイム（パーフェクトのみ）
-    const perfectSessions = sessions.filter((s) => s.correctCount === s.totalProblems);
+    // 最速タイム（リタイヤを除く、パーフェクトのみ）
+    const perfectSessions = sessions.filter(
+      (s) => !s.isRetired && s.correctCount === s.totalProblems
+    );
     const fastestMs = perfectSessions.length > 0
       ? Math.min(...perfectSessions.map((s) => s.durationMs))
       : null;
