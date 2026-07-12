@@ -134,6 +134,11 @@ function PlaySession({
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [showRetire, setShowRetire] = useState(false);
   const [retiring, setRetiring] = useState(false);
+  // 設定ページで選んだキーパッドモード（既定 'auto' = 画面ボタン・キーボード両方有効、従来どおり）
+  const [keypadMode, setKeypadMode] = useState<'auto' | 'on-screen' | 'keyboard'>('auto');
+  useEffect(() => {
+    setKeypadMode(storage.getSettings().keypadMode);
+  }, []);
   // 同期ガード: 完走/リタイヤの finishSession が二重起動（連打や再レンダ）しないよう、
   // state より先に効く ref で1回だけ確定させる。
   const finalizingRef = useRef(false);
@@ -397,6 +402,7 @@ function PlaySession({
           onSkip={handleSkip}
           maxLen={isRemainderMode ? (activeField === 'remainder' ? 1 : 2) : 4}
           disabled={feedback !== null || session.isComplete}
+          mode={keypadMode}
         />
 
         {debugMode ? (
