@@ -24,6 +24,12 @@ function PlayInner(): React.JSX.Element {
   const router = useRouter();
   const params = useSearchParams();
   const isDaily = params.get('daily') === '1';
+  // ?level=<1-11> のdeep-link（クイックスタート等から）。opは信用せずlevelから導出する。
+  const levelParam = params.get('level');
+  const deepLinkLevel =
+    levelParam !== null && Number.isInteger(Number(levelParam)) && Number(levelParam) >= 1 && Number(levelParam) <= 11
+      ? (Number(levelParam) as Exclude<LevelId, 'mix'>)
+      : null;
   // 正規ドメイン以外（localhost / SWAプレビュー / ?debug=1）でデバッグ機能を有効化
   const debugMode = isDebugEnv();
   const { currentUser, updateUser, saveUser, loaded } = useSansuUser();
@@ -41,8 +47,10 @@ function PlayInner(): React.JSX.Element {
     if (isDaily && !pick) {
       const lv = dailyLevel() as Exclude<LevelId, 'mix'>;
       setPick({ level: lv, operation: opOf(lv) });
+    } else if (!isDaily && deepLinkLevel !== null && !pick) {
+      setPick({ level: deepLinkLevel, operation: opOf(deepLinkLevel) });
     }
-  }, [isDaily, pick]);
+  }, [isDaily, deepLinkLevel, pick]);
 
   if (!loaded || !currentUser) return <main className="p-8" />;
 
