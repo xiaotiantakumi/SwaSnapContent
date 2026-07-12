@@ -11,6 +11,14 @@ export type MinigameId =
   | 'maze'
   | 'flappy'
   | 'pakupaku'
+  | 'oboete'
+  | 'swipesort'
+  | 'rhythmdon'
+  | 'starshooter'
+  | 'ponpon'
+  | 'airhockey'
+  | 'kururin'
+  | 'hitofude'
   | 'daruma';
 
 // gameId ごとの { しきい値: バッジID }（昇順）
@@ -50,6 +58,38 @@ const THRESHOLDS: Record<MinigameId, { score: number; badgeId: string }[]> = {
   pakupaku: [
     { score: 500, badgeId: 'pakupaku_debut' },
     { score: 2000, badgeId: 'pakupaku_glutton' },
+  ],
+  oboete: [
+    { score: 5, badgeId: 'oboete_sharp' },
+    { score: 10, badgeId: 'oboete_genius' },
+  ],
+  swipesort: [
+    { score: 15, badgeId: 'swipesort_quick' },
+    { score: 30, badgeId: 'swipesort_lightning' },
+  ],
+  rhythmdon: [
+    { score: 15, badgeId: 'rhythmdon_groovy' },
+    { score: 25, badgeId: 'rhythmdon_maestro' },
+  ],
+  starshooter: [
+    { score: 15, badgeId: 'starshooter_ace' },
+    { score: 35, badgeId: 'starshooter_hero' },
+  ],
+  ponpon: [
+    { score: 30, badgeId: 'ponpon_climber' },
+    { score: 80, badgeId: 'ponpon_skyhigh' },
+  ],
+  airhockey: [
+    { score: 5, badgeId: 'airhockey_rookie' },
+    { score: 10, badgeId: 'airhockey_champion' },
+  ],
+  kururin: [
+    { score: 2, badgeId: 'kururin_roller' },
+    { score: 5, badgeId: 'kururin_master' },
+  ],
+  hitofude: [
+    { score: 3, badgeId: 'hitofude_artist' },
+    { score: 6, badgeId: 'hitofude_master' },
   ],
   daruma: [
     { score: 300, badgeId: 'daruma_stopper' },

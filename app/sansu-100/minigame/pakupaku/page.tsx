@@ -109,7 +109,7 @@ export default function PakupakuPage(): React.JSX.Element {
           <>
             <Header
               title="👴 パクパクおじさん"
-              description="ドットを たべまくれ！おなかに きをつけて"
+              description="ドットを たべまくれ！おばけに きをつけて"
               showBackButton
               backHref="/sansu-100/minigame"
               backLabel="ゲームせんたくにもどる"
