@@ -10,11 +10,15 @@ import ThemeToggle from '../../components/theme-toggle';
 import BadgeUnlockOverlay from '../components/BadgeUnlockOverlay';
 import CoinBalance from '../components/CoinBalance';
 import FeverRoulette from '../components/FeverRoulette';
+import NextChallengeCard from '../components/NextChallengeCard';
 import { formatDuration } from '../components/SessionTimer';
+import ShareButton from '../components/ShareButton';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
 import type { CoinBreakdownEntry } from '../lib/coins';
-import type { SansuSession } from '../lib/types';
+import type { AnsweredProblem, SansuSession } from '../lib/types';
+
+const OP_SIGN: Record<string, string> = { add: '+', sub: '−', mul: '×', div: '÷' };
 
 type LastResult = {
   userId?: string;
@@ -27,6 +31,7 @@ type LastResult = {
   bestKey: string;
   previousBest: number | null;
   feverEligible?: boolean;
+  problems?: AnsweredProblem[];
 };
 
 export default function ResultPage(): React.JSX.Element {
@@ -155,13 +160,25 @@ export default function ResultPage(): React.JSX.Element {
             </div>
           ) : null}
 
+          <NextChallengeCard session={session} previousBest={previousBest} />
+
+          <WrongReview problems={result.problems} />
+
+          <div className="flex justify-end">
+            <ShareButton session={session} durationText={formatDuration(session.durationMs)} />
+          </div>
+
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-2 sm:flex-row">
               <button
                 type="button"
                 onClick={() => {
-                  const [lvPart, op] = result.bestKey.replace(/^lv/, '').split(':');
-                  router.replace(`/sansu-100/play?level=${lvPart}&op=${op}`);
+                  // op は信用せず level のみ渡す（play側で opOf() から安全に導出させる）。
+                  const lvPart = result.bestKey.replace(/^lv/, '').split(':')[0];
+                  const n = Number(lvPart);
+                  if (Number.isInteger(n) && n >= 1 && n <= 11) {
+                    router.replace(`/sansu-100/play?level=${n}`);
+                  }
                 }}
                 className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
                 data-testid="replay-same-btn"
@@ -237,6 +254,50 @@ function CoinEarnedCard({
           ))}
         </ul>
       ) : null}
+    </div>
+  );
+}
+
+function WrongReview({
+  problems,
+}: {
+  problems?: AnsweredProblem[];
+}): React.JSX.Element | null {
+  if (!problems) return null;
+  const wrong = problems.filter((p) => !p.isCorrect);
+  if (wrong.length === 0) return null;
+  return (
+    <div
+      className="rounded-xl bg-red-50 px-4 py-3 dark:bg-red-900/20"
+      data-testid="wrong-review-section"
+    >
+      <p className="mb-2 font-bold text-red-700 dark:text-red-300">
+        ❌ まちがえた もんだい × {wrong.length}
+      </p>
+      <ul className="grid grid-cols-2 gap-1 sm:grid-cols-3">
+        {wrong.map((p, i) => {
+          const sign = OP_SIGN[p.op] ?? p.op;
+          return (
+            <li
+              key={i}
+              className="rounded-lg bg-white px-3 py-2 text-sm dark:bg-gray-700"
+            >
+              <span className="text-gray-700 dark:text-gray-300">
+                {p.a} {sign} {p.b} ={' '}
+              </span>
+              <span className="font-bold text-green-600 dark:text-green-400">
+                {p.answer}
+                {p.remainder !== undefined ? ` あまり ${p.remainder}` : ''}
+              </span>
+              {p.userAnswer !== -1 && (
+                <span className="ml-1 text-xs text-red-500">
+                  （{p.userAnswer}）
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
