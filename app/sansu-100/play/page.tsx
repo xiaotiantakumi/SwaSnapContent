@@ -41,8 +41,17 @@ function PlayInner(): React.JSX.Element {
     if (isDaily && !pick) {
       const lv = dailyLevel() as Exclude<LevelId, 'mix'>;
       setPick({ level: lv, operation: opOf(lv) });
+      return;
     }
-  }, [isDaily, pick]);
+    const lvParam = params.get('level');
+    const opParam = params.get('op') as Operation | null;
+    if (lvParam && !pick) {
+      const id = Number(lvParam) as Exclude<LevelId, 'mix'>;
+      if (id >= 1 && id <= 11) {
+        setPick({ level: id, operation: opParam ?? opOf(id) });
+      }
+    }
+  }, [isDaily, pick, params]);
 
   if (!loaded || !currentUser) return <main className="p-8" />;
 
