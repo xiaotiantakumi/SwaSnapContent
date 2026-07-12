@@ -13,13 +13,15 @@ import CoinBalance from './components/CoinBalance';
 import DailyChallengeCard from './components/DailyChallengeCard';
 import PinPad from './components/PinPad';
 import StreakCard from './components/StreakCard';
+import TodaySummaryCard from './components/TodaySummaryCard';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
 import { sansuApi } from './lib/api-client';
 import { isDebugEnv } from './lib/debug-env';
 import { hashPin } from './lib/pin-hash';
-import type { SansuUserPublic } from './lib/types';
+import { storage } from './lib/storage';
+import type { SansuSession, SansuUserPublic } from './lib/types';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
@@ -29,6 +31,7 @@ export default function SansuHome(): React.JSX.Element {
   const { recentUsers, currentUser, selectUser, saveUser, loaded, refreshUsers } =
     useSansuUser();
   const seedDone = useRef(false);
+  const [todaySessions, setTodaySessions] = useState<SansuSession[]>([]);
   const [selectingUser, setSelectingUser] = useState<SansuUserPublic | null>(
     null
   );
@@ -37,6 +40,11 @@ export default function SansuHome(): React.JSX.Element {
   const [verifyingPin, setVerifyingPin] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [debugBusy, setDebugBusy] = useState(false);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    setTodaySessions(storage.getSessions(currentUser.id));
+  }, [currentUser]);
 
   // Auto-seed test users in dev mode on first mount
   useEffect(() => {
@@ -194,6 +202,7 @@ export default function SansuHome(): React.JSX.Element {
             >
               ▶︎ れんしゅう スタート！
             </button>
+            <TodaySummaryCard sessions={todaySessions} />
             <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/sansu-100/shop"
