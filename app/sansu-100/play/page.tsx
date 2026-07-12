@@ -47,7 +47,8 @@ function PlayInner(): React.JSX.Element {
   }, [loaded, currentUser, router]);
 
   useEffect(() => {
-    if (isDaily && !pick) {
+    if (pick) return;
+    if (isDaily) {
       const lv = dailyLevel() as Exclude<LevelId, 'mix'>;
       setPick({ level: lv, operation: opOf(lv) });
       setCounting(true);

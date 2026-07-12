@@ -168,26 +168,46 @@ export default function ResultPage(): React.JSX.Element {
             <ShareButton session={session} durationText={formatDuration(session.durationMs)} />
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => router.replace('/sansu-100/play')}
-              className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
-            >
-              🔁 もう1かい
-            </button>
-            <Link
-              href="/sansu-100/history"
-              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              📈 きろくをみる
-            </Link>
-            <Link
-              href="/sansu-100"
-              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            >
-              🏠 ホーム
-            </Link>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => {
+                  // op は信用せず level のみ渡す（play側で opOf() から安全に導出させる）。
+                  const lvPart = result.bestKey.replace(/^lv/, '').split(':')[0];
+                  const n = Number(lvPart);
+                  if (Number.isInteger(n) && n >= 1 && n <= 11) {
+                    router.replace(`/sansu-100/play?level=${n}`);
+                  }
+                }}
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
+                data-testid="replay-same-btn"
+              >
+                🔁 おなじレベルでもう1回
+              </button>
+              <button
+                type="button"
+                onClick={() => router.replace('/sansu-100/play')}
+                className="flex-1 rounded-lg bg-indigo-100 px-4 py-3 font-bold text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-200 dark:hover:bg-indigo-900/60"
+                data-testid="replay-pick-btn"
+              >
+                📋 べつのレベルを選ぶ
+              </button>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link
+                href="/sansu-100/history"
+                className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                📈 きろくをみる
+              </Link>
+              <Link
+                href="/sansu-100"
+                className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-center font-bold text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                🏠 ホーム
+              </Link>
+            </div>
           </div>
         </section>
       </div>
