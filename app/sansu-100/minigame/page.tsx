@@ -9,6 +9,7 @@ import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
 import CoinBalance from '../components/CoinBalance';
 import { useSansuUser } from '../hooks/useSansuUser';
+import { isAdminUserId } from '../lib/debug-env';
 import {
   MINIGAME_PLAYS_PER_MATH,
   SPEND_COSTS,
@@ -28,6 +29,7 @@ export default function MinigameHubPage(): React.JSX.Element {
 
   const coins = currentUser.coins ?? 0;
   const playCredits = currentUser.minigameCredits ?? 0;
+  const isAdmin = isAdminUserId(currentUser.id);
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-gray-900">
@@ -58,7 +60,7 @@ export default function MinigameHubPage(): React.JSX.Element {
           <CoinBalance coins={coins} size="lg" />
         </section>
 
-        {playCredits <= 0 ? (
+        {playCredits <= 0 && !isAdmin ? (
           <Link
             href="/sansu-100/play"
             className="block rounded-2xl bg-gradient-to-r from-orange-400 to-pink-500 p-5 text-center font-bold text-white shadow-md"
@@ -74,7 +76,7 @@ export default function MinigameHubPage(): React.JSX.Element {
 
         <div className="grid grid-cols-2 gap-3">
           {MINIGAMES.map((g) => {
-            const locked = playCredits <= 0;
+            const locked = playCredits <= 0 && !isAdmin;
             const best = currentUser.minigameScores?.[g.id];
             const card = (
               <div className="flex h-full flex-col items-center gap-1 rounded-2xl bg-white p-4 text-center shadow-md dark:bg-gray-800">
