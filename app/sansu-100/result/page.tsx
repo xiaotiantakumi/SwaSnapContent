@@ -10,6 +10,7 @@ import ThemeToggle from '../../components/theme-toggle';
 import BadgeUnlockOverlay from '../components/BadgeUnlockOverlay';
 import CoinBalance from '../components/CoinBalance';
 import FeverRoulette from '../components/FeverRoulette';
+import NextChallengeCard from '../components/NextChallengeCard';
 import { formatDuration } from '../components/SessionTimer';
 import ShareButton from '../components/ShareButton';
 import { useSansuUser } from '../hooks/useSansuUser';
@@ -155,6 +156,8 @@ export default function ResultPage(): React.JSX.Element {
               </div>
             </div>
           ) : null}
+
+          <NextChallengeCard session={session} previousBest={previousBest} />
 
           <div className="flex justify-end">
             <ShareButton session={session} durationText={formatDuration(session.durationMs)} />

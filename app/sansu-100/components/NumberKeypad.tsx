@@ -8,6 +8,9 @@ interface NumberKeypadProps {
   onSkip: () => void;
   maxLen?: number;
   disabled?: boolean;
+  /** 設定ページの「キーパッドモード」。既定は 'auto'（画面ボタン・物理キーボード両方が有効、従来どおりの挙動）。
+   * 'on-screen' は物理キーボードのリスナーを無効化し、'keyboard' は画面ボタンを非表示にする。 */
+  mode?: 'auto' | 'on-screen' | 'keyboard';
 }
 
 export default function NumberKeypad({
@@ -16,6 +19,7 @@ export default function NumberKeypad({
   onSkip,
   maxLen = 4,
   disabled = false,
+  mode = 'auto',
 }: NumberKeypadProps): React.JSX.Element {
   const press = useCallback(
     (k: string) => {
@@ -32,6 +36,7 @@ export default function NumberKeypad({
   );
 
   useEffect(() => {
+    if (mode === 'on-screen') return;
     const handler = (e: KeyboardEvent) => {
       if (disabled) return;
       if (e.key >= '0' && e.key <= '9') press(e.key);
@@ -40,7 +45,13 @@ export default function NumberKeypad({
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [press, disabled]);
+  }, [press, disabled, mode]);
+
+  if (mode === 'keyboard') {
+    // 物理キーボードのみで入力する運用（onKeyDownは上のeffectで既に有効）。
+    // 画面上のボタンは表示しないが、data-testidは維持して既存テストとの互換を保つ。
+    return <div data-testid="number-keypad" className="sr-only" aria-hidden="true" />;
+  }
 
   const Btn = ({ k, label, className }: { k: string; label?: string; className?: string }) => (
     <button

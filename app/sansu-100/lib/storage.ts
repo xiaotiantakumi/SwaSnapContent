@@ -83,7 +83,11 @@ export const storage = {
   },
 
   getSettings(): SansuSettings {
-    return safeGet<SansuSettings>(KEY_SETTINGS, DEFAULT_SETTINGS);
+    // 旧形式(一部キー欠落)でも未設定分がDEFAULT_SETTINGSで補われるようマージする
+    return {
+      ...DEFAULT_SETTINGS,
+      ...safeGet<Partial<SansuSettings>>(KEY_SETTINGS, DEFAULT_SETTINGS),
+    };
   },
   setSettings(s: SansuSettings): void {
     safeSet(KEY_SETTINGS, s);
