@@ -13,25 +13,29 @@ test.describe('今週のれんしゅうサマリー', () => {
         const user = {
           id: userId,
           name,
-          pinHash: '',
+          avatar: '🙂',
+          themeColor: '#3b82f6',
           createdAt: Date.now(),
+          totalPoints: 0,
+          earnedBadges: [] as string[],
+          bestTimesByLevel: {},
+          currentStreakDays: 0,
+          lastPlayedDate: '',
+          lastPlayedAt: 0,
           totalSessions: sessions.length,
           coins: 0,
-          earnedBadges: [],
           minigameScores: {},
           minigameCredits: 0,
-          avatarConfig: null,
-          ownedItems: [],
         };
-        localStorage.setItem('sansu_current_user', JSON.stringify(user));
+        localStorage.setItem('sansu-100:users', JSON.stringify([user]));
+        localStorage.setItem('sansu-100:current-user', JSON.stringify(userId));
         localStorage.setItem(
-          `sansu_sessions_${userId}`,
+          `sansu-100:sessions:${userId}`,
           JSON.stringify(sessions)
         );
-        localStorage.setItem(
-          'sansu_recent_users',
-          JSON.stringify([{ id: userId, name }])
-        );
+        // dev-seed(たろう等の自動ユーザー作成)を止め、seed直後にcurrentUserが
+        // 上書きされる競合を防ぐ
+        sessionStorage.setItem('sansu-100:dev-seeded', '1');
       },
       { userId, name, sessions }
     );
