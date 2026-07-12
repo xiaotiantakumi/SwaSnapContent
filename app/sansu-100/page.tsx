@@ -10,7 +10,9 @@ import ThemeToggle from '../components/theme-toggle';
 
 import AvatarDisplay from './components/AvatarDisplay';
 import CoinBalance from './components/CoinBalance';
+import DailyChallengeCard from './components/DailyChallengeCard';
 import PinPad from './components/PinPad';
+import StreakCard from './components/StreakCard';
 import UserTile from './components/UserTile';
 import { useSansuSync } from './hooks/useSansuSync';
 import { useSansuUser } from './hooks/useSansuUser';
@@ -182,6 +184,8 @@ export default function SansuHome(): React.JSX.Element {
                 {currentUser.earnedBadges.length}
               </p>
             </div>
+            <StreakCard user={currentUser} />
+            <DailyChallengeCard user={currentUser} />
             <button
               type="button"
               onClick={() => router.push('/sansu-100/play')}
@@ -227,6 +231,20 @@ export default function SansuHome(): React.JSX.Element {
                 data-testid="records-link"
               >
                 🏆 ベスト記録
+              </Link>
+              <Link
+                href="/sansu-100/badges"
+                className="rounded-lg bg-amber-200 px-3 py-2 text-center font-semibold text-amber-900 hover:bg-amber-300 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-900/60"
+                data-testid="badges-link"
+              >
+                🏅 バッジ図鑑
+              </Link>
+              <Link
+                href="/sansu-100/profile"
+                className="rounded-lg bg-blue-100 px-3 py-2 text-center font-semibold text-blue-900 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-100 dark:hover:bg-blue-900/60"
+                data-testid="profile-link"
+              >
+                📋 プロフィール
               </Link>
             </div>
             <button

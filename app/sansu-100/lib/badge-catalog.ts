@@ -114,6 +114,8 @@ export const BADGE_CATALOG: readonly BadgeDef[] = [
   { id: 'hitofude_master', category: 'minigame', name: 'せんの達人', description: 'ひとふでラインで6もんクリア', icon: '🖊️', tier: 'gold', rarity: 'epic' },
   { id: 'daruma_stopper', category: 'minigame', name: 'ぴたっと名人', description: 'だるまさんがころんだで300てん', icon: '🪆', tier: 'silver', rarity: 'rare' },
   { id: 'daruma_master', category: 'minigame', name: 'だるまの達人', description: 'だるまさんがころんだで1000てん', icon: '🎎', tier: 'gold', rarity: 'epic' },
+  { id: 'numberpop_starter', category: 'minigame', name: 'かずならべ名人', description: 'かずならべで30てん', icon: '🔢', tier: 'silver', rarity: 'rare' },
+  { id: 'numberpop_master', category: 'minigame', name: 'かずならべ王', description: 'かずならべで100てん', icon: '💯', tier: 'gold', rarity: 'epic' },
   { id: 'games_explorer', category: 'minigame', name: 'ゲームたんけんか', description: '5しゅるいの ゲームで あそんだ', icon: '🎮', tier: 'silver', rarity: 'rare' },
   { id: 'games_allstar', category: 'minigame', name: 'ゲームマスター', description: 'ぜんぶの ゲームで あそんだ', icon: '🏅', tier: 'rainbow', rarity: 'legendary' },
 
