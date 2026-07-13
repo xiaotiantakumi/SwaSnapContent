@@ -6,12 +6,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import Header from '../../components/header';
 import ThemeToggle from '../../components/theme-toggle';
+import CountdownOverlay from '../components/CountdownOverlay';
 import LevelPicker from '../components/LevelPicker';
 import NumberKeypad from '../components/NumberKeypad';
 import ProblemDisplay from '../components/ProblemDisplay';
 import ProgressBar from '../components/ProgressBar';
 import SessionTimer from '../components/SessionTimer';
 import { useSansuSession } from '../hooks/useSansuSession';
+import { useSansuSound } from '../hooks/useSansuSound';
 import { useSansuUser } from '../hooks/useSansuUser';
 import { sansuApi } from '../lib/api-client';
 import { dailyLevel } from '../lib/daily';
@@ -24,6 +26,12 @@ function PlayInner(): React.JSX.Element {
   const router = useRouter();
   const params = useSearchParams();
   const isDaily = params.get('daily') === '1';
+  // ?level=<1-11> のdeep-link（クイックスタート等から）。opは信用せずlevelから導出する。
+  const levelParam = params.get('level');
+  const deepLinkLevel =
+    levelParam !== null && Number.isInteger(Number(levelParam)) && Number(levelParam) >= 1 && Number(levelParam) <= 11
+      ? (Number(levelParam) as Exclude<LevelId, 'mix'>)
+      : null;
   // 正規ドメイン以外（localhost / SWAプレビュー / ?debug=1）でデバッグ機能を有効化
   const debugMode = isDebugEnv();
   const { currentUser, updateUser, saveUser, loaded } = useSansuUser();
@@ -31,6 +39,7 @@ function PlayInner(): React.JSX.Element {
     level: LevelId;
     operation: Operation;
   } | null>(null);
+  const [counting, setCounting] = useState(false);
 
   useEffect(() => {
     if (!loaded) return;
@@ -38,11 +47,16 @@ function PlayInner(): React.JSX.Element {
   }, [loaded, currentUser, router]);
 
   useEffect(() => {
-    if (isDaily && !pick) {
+    if (pick) return;
+    if (isDaily) {
       const lv = dailyLevel() as Exclude<LevelId, 'mix'>;
       setPick({ level: lv, operation: opOf(lv) });
+      setCounting(true);
+    } else if (!isDaily && deepLinkLevel !== null && !pick) {
+      setPick({ level: deepLinkLevel, operation: opOf(deepLinkLevel) });
+      setCounting(true);
     }
-  }, [isDaily, pick]);
+  }, [isDaily, deepLinkLevel, pick]);
 
   if (!loaded || !currentUser) return <main className="p-8" />;
 
@@ -61,11 +75,26 @@ function PlayInner(): React.JSX.Element {
             backLabel="ホームにもどる"
           />
           <LevelPicker
-            onPick={(level, operation) => setPick({ level, operation })}
+            onPick={(level, operation) => {
+              setPick({ level, operation });
+              setCounting(true);
+            }}
             feverWindowInterval={currentUser.feverWindowInterval}
             feverWindowUses={currentUser.feverWindowUses}
+            bestTimesByLevel={currentUser.bestTimesByLevel}
           />
         </div>
+        {counting ? (
+          <CountdownOverlay onDone={() => setCounting(false)} />
+        ) : null}
+      </main>
+    );
+  }
+
+  if (counting) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <CountdownOverlay onDone={() => setCounting(false)} />
       </main>
     );
   }
@@ -115,6 +144,7 @@ function PlaySession({
     operation: pick.operation,
     isDaily,
   });
+  const { play: playSound } = useSansuSound();
   const [input, setInput] = useState('');
   // あまりあり割り算用: あまりの入力と、入力中のマス
   const [remInput, setRemInput] = useState('');
@@ -122,8 +152,14 @@ function PlaySession({
     'quotient'
   );
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
+  const [combo, setCombo] = useState(0);
   const [showRetire, setShowRetire] = useState(false);
   const [retiring, setRetiring] = useState(false);
+  // 設定ページで選んだキーパッドモード（既定 'auto' = 画面ボタン・キーボード両方有効、従来どおり）
+  const [keypadMode, setKeypadMode] = useState<'auto' | 'on-screen' | 'keyboard'>('auto');
+  useEffect(() => {
+    setKeypadMode(storage.getSettings().keypadMode);
+  }, []);
   // 同期ガード: 完走/リタイヤの finishSession が二重起動（連打や再レンダ）しないよう、
   // state より先に効く ref で1回だけ確定させる。
   const finalizingRef = useRef(false);
@@ -143,7 +179,9 @@ function PlaySession({
       }
       const isCorrect =
         !isSkip && n === p.answer && (!remMode || r === p.remainder);
+      playSound(isCorrect ? 'correct' : 'wrong');
       setFeedback(isCorrect ? 'correct' : 'wrong');
+      setCombo((prev) => (isCorrect ? prev + 1 : 0));
       setTimeout(
         () => {
           session.submitAnswer(
@@ -158,7 +196,7 @@ function PlaySession({
         isCorrect ? 200 : 500
       );
     },
-    [session]
+    [session, playSound]
   );
 
   // キーパッド入力: いま入力中のマスに反映し、答えがそろったら自動で正解判定する。
@@ -196,6 +234,7 @@ function PlaySession({
   useEffect(() => {
     if (!session.isComplete || finalizingRef.current || !user) return;
     finalizingRef.current = true;
+    playSound('complete');
     const result = finishSession({
       user,
       level: pick.level,
@@ -226,6 +265,7 @@ function PlaySession({
           previousBest:
             user.bestTimesByLevel[`lv${pick.level}:${pick.operation}`] ?? null,
           feverEligible,
+          problems: session.answered,
         })
       );
       router.replace('/sansu-100/result');
@@ -261,6 +301,7 @@ function PlaySession({
     onFinishUpdate,
     onServerSync,
     router,
+    playSound,
   ]);
 
   if (!user) return <main className="p-8" />;
@@ -362,6 +403,21 @@ function PlaySession({
           correctCount={correctCount}
         />
 
+        {combo >= 3 ? (
+          <div
+            className={`text-center font-extrabold transition-all ${
+              combo >= 10
+                ? 'text-2xl text-red-500 dark:text-red-400'
+                : combo >= 5
+                  ? 'text-xl text-orange-500 dark:text-orange-400'
+                  : 'text-lg text-blue-500 dark:text-blue-400'
+            }`}
+            data-testid="combo-display"
+          >
+            🔥 {combo}れんせい！
+          </div>
+        ) : null}
+
         <div className="flex flex-1 items-center justify-center">
           {session.currentProblem ? <ProblemDisplay
               problem={session.currentProblem}
@@ -387,6 +443,7 @@ function PlaySession({
           onSkip={handleSkip}
           maxLen={isRemainderMode ? (activeField === 'remainder' ? 1 : 2) : 4}
           disabled={feedback !== null || session.isComplete}
+          mode={keypadMode}
         />
 
         {debugMode ? (
