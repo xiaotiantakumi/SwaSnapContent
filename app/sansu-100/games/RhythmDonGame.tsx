@@ -78,7 +78,10 @@ export default function RhythmDonGame({
     bgmSyncedRef.current = false;
 
     const bgm = new Audio(BGM_SRC);
-    bgm.loop = true;
+    // ループさせるとcurrentTimeが0付近に巻き戻り、経過時間ベースのゲーム終了判定が
+    // 一生成立しなくなる（判定ラインが凍りつく）ため、ループさせずBGM終了→pausedへ
+    // 遷移させ、getElapsedMsのDate.now()フォールバックで終了判定を成立させる。
+    bgm.loop = false;
     bgm.volume = BGM_VOLUME;
     bgmRef.current = bgm;
 
