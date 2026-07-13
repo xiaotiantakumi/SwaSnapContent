@@ -19,9 +19,12 @@ async function ensureTables(): Promise<void> {
     try {
       await svc.createTable(table);
     } catch (e) {
-      // ignore if already exists
+      // 409(既に存在)以外は再スローする。接続エラー等（statusCodeが無い）を
+      // ここで握りつぶすと、テーブルが実際には作られていないのに ensured=true
+      // が確定してしまい、以後そのプロセスの生存期間中ずっとテーブル未作成の
+      // まま失敗し続ける（次回呼び出しでのリトライが起きなくなる）。
       const status = (e as { statusCode?: number }).statusCode;
-      if (status && status !== 409) {
+      if (status !== 409) {
         throw e;
       }
     }

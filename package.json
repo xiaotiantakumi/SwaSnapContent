@@ -41,6 +41,7 @@
     "balance:maze": "tsx scripts/balance/maze-sim.ts",
     "balance:memory": "tsx scripts/balance/memory-sim.ts",
     "balance:rhythmdon": "tsx scripts/balance/rhythmdon-sim.ts",
+    "balance:daruma": "tsx scripts/balance/daruma-sim.ts",
     "prepare": "husky"
   },
   "lint-staged": {
