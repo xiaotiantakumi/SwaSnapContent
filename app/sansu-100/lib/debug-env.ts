@@ -7,6 +7,14 @@ export function isDebugEnv(): boolean {
   if (new URLSearchParams(window.location.search).get('debug') === '1') {
     return true;
   }
+  return isDebugHostOnly();
+}
+
+// `?debug=1` を含めない、ホスト名のみでの判定。
+// 本番ドメインで `?debug=1` を付けても true にならない（サーバー側 isDebugHost と同方針）。
+// コイン消費・算数ゲートのバイパスなど、本番で絶対に有効化してはいけない判定に使う。
+export function isDebugHostOnly(): boolean {
+  if (typeof window === 'undefined') return false;
   const h = window.location.hostname.toLowerCase();
   if (h === 'localhost' || h === '127.0.0.1') return true;
   // SWA の PR プレビュー: 例 black-field-00cc2da00-53.eastasia.6.azurestaticapps.net

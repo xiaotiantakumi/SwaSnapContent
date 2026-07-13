@@ -4,7 +4,7 @@
     "app": {
       "appDevserverUrl": "http://localhost:3000",
       "apiLocation": "api",
-      "run": "npm run dev",
+      "run": "cross-env PORT=3000 npm run dev",
       "appDevserverTimeout": 120000,
       "authEnabled": true,
       "configLocation": "staticwebapp.config.local.json"

@@ -1,3 +1,4 @@
+import { isDebugHostOnly } from './debug-env';
 import type { AvatarConfig, SansuSession, SansuUserPublic } from './types';
 
 const BASE = '/api/sansu';
@@ -190,10 +191,19 @@ export const sansuApi = {
     );
   },
   // ミニゲームの参加費/コンティニュー。残高不足は409→error返し。
+  // デバッグ環境(localhost/PRプレビュー)ではコイン消費・算数ゲートを課さず、
+  // 現在のユーザーをそのまま返して常に成功扱いにする（動作確認のためのプレイに毎回コインを
+  // 稼ぐ必要をなくすための開発者向けバイパス）。
+  // ここは isDebugHostOnly() を使い、ホスト名のみで判定する（`?debug=1` では有効化しない）。
+  // 経済ゲートのバイパスなので、本番ドメインでは絶対に有効化してはいけない。
   async spend(
     userId: string,
     reason: 'play' | 'continue' | 'dressup'
   ): Promise<{ ok: boolean; user?: SansuUserPublic; error?: string }> {
+    if (isDebugHostOnly()) {
+      const user = await this.getUser(userId);
+      return { ok: true, user: user ?? undefined };
+    }
     try {
       return await jsonFetch<{ ok: boolean; user?: SansuUserPublic }>(
         `${BASE}/spend`,

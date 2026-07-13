@@ -174,5 +174,20 @@ Before testing with Playwright:
 - Large content extraction may require increased Node.js memory limits
 - Markdown rendering is debounced (300ms) to prevent excessive re-renders
 
+## Game Audio / Music Generation (sansu-100 minigames)
+
+sansu-100 のミニゲーム用の楽曲・BGMは、Google AI Pro/Ultraサブスクの無料クォータ内で
+**Lyria 3 Pro** を使って生成できる（追加課金なし）。
+
+- 手順はグローバルスキル **`gemini-app-lyria-music-gen`**（gemini.google.com のブラウザUIから
+  3分のフルソングを生成）を使う。API課金経由で生成したい場合は **`openrouter-audio-gen`** も選択肢。
+- **重要な落とし穴**: Gemini appのモデル選択で **「3.1 Pro」を選ぶこと**。選び間違えると
+  Proプラン自体の制限ではなく単純なUI操作ミスでフルソング生成に失敗する。
+- 生成した音源は `public/sansu-100/audio/` 以下に英語のファイル名で配置し（例:
+  `public/sansu-100/audio/bgm/<track-name>.mp3`）、対象ゲームコンポーネントから
+  `new Audio('/sansu-100/audio/bgm/<track-name>.mp3')` で読み込んで再生する
+  （既存のミニゲームの効果音は `app/sansu-100/lib/sound-presets.ts` でWeb Audio合成しているが、
+  BGMのような長尺の音源は静的mp3ファイルを`public/`配下に置く方針とする）。
+
 ## Development Reminders
 - ちゃんとコミット前にビルドしたりテストしたりするようにして下さい。
