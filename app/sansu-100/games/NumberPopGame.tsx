@@ -23,14 +23,29 @@ function makeBubbles(count: number, round: number): Bubble[] {
     const j = Math.floor(Math.random() * (i + 1));
     [nums[i], nums[j]] = [nums[j], nums[i]];
   }
-  return nums.map((num, idx) => ({
-    id: idx,
-    num,
-    x: 8 + (idx % 3) * 30 + Math.random() * 12,
-    y: 10 + Math.floor(idx / 3) * 30 + Math.random() * 12,
-    tapped: false,
-    wrong: false,
-  }));
+  // count個をなるべく正方形に近い行×列のグリッドへ均等配置する。
+  // 列数に対して行数が足りない最終行は中央寄せにして、左詰めで浮いて見えるのを防ぐ。
+  const cols = Math.ceil(Math.sqrt(count));
+  const rows = Math.ceil(count / cols);
+  const cellW = 100 / cols;
+  const cellH = 100 / rows;
+  const jitter = Math.min(cellW, cellH) * 0.12; // セル内に収まる程度の揺らぎのみ
+  return nums.map((num, idx) => {
+    const row = Math.floor(idx / cols);
+    const itemsInRow = row === rows - 1 ? count - row * cols : cols;
+    const col = idx % cols;
+    const rowOffset = (cols - itemsInRow) / 2; // 最終行を中央寄せ
+    const x = (col + rowOffset + 0.5) * cellW + (Math.random() * 2 - 1) * jitter;
+    const y = (row + 0.5) * cellH + (Math.random() * 2 - 1) * jitter;
+    return {
+      id: idx,
+      num,
+      x: Math.min(95, Math.max(5, x)),
+      y: Math.min(90, Math.max(10, y)),
+      tapped: false,
+      wrong: false,
+    };
+  });
 }
 
 export default function NumberPopGame({
@@ -201,7 +216,11 @@ export default function NumberPopGame({
       ) : null}
 
       {/* Bubble field */}
-      <div className="relative mt-2 flex-1 rounded-2xl bg-sky-50 dark:bg-sky-900/20">
+      {/* 親側(page.tsx)がこのゲームの高さを固定していないため、h-full/flex-1だけでは
+          このdivの高さが0pxに潰れ、top:%指定のバブルが全て同じ行に重なって見える
+          （left:%は幅があるため効くが、topだけ効かず「並んでいない」ように見える）。
+          min-heightで確実に高さを確保する。 */}
+      <div className="relative mt-2 min-h-[280px] flex-1 rounded-2xl bg-sky-50 dark:bg-sky-900/20">
         {bubbles.map((b) => (
           <button
             key={b.id}

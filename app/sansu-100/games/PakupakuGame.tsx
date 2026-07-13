@@ -223,7 +223,11 @@ export default function PakupakuGame({
 
   // ドラッグ: 指を置いている間、動かした方向へ進み続ける（離すと止まる）。
   const touch = useRef<{ x: number; y: number } | null>(null);
-  const padBtn = 'flex h-12 w-12 items-center justify-center rounded-xl bg-gray-200 text-xl font-bold text-gray-700 active:bg-gray-300 dark:bg-gray-700 dark:text-gray-200';
+  const padBtn = 'flex h-12 w-12 select-none items-center justify-center rounded-xl bg-gray-200 text-xl font-bold text-gray-700 active:bg-gray-300 dark:bg-gray-700 dark:text-gray-200';
+  // 連打時にテキスト選択状態になり、ブラウザが選択範囲をリンクとして解釈して
+  // 別画面へ遷移してしまう事故を防ぐ（select-noneだけでは連打耐性が不十分なため
+  // pointerdown側でもpreventDefaultする）。
+  const noSelectStyle: React.CSSProperties = { touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' };
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -260,7 +264,8 @@ export default function PakupakuGame({
         <button
           type="button"
           className={padBtn}
-          onPointerDown={() => pressDir('up')}
+          style={noSelectStyle}
+          onPointerDown={(e) => { e.preventDefault(); pressDir('up'); }}
           onPointerUp={() => releaseDir('up')}
           onPointerLeave={() => releaseDir('up')}
           aria-label="うえ"
@@ -269,7 +274,8 @@ export default function PakupakuGame({
         <button
           type="button"
           className={padBtn}
-          onPointerDown={() => pressDir('left')}
+          style={noSelectStyle}
+          onPointerDown={(e) => { e.preventDefault(); pressDir('left'); }}
           onPointerUp={() => releaseDir('left')}
           onPointerLeave={() => releaseDir('left')}
           aria-label="ひだり"
@@ -278,7 +284,8 @@ export default function PakupakuGame({
         <button
           type="button"
           className={padBtn}
-          onPointerDown={() => pressDir('right')}
+          style={noSelectStyle}
+          onPointerDown={(e) => { e.preventDefault(); pressDir('right'); }}
           onPointerUp={() => releaseDir('right')}
           onPointerLeave={() => releaseDir('right')}
           aria-label="みぎ"
@@ -287,7 +294,8 @@ export default function PakupakuGame({
         <button
           type="button"
           className={padBtn}
-          onPointerDown={() => pressDir('down')}
+          style={noSelectStyle}
+          onPointerDown={(e) => { e.preventDefault(); pressDir('down'); }}
           onPointerUp={() => releaseDir('down')}
           onPointerLeave={() => releaseDir('down')}
           aria-label="した"

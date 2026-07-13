@@ -72,10 +72,15 @@ function draw(
       );
     }
   }
-  // プレイヤー
+  // プレイヤー（🦖は絵文字フォント上デフォルトで左向きのため、進行方向（右）を
+  // 向かせるために水平反転させて描く）
   const cx = (RUNNER.playerX + RUNNER.playerW / 2) * scale;
   const cy = yGround - (s.py + RUNNER.playerH / 2) * scale;
-  emoji(ctx, RUNNER_CHAR, cx, cy, RUNNER.playerH * scale * 1.5);
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(-1, 1);
+  emoji(ctx, RUNNER_CHAR, 0, 0, RUNNER.playerH * scale * 1.5);
+  ctx.restore();
 }
 
 // よけよけランナー本体。タップ/スペース/↑ でジャンプ。台に乗って降りられる。
@@ -164,18 +169,26 @@ export default function RunnerGame({
     <div className="flex flex-col items-center gap-3">
       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
         レベル {level} ・ きょり <span className="tabular-nums">{score}</span>
-        {flash ? (
-          <span className="ml-2 animate-pulse font-extrabold text-orange-500">
-            ⬆️ レベルアップ！
-          </span>
-        ) : null}
       </p>
-      <canvas
-        ref={canvasRef}
-        onPointerDown={jump}
-        className="rounded-xl shadow-md"
-        style={{ touchAction: 'none' }}
-      />
+      {/* レベルアップ表示はcanvasの上に絶対配置のオーバーレイとして重ねる。
+          スコア行に直接テキストを差し込むと行の高さが変わり、下のジャンプ操作の
+          位置がタップ中にずれてしまう（レイアウトシフト）ため、フローの外に置く。 */}
+      <div className="relative">
+        {flash ? (
+          <div
+            className="pointer-events-none absolute inset-x-0 top-2 z-10 animate-pulse text-center text-lg font-extrabold text-orange-500"
+            style={{ textShadow: '0 0 6px rgba(255,255,255,0.9)' }}
+          >
+            ⬆️ レベルアップ！
+          </div>
+        ) : null}
+        <canvas
+          ref={canvasRef}
+          onPointerDown={jump}
+          className="rounded-xl shadow-md"
+          style={{ touchAction: 'none' }}
+        />
+      </div>
       <button
         type="button"
         onClick={jump}

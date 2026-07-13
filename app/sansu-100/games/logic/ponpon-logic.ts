@@ -9,6 +9,13 @@ export const PLAT_H = 8;
 export const PLAT_GAP_MIN = 42;
 export const PLAT_GAP_MAX = 72;
 
+// 迫りあがる床（溶岩）: 一定の猶予の後、プレイヤーの高さに関係なく常に上へ迫ってくる。
+// これがないと、足場に乗ったまま登らずに待機し続ければ理論上ずっと続けられてしまう。
+export const RISE_GRACE = 260; // 開始位置からこの距離だけ下にある間は迫ってこない（初動の猶予）
+export const RISE_SPEED_BASE = 0.2; // 1tickあたりの上昇量（ワールドpx）
+export const RISE_SPEED_MAX = 1.1;
+export const RISE_ACCEL_PER_HEIGHT = 0.0025; // 到達した高さに応じて迫る速度が増していく
+
 export type Platform = { x: number; y: number };
 
 export interface GS {
@@ -18,6 +25,7 @@ export interface GS {
   platforms: Platform[];
   cameraY: number; // 画面上端に対応するワールドY（値が小さいほど高い）
   maxHeight: number; // これまでの最高到達スコア（登った高さ）
+  riseY: number; // 迫りあがる床のワールドY（値が小さいほど高い＝危険）
   over: boolean;
 }
 
@@ -38,6 +46,7 @@ export function createGS(rand: () => number): GS {
     platforms,
     cameraY: 0,
     maxHeight: 0,
+    riseY: H - 30 - PLAYER_R + RISE_GRACE,
     over: false,
   };
 }
@@ -90,8 +99,19 @@ export function tick(
     gs.platforms = gs.platforms.filter((p) => p.y < gs.cameraY + H + 100);
   }
 
-  // 画面（カメラ）の下端より下に落ちたら終了
-  if (gs.playerY - gs.cameraY > H + PLAYER_R * 3) {
+  // 迫りあがる床（溶岩）: 高さに関係なく常に上へ迫るので、登らずに待機し続ける
+  // 「無限耐久」ができないようにする。到達した高さが増えるほど迫る速さも上がる。
+  const riseSpeed = Math.min(
+    RISE_SPEED_MAX,
+    RISE_SPEED_BASE + gs.maxHeight * RISE_ACCEL_PER_HEIGHT
+  );
+  gs.riseY -= riseSpeed;
+
+  // 画面（カメラ）の下端より下に落ちたら終了、または迫りあがる床に飲まれたら終了
+  if (
+    gs.playerY - gs.cameraY > H + PLAYER_R * 3 ||
+    gs.playerY + PLAYER_R > gs.riseY
+  ) {
     gs.over = true;
     onEvent('over');
   }
