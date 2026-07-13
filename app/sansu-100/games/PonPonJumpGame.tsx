@@ -32,6 +32,16 @@ function draw(ctx: CanvasRenderingContext2D, gs: GS, scale: number): void {
     ctx.fillRect(p.x * scale, sy, PLAT_W * scale, PLAT_H * scale);
   }
 
+  // 迫りあがる床（溶岩）。画面下端より上にあるときだけ描画する。
+  const riseSy = (gs.riseY - gs.cameraY) * scale;
+  if (riseSy < H * scale) {
+    const top = Math.max(0, riseSy);
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(0, top, W * scale, H * scale - top);
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(0, top, W * scale, 4 * scale);
+  }
+
   ctx.fillStyle = '#f97316';
   ctx.beginPath();
   ctx.arc(
