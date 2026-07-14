@@ -17,6 +17,12 @@ import { sansuApi } from '../../lib/api-client';
 import { SPEND_COSTS } from '../../lib/minigame-economy';
 import { minigameHowTo } from '../../lib/minigame-list';
 import { evaluateMinigameBadges } from '../../lib/minigame-rewards';
+import {
+  DEFAULT_SONG_ID,
+  getSongById,
+  RHYTHM_SONGS,
+  type RhythmSong,
+} from '../../lib/rhythmdon-songs';
 
 type Phase = 'intro' | 'playing' | 'over';
 
@@ -30,6 +36,9 @@ export default function RhythmDonPage(): React.JSX.Element {
   const [busy, setBusy] = useState(false);
   const [overlayBadges, setOverlayBadges] = useState<string[]>([]);
   const [newRecord, setNewRecord] = useState(false);
+  const [selectedSongId, setSelectedSongId] = useState(DEFAULT_SONG_ID);
+
+  const selectedSong: RhythmSong = getSongById(selectedSongId);
 
   const coins = currentUser?.coins ?? 0;
 
@@ -125,6 +134,42 @@ export default function RhythmDonPage(): React.JSX.Element {
             <div className="flex justify-center">
               <CoinBalance coins={coins} />
             </div>
+            <div className="space-y-2 text-left">
+              <p className="text-center text-sm font-bold text-gray-700 dark:text-gray-200">
+                きょくを えらぶ
+              </p>
+              <div className="grid gap-2">
+                {RHYTHM_SONGS.map((song) => {
+                  const selected = song.id === selectedSongId;
+                  return (
+                    <label
+                      key={song.id}
+                      data-testid={`rhythmdon-song-${song.id}`}
+                      className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition-colors ${
+                        selected
+                          ? 'border-pink-500 bg-pink-50 dark:border-pink-400 dark:bg-pink-900/20'
+                          : 'border-gray-200 bg-gray-50 hover:border-pink-300 dark:border-gray-600 dark:bg-gray-700/50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="rhythmdon-song"
+                        value={song.id}
+                        checked={selected}
+                        onChange={() => setSelectedSongId(song.id)}
+                        className="sr-only"
+                      />
+                      <span className="text-2xl" aria-hidden>
+                        {song.emoji}
+                      </span>
+                      <span className="font-bold text-gray-800 dark:text-gray-100">
+                        {song.title}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
             <button
               type="button"
               disabled={busy}
@@ -139,7 +184,7 @@ export default function RhythmDonPage(): React.JSX.Element {
 
         {phase === 'playing' ? (
           <section className="rounded-2xl bg-white p-4 shadow-md dark:bg-gray-800">
-            <RhythmDonGame key={round} onGameOver={handleGameOver} />
+            <RhythmDonGame key={round} song={selectedSong} onGameOver={handleGameOver} />
           </section>
         ) : null}
 

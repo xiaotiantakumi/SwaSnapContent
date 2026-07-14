@@ -1,5 +1,7 @@
 export const TICK_MS = 50;
 
+export type BeatmapNote = { timeMs: number; lane: number };
+
 export type RhythmConfig = {
   lanes: number;
   noteTravelMs: number;
@@ -8,6 +10,7 @@ export type RhythmConfig = {
   hitWindowMs: number;
   missAtMs: number;
   lives: number;
+  beatmap?: BeatmapNote[];
 };
 
 // 開発者が曲を聴きながら調整する値（spawnIntervalMs, noteTravelMs 等）
@@ -64,7 +67,19 @@ export function stepRhythm(
     return;
   }
 
-  if (elapsedMs >= gs.nextSpawnAt) {
+  if (cfg.beatmap && cfg.beatmap.length > 0) {
+    while (gs.nextSpawnIdx < cfg.beatmap.length) {
+      const bm = cfg.beatmap[gs.nextSpawnIdx];
+      if (bm.timeMs - cfg.noteTravelMs > elapsedMs) break;
+      gs.notes.push({
+        id: gs.nextNoteId++,
+        lane: bm.lane,
+        spawnedAt: bm.timeMs - cfg.noteTravelMs,
+        resolved: false,
+      });
+      gs.nextSpawnIdx += 1;
+    }
+  } else if (elapsedMs >= gs.nextSpawnAt) {
     const lane = gs.nextSpawnIdx % cfg.lanes;
     gs.nextSpawnIdx += 1;
     gs.nextSpawnAt += cfg.spawnIntervalMs;

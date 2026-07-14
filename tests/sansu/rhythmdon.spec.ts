@@ -1,3 +1,6 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
@@ -94,6 +97,19 @@ test.describe('リズムでドン ミニゲーム', () => {
   });
 
   test('判定ラインのタイミングでタップするとスコアが増える', async ({ page }) => {
+    const beatmapPath = path.join(
+      process.cwd(),
+      'public/sansu-100/audio/beatmaps/shaved-ice-temperature.json'
+    );
+    const beatmap = JSON.parse(fs.readFileSync(beatmapPath, 'utf-8')) as {
+      notes: Array<{ timeMs: number; lane: number }>;
+    };
+    // リードイン・フィルタ後は notes[0] が確実に timeMs>=2000 の狙えるノーツ（id は 0）。
+    const targetNote = beatmap.notes[0];
+    if (!targetNote) {
+      throw new Error('No beatmap notes found');
+    }
+
     const name = uniqueName();
     await registerAndLogin(page, name);
     await earnCoinsViaDebug(page);
@@ -104,14 +120,25 @@ test.describe('リズムでドン ミニゲーム', () => {
 
     await expect(page.locator('[data-testid="rhythmdon-lane-0"]')).toBeVisible({ timeout: 8000 });
 
-    // ノーツはレーン0→1→2→3→0...の順で800ms間隔で出現し、
-    // 出現から1600ms後に判定ライン（ヒット窓 ±260ms）へ到達する決定的な挙動。
-    // 1つ目のノーツ（レーン0, spawn=0ms）は約1600ms後に判定ラインへ到達するので、
-    // そのタイミングでレーン0をタップしてヒットを狙う。
-    await page.waitForTimeout(1600);
-    await page.locator('[data-testid="rhythmdon-lane-0"]').click();
-
-    await expect(page.getByText(/スコア: [1-9]/)).toBeVisible({ timeout: 3000 });
+    // 最初のノーツ(rhythmdon-note-0)が出現したら、判定ライン到達（出現から noteTravelMs=1600ms 後）
+    // の前後にあるヒット窓(±260ms)を確実に捉えるため、対象レーンをポーリングしながら連打する。
+    // tapRhythm は窓外のタップを単に無視し（ライフ減少は stepRhythm のタイムアウト時のみ）、
+    // 連打してもペナルティが無いので、DOM 検出やクリックのレイテンシに依らず決定的にヒットを再現できる。
+    // start クリックからの絶対時間待ちだとセットアップ遅延（beatmap fetch＋BGM metadata 完了後に
+    // startGame でゲーム時計が起動）でフレークするため、ノーツ出現を起点にした相対ポーリングにしている。
+    await expect(page.locator('[data-testid="rhythmdon-note-0"]')).toBeVisible({ timeout: 8000 });
+    const laneBtn = page.locator(`[data-testid="rhythmdon-lane-${targetNote.lane}"]`);
+    const scoreHit = page.getByText(/スコア: [1-9]/);
+    let scored = false;
+    for (let i = 0; i < 25; i++) {
+      await laneBtn.click();
+      if (await scoreHit.isVisible()) {
+        scored = true;
+        break;
+      }
+      await page.waitForTimeout(100);
+    }
+    expect(scored).toBe(true);
   });
 
   test('制限時間が0になるとゲームオーバー画面が表示される', async ({ page }) => {
