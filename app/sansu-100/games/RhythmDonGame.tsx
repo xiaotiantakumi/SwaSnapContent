@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { DEFAULT_SONG_ID, getSongById, type RhythmSong } from '../lib/rhythmdon-songs';
 import { sound } from '../lib/sound-presets';
 import { storage } from '../lib/storage';
 
@@ -11,6 +12,7 @@ import {
   tapRhythm,
   DEFAULT_RHYTHM_CONFIG,
   TICK_MS,
+  type BeatmapNote,
   type RhythmConfig,
   type RhythmGS,
 } from './logic/rhythmdon-logic';
@@ -20,20 +22,26 @@ import {
 // タイミングが合えば正解、判定ラインを過ぎると1回ミス（ライフ-1）。
 // 制限時間経過 or ライフ0で終了。正解数がスコア。
 
-const BGM_SRC = '/sansu-100/audio/bgm/shaved-ice-temperature.mp3';
 const BGM_VOLUME = 0.35;
 
-function resolveGameDurationMs(audio: HTMLAudioElement): number {
+type BeatmapJson = {
+  notes: BeatmapNote[];
+  durationMs?: number;
+};
+
+function resolveGameDurationMs(audio: HTMLAudioElement, fallbackMs: number): number {
   const durationMs = Math.round(audio.duration * 1000);
   if (!Number.isFinite(durationMs) || durationMs <= 0) {
-    return DEFAULT_RHYTHM_CONFIG.gameDurationMs;
+    return fallbackMs;
   }
   return durationMs;
 }
 
 export default function RhythmDonGame({
+  song = getSongById(DEFAULT_SONG_ID),
   onGameOver,
 }: {
+  song?: RhythmSong;
   onGameOver: (score: number) => void;
 }): React.JSX.Element {
   const cfgRef = useRef<RhythmConfig>(DEFAULT_RHYTHM_CONFIG);
@@ -41,9 +49,9 @@ export default function RhythmDonGame({
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(DEFAULT_RHYTHM_CONFIG.lives);
   const [timeLeft, setTimeLeft] = useState(
-    Math.ceil(DEFAULT_RHYTHM_CONFIG.gameDurationMs / 1000)
+    Math.ceil(song.durationMs / 1000)
   );
-  const [flash, setFlash] = useState<number | null>(null); // ヒットしたレーンを一瞬光らせる
+  const [flash, setFlash] = useState<number | null>(null);
 
   const gsRef = useRef<RhythmGS>(createRhythmGS());
   const finishedRef = useRef(false);
@@ -77,10 +85,7 @@ export default function RhythmDonGame({
     finishedRef.current = false;
     bgmSyncedRef.current = false;
 
-    const bgm = new Audio(BGM_SRC);
-    // ループさせるとcurrentTimeが0付近に巻き戻り、経過時間ベースのゲーム終了判定が
-    // 一生成立しなくなる（判定ラインが凍りつく）ため、ループさせずBGM終了→pausedへ
-    // 遷移させ、getElapsedMsのDate.now()フォールバックで終了判定を成立させる。
+    const bgm = new Audio(song.audioSrc);
     bgm.loop = false;
     bgm.volume = BGM_VOLUME;
     bgmRef.current = bgm;
@@ -92,8 +97,10 @@ export default function RhythmDonGame({
     bgm.addEventListener('timeupdate', markBgmSynced);
 
     let interval: ReturnType<typeof setInterval> | null = null;
+    let cancelled = false;
 
     const startGame = (gameCfg: RhythmConfig): void => {
+      if (cancelled) return;
       cfgRef.current = gameCfg;
       gsRef.current = createRhythmGS(gameCfg);
       startRef.current = Date.now();
@@ -102,7 +109,7 @@ export default function RhythmDonGame({
 
       if (soundRef.current) {
         bgm.play().then(markBgmSynced).catch(() => {
-          // 自動再生ブロック等は無視（タップ操作後の再試行はしない: BGMは演出の一部で必須機能ではない）
+          // 自動再生ブロック等は無視
         });
       }
 
@@ -128,9 +135,34 @@ export default function RhythmDonGame({
       }, TICK_MS);
     };
 
+    const setupWithDuration = (beatmap: BeatmapNote[] | undefined, durationMs: number): void => {
+      const gameCfg: RhythmConfig = {
+        ...DEFAULT_RHYTHM_CONFIG,
+        gameDurationMs: durationMs,
+        ...(beatmap ? { beatmap } : {}),
+      };
+      startGame(gameCfg);
+    };
+
+    const loadBeatmapAndStart = async (): Promise<void> => {
+      try {
+        const res = await fetch(song.beatmapSrc);
+        if (!res.ok) throw new Error(`beatmap fetch failed: ${res.status}`);
+        const json = (await res.json()) as BeatmapJson;
+        const beatmapDuration = json.durationMs ?? 0;
+        const audioDuration = resolveGameDurationMs(bgm, song.durationMs);
+        const durationMs =
+          beatmapDuration > 0 ? beatmapDuration : audioDuration > 0 ? audioDuration : song.durationMs;
+        setupWithDuration(json.notes, durationMs);
+      } catch {
+        // beatmap 取得失敗時は従来の mechanical 生成にフォールバック
+        const durationMs = resolveGameDurationMs(bgm, song.durationMs);
+        setupWithDuration(undefined, durationMs);
+      }
+    };
+
     const onMetadata = (): void => {
-      const gameDurationMs = resolveGameDurationMs(bgm);
-      startGame({ ...DEFAULT_RHYTHM_CONFIG, gameDurationMs });
+      void loadBeatmapAndStart();
     };
 
     if (Number.isFinite(bgm.duration) && bgm.duration > 0) {
@@ -141,14 +173,14 @@ export default function RhythmDonGame({
     }
 
     return () => {
+      cancelled = true;
       if (interval) clearInterval(interval);
       bgm.removeEventListener('playing', markBgmSynced);
       bgm.removeEventListener('timeupdate', markBgmSynced);
       bgm.pause();
       bgmRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- マウント時に1回
-  }, [finish, getElapsedMs]);
+  }, [finish, getElapsedMs, song.id, song.audioSrc, song.beatmapSrc, song.durationMs]);
 
   const tapLane = useCallback(
     (lane: number) => {
@@ -194,7 +226,6 @@ export default function RhythmDonGame({
             className="absolute inset-y-0 border-r border-gray-700 last:border-r-0"
             style={{ left: `${(lane / cfg.lanes) * 100}%`, width: `${100 / cfg.lanes}%` }}
           >
-            {/* 判定ライン */}
             <div
               className={`absolute inset-x-0 bottom-10 h-1 ${
                 flash === lane ? 'bg-yellow-300' : 'bg-gray-500'
@@ -204,7 +235,7 @@ export default function RhythmDonGame({
         ))}
         {notes.map((n) => {
           const progress = Math.min(1.15, (now - n.spawnedAt) / cfg.noteTravelMs);
-          const topPct = progress * 78; // 判定ライン(bottom-10相当)付近まで
+          const topPct = progress * 78;
           return (
             <div
               key={n.id}
