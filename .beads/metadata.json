@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "SwaSnapContent",
+  "project_id": "609a8d85-845f-4de9-97c3-2dd933aa098a"
+}
