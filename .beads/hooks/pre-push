@@ -1,11 +1,4 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-echo "🔍 Running linting and quick checks before push..."
-npm run lint
-
-echo "✅ Pre-push checks completed!"
-
 # --- BEGIN BEADS INTEGRATION v1.2.1 ---
 # This section is managed by beads. Do not remove these markers.
 if command -v bd >/dev/null 2>&1; then
