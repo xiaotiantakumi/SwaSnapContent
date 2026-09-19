@@ -17,12 +17,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/sansu-100`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 1.0,
-    },
-    {
       url: `${BASE_URL}/url-extractor`,
       lastModified,
       changeFrequency: 'monthly',
