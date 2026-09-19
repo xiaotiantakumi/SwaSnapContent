@@ -19,17 +19,12 @@
     },
     "routes": [
         {
-            "route": "/sansu-100",
+            "route": "/sansu-100*",
             "redirect": "https://keisan.takumi-oda.com/",
             "statusCode": 301
         },
         {
-            "route": "/sansu-100/*",
-            "redirect": "https://keisan.takumi-oda.com/",
-            "statusCode": 301
-        },
-        {
-            "route": "/authenticated/sansu-100-admin/*",
+            "route": "/authenticated/sansu-100-admin*",
             "redirect": "https://keisan.takumi-oda.com/admin",
             "statusCode": 301
         },
