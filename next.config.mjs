@@ -30,6 +30,9 @@ const pwaConfig = {
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
+  // /sansu-100/* は keisan.takumi-oda.com へ 301 するので precache に入れない
+  // （別オリジンへのリダイレクトで precache が失敗し、SW のインストール自体が落ちるため）
+  publicExcludes: ['!noprecache/**/*', '!sansu-100/**/*'],
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.(?:gstatic|googleapis)\.com\/.*/i,

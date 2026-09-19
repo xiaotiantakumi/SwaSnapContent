@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import MovedRedirect from './MovedRedirect';
+
 const title = '100マス計算｜無料の計算ドリル・タイム計測アプリ';
 const description =
   '足し算・引き算・掛け算の100マス計算を無料でできる学習アプリ。タイムを計測してベスト記録を更新、毎日の計算練習を習慣化できます。スマホ・タブレット・PWA対応で小学生の計算力アップに。';
@@ -20,7 +22,7 @@ export const metadata: Metadata = {
     '無料',
   ],
   alternates: {
-    canonical: '/sansu-100',
+    canonical: 'https://keisan.takumi-oda.com/',
   },
   openGraph: {
     type: 'website',
@@ -51,5 +53,10 @@ export default function Sansu100Layout({
 }: {
   children: React.ReactNode;
 }): React.JSX.Element {
-  return <>{children}</>;
+  return (
+    <>
+      <MovedRedirect />
+      {children}
+    </>
+  );
 }

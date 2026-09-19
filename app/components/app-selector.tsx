@@ -35,9 +35,9 @@ const apps: AppOption[] = [
     color: 'bg-purple-500 hover:bg-purple-600',
   },
   {
-    title: '100マス計算',
-    description: 'たし算・ひき算・かけ算・わり算を100問。タイム・バッジ・グラフでゲーミフィケーション',
-    href: '/sansu-100',
+    title: '計算力アップ（旧 100マス計算）',
+    description: 'たし算・ひき算・かけ算・わり算の100マス計算。keisan.takumi-oda.com に引っ越しました',
+    href: 'https://keisan.takumi-oda.com/',
     icon: '🧮',
     color: 'bg-orange-500 hover:bg-orange-600',
   },
